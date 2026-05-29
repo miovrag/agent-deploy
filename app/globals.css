@@ -848,3 +848,28 @@ body { font: 400 14px/20px var(--cg-font); color: var(--cg-fg-2); background: va
 }
 .height-input-wrap[data-visible="false"] { max-height: 0; opacity: 0; }
 .height-input-wrap[data-visible="true"]  { max-height: 72px; opacity: 1; }
+
+/* ── Icon button tooltip ─────────────────────────────────────────────────────── */
+.icon-btn-wrap { position: relative; display: inline-flex; }
+.icon-btn-tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #fff;
+  color: var(--cg-fg-1);
+  font: 500 12px/16px var(--cg-font);
+  white-space: nowrap;
+  padding: 5px 9px;
+  border-radius: var(--cg-radius-sm);
+  box-shadow: 0 1px 2.2px rgba(0,0,0,0.25);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 120ms var(--cg-ease) 133ms,
+              transform 120ms var(--cg-ease) 133ms;
+  z-index: 20;
+}
+.icon-btn-wrap:hover .icon-btn-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}

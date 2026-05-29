@@ -323,23 +323,25 @@ function IconBtn({ title, onClick, children, active }: {
   active?: boolean;
 }) {
   return (
-    <button
-      title={title}
-      onClick={onClick}
-      style={{
-        width: 32, height: 32, flexShrink: 0,
-        border: "none", background: active ? "var(--cg-success-100)" : "transparent",
-        borderRadius: "var(--cg-radius)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        cursor: "pointer",
-        color: active ? "var(--cg-success-700)" : "var(--cg-fg-4)",
-        transition: "background var(--cg-dur-fast), color var(--cg-dur-fast)",
-      }}
-      onMouseEnter={e => !active && ((e.currentTarget as HTMLElement).style.background = "var(--cg-gray-100)")}
-      onMouseLeave={e => !active && ((e.currentTarget as HTMLElement).style.background = "transparent")}
-    >
-      {children}
-    </button>
+    <div className="icon-btn-wrap" style={{ position: "relative", display: "inline-flex" }}>
+      <button
+        onClick={onClick}
+        style={{
+          width: 32, height: 32, flexShrink: 0,
+          border: "none", background: active ? "var(--cg-success-100)" : "transparent",
+          borderRadius: "var(--cg-radius)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          cursor: "pointer",
+          color: active ? "var(--cg-success-700)" : "var(--cg-fg-4)",
+          transition: "background var(--cg-dur-fast), color var(--cg-dur-fast)",
+        }}
+        onMouseEnter={e => !active && ((e.currentTarget as HTMLElement).style.background = "var(--cg-gray-100)")}
+        onMouseLeave={e => !active && ((e.currentTarget as HTMLElement).style.background = "transparent")}
+      >
+        {children}
+      </button>
+      {title && <span className="icon-btn-tooltip">{title}</span>}
+    </div>
   );
 }
 
