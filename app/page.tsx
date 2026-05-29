@@ -180,17 +180,25 @@ function EditModal({
           </span>
         </div>
 
-        {/* Inline status — helper-12 token */}
-        <div style={{
-          minHeight: 20, marginTop: "var(--cg-sp-2)",
+        {/* Format rules — always visible, red on invalid */}
+        <p style={{
+          margin: "var(--cg-sp-2) 0 0",
+          fontSize: 12, lineHeight: "16px",
+          color: status === "invalid" ? "var(--cg-danger)" : "var(--cg-fg-4)",
+          transition: "color var(--cg-dur-fast)",
           display: "flex", alignItems: "flex-start", gap: "var(--cg-sp-1)",
         }}>
-          {status === "invalid" && <>
+          {status === "invalid" && (
             <IconAlertCircle size={13} style={{ color: "var(--cg-danger)", flexShrink: 0, marginTop: 1 }} />
-            <span style={{ fontSize: 12, lineHeight: "16px", color: "var(--cg-danger)" }}>
-              Subdomain must be 1–63 characters long, start with a Latin letter or number, and contain only Latin letters, numbers, or hyphens.
-            </span>
-          </>}
+          )}
+          Subdomain must be 1–63 characters long, start with a Latin letter or number, and contain only Latin letters, numbers, or hyphens.
+        </p>
+
+        {/* Availability / checking status */}
+        <div style={{
+          minHeight: 20, marginTop: "var(--cg-sp-1)",
+          display: "flex", alignItems: "flex-start", gap: "var(--cg-sp-1)",
+        }}>
           {status === "checking" && <>
             <IconLoader2 size={13} style={{ color: "var(--cg-fg-4)", animation: "spin 0.8s linear infinite", flexShrink: 0, marginTop: 1 }} />
             <span style={{ fontSize: 12, lineHeight: "16px", color: "var(--cg-fg-3)" }}>Checking availability…</span>
