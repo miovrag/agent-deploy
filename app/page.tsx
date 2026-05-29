@@ -24,6 +24,14 @@ function validateFormat(v: string) {
   return v.length >= 1 && v.length <= 63 && /^[a-z0-9][a-z0-9-]*$/.test(v);
 }
 
+/* ── Taken suggestions helper ───────────────────────────────────────────────── */
+function getSuggestions(taken: string): string[] {
+  return ["-2", "-help", "-chat"]
+    .map(s => taken + s)
+    .filter(s => validateFormat(s) && !TAKEN_BY_OTHERS.has(s))
+    .slice(0, 3);
+}
+
 /* ── Edit modal ─────────────────────────────────────────────────────────────── */
 function EditModal({
   currentPrefix,
@@ -36,9 +44,10 @@ function EditModal({
   onClose: () => void;
   onSave: (v: string) => void;
 }) {
-  const [val, setVal]       = useState(currentPrefix);
-  const [status, setStatus] = useState<InputStatus>("idle");
-  const [focused, setFocused] = useState(false);
+  const [val, setVal]             = useState(currentPrefix);
+  const [status, setStatus]       = useState<InputStatus>("idle");
+  const [focused, setFocused]     = useState(false);
+  const [hasBeenValid, setHasBeenValid] = useState(false);
   const inputRef  = useRef<HTMLInputElement>(null);
   const mirrorRef = useRef<HTMLSpanElement>(null);
   const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -49,21 +58,29 @@ function EditModal({
     const v = raw.toLowerCase().replace(/[^a-z0-9-]/g, "");
     setVal(v);
     if (timerRef.current) clearTimeout(timerRef.current);
-    if (!v)                          { setStatus("idle");     return; }
-    if (!validateFormat(v))          { setStatus("invalid");  return; }
-    if (v === currentPrefix)         { setStatus("idle");     return; }
+    if (!v)                 { setStatus("idle");    return; }
+    if (!validateFormat(v)) { setStatus("invalid"); return; }
+    if (v === currentPrefix){ setStatus("idle");    return; }
     setStatus("checking");
     timerRef.current = setTimeout(() => {
-      if (ownedHistory.has(v) && v !== currentPrefix) setStatus("own");
-      else if (TAKEN_BY_OTHERS.has(v))                setStatus("taken");
-      else                                             setStatus("available");
+      if (ownedHistory.has(v) && v !== currentPrefix) {
+        setStatus("own"); setHasBeenValid(true);
+      } else if (TAKEN_BY_OTHERS.has(v)) {
+        setStatus("taken");
+      } else {
+        setStatus("available"); setHasBeenValid(true);
+      }
     }, 550);
   }
 
-  const canSave = (status === "available" || status === "own") && val !== currentPrefix;
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" && canSave) onSave(val);
+  }
 
-  /* DS tokens: error border = --cg-danger, focus = --cg-primary, default = --cg-border */
-  const isErr    = status === "invalid" || status === "taken";
+  const canSave = (status === "available" || status === "own") && val !== currentPrefix;
+  const suggestions = status === "taken" ? getSuggestions(val) : [];
+
+  const isErr       = status === "invalid" || status === "taken";
   const borderColor = isErr ? "var(--cg-danger)" : focused ? "var(--cg-primary)" : "var(--cg-border)";
   const ringColor   = isErr
     ? (focused ? "rgba(234,84,85,0.16)" : "transparent")
@@ -73,7 +90,7 @@ function EditModal({
     <div
       style={{
         position: "fixed", inset: 0,
-        background: "rgba(23,23,23,0.5)",   /* bg-overlay token */
+        background: "rgba(23,23,23,0.5)",
         zIndex: 50,
         display: "flex", alignItems: "center", justifyContent: "center",
         padding: "var(--cg-sp-6)",
@@ -82,12 +99,13 @@ function EditModal({
     >
       {/* Close X */}
       <button
+        aria-label="Close modal"
         onClick={onClose}
         style={{
           position: "absolute",
           top: "calc(50% - 164px)", right: "calc(50% - 274px)",
           width: 32, height: 32,
-          borderRadius: "var(--cg-radius)",         /* radius-md = 8px */
+          borderRadius: "var(--cg-radius)",
           border: "1px solid var(--cg-border)",
           background: "var(--cg-bg-card)",
           display: "flex", alignItems: "center", justifyContent: "center",
@@ -101,7 +119,7 @@ function EditModal({
         <IconX size={14} />
       </button>
 
-      {/* Card — radius-lg = 16px per DS modal spec */}
+      {/* Card */}
       <div style={{
         background: "var(--cg-bg-card)",
         borderRadius: "var(--cg-radius-lg)",
@@ -111,7 +129,6 @@ function EditModal({
         animation: "modal-in 200ms var(--cg-ease)",
       }}>
 
-        {/* Title — h3: 20px / 600 */}
         <div style={{
           fontSize: 20, fontWeight: 600, lineHeight: "28px",
           color: "var(--cg-fg-1)", marginBottom: "var(--cg-sp-5)",
@@ -119,12 +136,12 @@ function EditModal({
           Custom share link
         </div>
 
-        {/* Seamless prefix + suffix input */}
+        {/* Input */}
         <div
           style={{
             display: "flex", alignItems: "center",
             border: `1px solid ${borderColor}`,
-            borderRadius: "var(--cg-radius)",        /* inputs: radius-md = 8px */
+            borderRadius: "var(--cg-radius)",
             padding: "var(--cg-sp-2) var(--cg-sp-4)",
             boxShadow: `0 0 0 3px ${ringColor}`,
             transition: "border-color var(--cg-dur-fast), box-shadow var(--cg-dur-fast)",
@@ -133,23 +150,17 @@ function EditModal({
           }}
           onClick={() => inputRef.current?.focus()}
         >
-          {/* Invisible sizing mirror */}
-          <span
-            ref={mirrorRef}
-            aria-hidden
-            style={{
-              position: "absolute", visibility: "hidden", whiteSpace: "pre",
-              fontSize: 14, fontFamily: "var(--cg-font)", pointerEvents: "none",
-            }}
-          >
+          <span ref={mirrorRef} aria-hidden style={{
+            position: "absolute", visibility: "hidden", whiteSpace: "pre",
+            fontSize: 14, fontFamily: "var(--cg-font)", pointerEvents: "none",
+          }}>
             {val || "x"}
           </span>
-
-          {/* Real input */}
           <input
             ref={inputRef}
             value={val}
             onChange={e => handleChange(e.target.value)}
+            onKeyDown={handleKeyDown}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             maxLength={63}
@@ -169,13 +180,17 @@ function EditModal({
               flexShrink: 0,
             }}
           />
-          {/* Fixed suffix — primary-48 tint */}
-          <span style={{
-            fontSize: 14, fontFamily: "var(--cg-font)",
-            color: "var(--cg-primary-48)",
-            whiteSpace: "nowrap",
-            userSelect: "none",
-          }}>
+          {/* Fixed suffix with tooltip explaining it's non-editable */}
+          <span
+            title="This domain is fixed and managed by CustomGPT. You can only change the prefix."
+            style={{
+              fontSize: 14, fontFamily: "var(--cg-font)",
+              color: "var(--cg-primary-48)",
+              whiteSpace: "nowrap",
+              userSelect: "none",
+              cursor: "default",
+            }}
+          >
             .customgpt-agents.com
           </span>
         </div>
@@ -194,61 +209,94 @@ function EditModal({
           Subdomain must be 1–63 characters long, start with a Latin letter or number, and contain only Latin letters, numbers, or hyphens.
         </p>
 
-        {/* Availability / checking status */}
+        {/* Availability status */}
         <div style={{
           minHeight: 20, marginTop: "var(--cg-sp-1)",
-          display: "flex", alignItems: "flex-start", gap: "var(--cg-sp-1)",
+          display: "flex", flexDirection: "column", gap: "var(--cg-sp-2)",
         }}>
-          {status === "checking" && <>
-            <IconLoader2 size={13} style={{ color: "var(--cg-fg-4)", animation: "spin 0.8s linear infinite", flexShrink: 0, marginTop: 1 }} />
-            <span style={{ fontSize: 12, lineHeight: "16px", color: "var(--cg-fg-3)" }}>Checking availability…</span>
-          </>}
-          {status === "taken" && <>
-            <IconAlertCircle size={13} style={{ color: "var(--cg-danger)", flexShrink: 0, marginTop: 1 }} />
-            <span style={{ fontSize: 12, lineHeight: "16px", color: "var(--cg-danger)" }}>
-              This subdomain is already taken. Please choose a different one.
-            </span>
-          </>}
-          {status === "available" && <>
-            <IconCheck size={13} style={{ color: "var(--cg-success-700)", flexShrink: 0, marginTop: 1 }} />
-            <span style={{ fontSize: 12, lineHeight: "16px", color: "var(--cg-success-700)" }}>Available</span>
-          </>}
-          {status === "own" && <>
-            <IconCheck size={13} style={{ color: "var(--cg-success-700)", flexShrink: 0, marginTop: 1 }} />
-            <span style={{ fontSize: 12, lineHeight: "16px", color: "var(--cg-success-700)" }}>
-              Your previous subdomain — you can reclaim it.
-            </span>
-          </>}
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--cg-sp-1)" }}>
+            {status === "checking" && <>
+              <IconLoader2 size={13} style={{ color: "var(--cg-fg-4)", animation: "spin 0.8s linear infinite", flexShrink: 0, marginTop: 1 }} />
+              <span style={{ fontSize: 12, lineHeight: "16px", color: "var(--cg-fg-3)" }}>Checking availability…</span>
+            </>}
+            {status === "taken" && <>
+              <IconAlertCircle size={13} style={{ color: "var(--cg-danger)", flexShrink: 0, marginTop: 1 }} />
+              <span style={{ fontSize: 12, lineHeight: "16px", color: "var(--cg-danger)" }}>
+                This subdomain is already taken. Please choose a different one.
+              </span>
+            </>}
+            {status === "available" && <>
+              <IconCheck size={13} style={{ color: "var(--cg-success-700)", flexShrink: 0, marginTop: 1 }} />
+              <span style={{ fontSize: 12, lineHeight: "16px", color: "var(--cg-success-700)" }}>Available</span>
+            </>}
+            {status === "own" && <>
+              <IconCheck size={13} style={{ color: "var(--cg-success-700)", flexShrink: 0, marginTop: 1 }} />
+              <span style={{ fontSize: 12, lineHeight: "16px", color: "var(--cg-success-700)" }}>
+                Your previous subdomain — you can reclaim it.
+              </span>
+            </>}
+          </div>
+
+          {/* Suggestions — shown when taken */}
+          {suggestions.length > 0 && (
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--cg-sp-2)", flexWrap: "wrap" }}>
+              <span style={{ fontSize: 12, color: "var(--cg-fg-4)" }}>Try:</span>
+              {suggestions.map(s => (
+                <button
+                  key={s}
+                  onClick={() => handleChange(s)}
+                  style={{
+                    fontSize: 12, fontFamily: "var(--cg-font)",
+                    color: "var(--cg-primary)",
+                    background: "var(--cg-primary-8)",
+                    border: "1px solid var(--cg-primary-16)",
+                    borderRadius: "var(--cg-radius-full)",
+                    padding: "2px var(--cg-sp-2)",
+                    cursor: "pointer",
+                    transition: "background var(--cg-dur-fast)",
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = "var(--cg-primary-16)")}
+                  onMouseLeave={e => (e.currentTarget.style.background = "var(--cg-primary-8)")}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Warning alert — standard alert: white bg, primary text, default border */}
-        <div className="cg-alert" style={{
-          marginBottom: 0, marginTop: "var(--cg-sp-5)",
-          background: "var(--cg-bg-card)",
-          color: "var(--cg-primary)",
-          border: "1px solid var(--cg-border)",
-        }}>
-          <IconAlertCircle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
-          <p style={{ margin: 0, fontSize: 13, lineHeight: "18px" }}>
-            <strong>Changing the subdomain takes effect immediately.</strong>{" "}
-            Any links using the previous subdomain will stop working right away, which may disrupt users who already have access to those links.
-          </p>
-        </div>
+        {/* Warning — revealed progressively once a valid+available name is entered */}
+        {hasBeenValid && (
+          <div
+            role="alert"
+            className="cg-alert"
+            style={{
+              marginBottom: 0, marginTop: "var(--cg-sp-5)",
+              background: "var(--cg-bg-card)",
+              color: "var(--cg-primary)",
+              border: "1px solid var(--cg-border)",
+              animation: "modal-in 200ms var(--cg-ease)",
+            }}
+          >
+            <IconAlertCircle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
+            <p style={{ margin: 0, fontSize: 13, lineHeight: "18px" }}>
+              <strong>Changing the subdomain takes effect immediately.</strong>{" "}
+              Any links using the previous subdomain will stop working right away, which may disrupt users who already have access to those links.
+            </p>
+          </div>
+        )}
+
+        {/* Spacer to keep footer position stable when warning is hidden */}
+        {!hasBeenValid && <div style={{ marginTop: "var(--cg-sp-5)" }} />}
 
         {/* Footer */}
         <div style={{
           display: "flex", justifyContent: "flex-end",
           gap: "var(--cg-sp-2)", marginTop: "var(--cg-sp-5)",
         }}>
-          {/* Cancel — btn-outline (secondary) */}
-          <button
-            onClick={onClose}
-            className="cg-btn cg-btn-outline"
-          >
+          <button onClick={onClose} className="cg-btn cg-btn-outline">
             Cancel
           </button>
-
-          {/* CTA — btn-destructive; disabled state uses .is-disabled */}
           <button
             disabled={!canSave}
             onClick={() => canSave && onSave(val)}
