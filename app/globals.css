@@ -800,3 +800,51 @@ body { font: 400 14px/20px var(--cg-font); color: var(--cg-fg-2); background: va
 .helper-link { font: 500 12px/16px var(--cg-font); color: var(--cg-primary); text-decoration: none; }
 .helper-link:hover { text-decoration: underline; }
 .sub-section { margin-top: 12px; padding-left: 14px; border-left: 2px solid var(--cg-divider); }
+
+/* ── Live Chat Settings modal ────────────────────────────────────────────────── */
+.cg-radio {
+  appearance: none; -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border: 1.5px solid var(--cg-gray-300);
+  border-radius: 50%; cursor: pointer; flex-shrink: 0;
+  transition: border-color var(--cg-dur-fast);
+  background-color: transparent; position: relative;
+}
+.cg-radio:checked {
+  border-color: var(--cg-primary);
+  background: radial-gradient(circle, var(--cg-primary) 38%, transparent 42%);
+}
+.cg-radio:hover:not(:checked) { border-color: var(--cg-primary-24); }
+.cg-radio:focus-visible { outline: 2px solid var(--cg-primary-16); outline-offset: 2px; }
+
+.modal-body::-webkit-scrollbar { width: 5px; }
+.modal-body::-webkit-scrollbar-track { background: transparent; }
+.modal-body::-webkit-scrollbar-thumb { background: var(--cg-gray-200); border-radius: var(--cg-radius-full); }
+.modal-body::-webkit-scrollbar-thumb:hover { background: var(--cg-gray-300); }
+
+.spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: #fff; border-radius: 50%;
+  animation: spin 0.7s linear infinite; flex-shrink: 0;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-8px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.toast-enter { animation: slideDown 200ms var(--cg-ease) forwards; }
+
+.upgrade-drawer {
+  overflow: hidden;
+  transition: max-height 220ms var(--cg-ease), opacity 200ms var(--cg-ease);
+}
+.upgrade-drawer[data-open="false"] { max-height: 0; opacity: 0; }
+.upgrade-drawer[data-open="true"]  { max-height: 160px; opacity: 1; }
+
+.height-input-wrap {
+  overflow: hidden;
+  transition: max-height 150ms var(--cg-ease), opacity 150ms;
+}
+.height-input-wrap[data-visible="false"] { max-height: 0; opacity: 0; }
+.height-input-wrap[data-visible="true"]  { max-height: 72px; opacity: 1; }

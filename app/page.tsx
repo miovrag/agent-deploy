@@ -10,6 +10,7 @@ import {
   IconAlertCircle, IconLoader2, IconBolt, IconSend,
   IconBrandSlack,
 } from "@tabler/icons-react";
+import LiveChatSettingsModal from "@/components/modal/LiveChatSettingsModal";
 
 /* ── Mock data ──────────────────────────────────────────────────────────────── */
 const AGENT_ID   = "95211";
@@ -212,8 +213,13 @@ function EditModal({
           </>}
         </div>
 
-        {/* Warning alert — cg-alert + cg-alert-danger DS class */}
-        <div className="cg-alert cg-alert-danger" style={{ marginBottom: 0, marginTop: "var(--cg-sp-5)" }}>
+        {/* Warning alert — standard alert: white bg, primary text, default border */}
+        <div className="cg-alert" style={{
+          marginBottom: 0, marginTop: "var(--cg-sp-5)",
+          background: "var(--cg-bg-card)",
+          color: "var(--cg-primary)",
+          border: "1px solid var(--cg-border)",
+        }}>
           <IconAlertCircle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
           <p style={{ margin: 0, fontSize: 13, lineHeight: "18px" }}>
             <strong>Changing the subdomain takes effect immediately.</strong>{" "}
@@ -336,7 +342,7 @@ function SectionHeading({ label, actions }: {
 }
 
 /* ── Share tab ──────────────────────────────────────────────────────────────── */
-function ShareTab({ prefix, onEdit }: { prefix: string; onEdit: () => void }) {
+function ShareTab({ prefix, onEdit, onLiveChatSettings }: { prefix: string; onEdit: () => void; onLiveChatSettings: () => void }) {
   const [copied, setCopied] = useState(false);
   const fullUrl = `https://${prefix}.customgpt-agents.com`;
 
@@ -410,24 +416,26 @@ p_key="${AGENT_KEY}"></script>`;
           label="Add a live chat to your website"
           actions={
             <>
-              {/* btn-outline (secondary) — DS spec */}
               <button className="cg-btn cg-btn-outline cg-btn-sm">Try it out</button>
-              <button style={{
-                width: 32, height: 32, border: "1px solid var(--cg-border)",
-                borderRadius: "var(--cg-radius)", background: "transparent",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "pointer", color: "var(--cg-fg-3)",
-                transition: "background var(--cg-dur-fast)",
-              }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "var(--cg-gray-100)")}
-                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "transparent")}
+              <button
+                onClick={onLiveChatSettings}
+                title="Live chat settings"
+                style={{
+                  width: 32, height: 32, border: "1px solid var(--cg-border)",
+                  borderRadius: "var(--cg-radius)", background: "transparent",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  cursor: "pointer", color: "var(--cg-fg-3)",
+                  transition: "background var(--cg-dur-fast), color var(--cg-dur-fast)",
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "var(--cg-gray-100)"; (e.currentTarget as HTMLElement).style.color = "var(--cg-fg-1)"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "var(--cg-fg-3)"; }}
               >
                 <IconSettings size={15} />
               </button>
             </>
           }
         />
-        <p style={{ fontSize: 13, color: "var(--cg-fg-3)", marginBottom: 12 }}>
+        <p style={{ fontSize: 14, color: "var(--cg-fg-3)", marginBottom: "var(--cg-sp-3)" }}>
           To add a chat widget in the bottom right corner, copy the following code and paste it anywhere
           inside the &lt;body&gt; section of your webpage.
         </p>
@@ -630,11 +638,12 @@ const tabs = [
 
 /* ── Page ───────────────────────────────────────────────────────────────────── */
 export default function DeployPage() {
-  const [activeTab, setActiveTab]   = useState("share");
-  const [prefix, setPrefix]         = useState(INITIAL_PREFIX);
-  const [modalOpen, setModalOpen]   = useState(false);
-  const [toast, setToast]           = useState<string | null>(null);
-  const [ownedHistory]              = useState(() => new Set([INITIAL_PREFIX]));
+  const [activeTab, setActiveTab]        = useState("share");
+  const [prefix, setPrefix]              = useState(INITIAL_PREFIX);
+  const [modalOpen, setModalOpen]        = useState(false);
+  const [liveChatModalOpen, setLiveChatModalOpen] = useState(false);
+  const [toast, setToast]                = useState<string | null>(null);
+  const [ownedHistory]                   = useState(() => new Set([INITIAL_PREFIX]));
 
   function handleSave(newPrefix: string) {
     ownedHistory.add(prefix);
@@ -724,7 +733,7 @@ export default function DeployPage() {
         {/* Content */}
         <main style={{ flex: 1, overflowY: "auto" }}>
           {activeTab === "share" && (
-            <ShareTab prefix={prefix} onEdit={() => setModalOpen(true)} />
+            <ShareTab prefix={prefix} onEdit={() => setModalOpen(true)} onLiveChatSettings={() => setLiveChatModalOpen(true)} />
           )}
           {activeTab !== "share" && (
             <div style={{ padding: "var(--cg-sp-12) var(--cg-sp-8)", textAlign: "center", color: "var(--cg-fg-4)", fontSize: 14 }}>
@@ -741,6 +750,10 @@ export default function DeployPage() {
           onClose={() => setModalOpen(false)}
           onSave={handleSave}
         />
+      )}
+
+      {liveChatModalOpen && (
+        <LiveChatSettingsModal onClose={() => setLiveChatModalOpen(false)} />
       )}
 
       {/* Toast — cg-alert-success pattern */}
