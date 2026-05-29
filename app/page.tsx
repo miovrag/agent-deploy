@@ -475,21 +475,23 @@ p_key="${AGENT_KEY}"></script>`;
           actions={
             <>
               <button className="cg-btn cg-btn-outline cg-btn-sm">Try it out</button>
-              <button
-                onClick={onLiveChatSettings}
-                title="Live chat settings"
-                style={{
-                  width: 32, height: 32, border: "1px solid var(--cg-border)",
-                  borderRadius: "var(--cg-radius)", background: "transparent",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  cursor: "pointer", color: "var(--cg-fg-3)",
-                  transition: "background var(--cg-dur-fast), color var(--cg-dur-fast)",
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "var(--cg-gray-100)"; (e.currentTarget as HTMLElement).style.color = "var(--cg-fg-1)"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "var(--cg-fg-3)"; }}
-              >
-                <IconSettings size={15} />
-              </button>
+              <div className="icon-btn-wrap">
+                <button
+                  onClick={onLiveChatSettings}
+                  style={{
+                    width: 32, height: 32, border: "1px solid var(--cg-border)",
+                    borderRadius: "var(--cg-radius)", background: "transparent",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    cursor: "pointer", color: "var(--cg-fg-3)",
+                    transition: "background var(--cg-dur-fast), color var(--cg-dur-fast)",
+                  }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "var(--cg-gray-100)"; (e.currentTarget as HTMLElement).style.color = "var(--cg-fg-1)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "var(--cg-fg-3)"; }}
+                >
+                  <IconSettings size={15} />
+                </button>
+                <span className="icon-btn-tooltip">Live chat settings</span>
+              </div>
             </>
           }
         />
@@ -510,18 +512,21 @@ p_key="${AGENT_KEY}"></script>`;
           actions={
             <>
               <button className="cg-btn cg-btn-outline cg-btn-sm">Try it out</button>
-              <button style={{
-                width: 32, height: 32, border: "1px solid var(--cg-border)",
-                borderRadius: "var(--cg-radius)", background: "transparent",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "pointer", color: "var(--cg-fg-3)",
-                transition: "background var(--cg-dur-fast)",
-              }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "var(--cg-gray-100)")}
-                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "transparent")}
-              >
-                <IconSettings size={15} />
-              </button>
+              <div className="icon-btn-wrap">
+                <button style={{
+                  width: 32, height: 32, border: "1px solid var(--cg-border)",
+                  borderRadius: "var(--cg-radius)", background: "transparent",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  cursor: "pointer", color: "var(--cg-fg-3)",
+                  transition: "background var(--cg-dur-fast), color var(--cg-dur-fast)",
+                }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = "var(--cg-gray-100)"; (e.currentTarget as HTMLElement).style.color = "var(--cg-fg-1)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = "transparent"; (e.currentTarget as HTMLElement).style.color = "var(--cg-fg-3)"; }}
+                >
+                  <IconSettings size={15} />
+                </button>
+                <span className="icon-btn-tooltip">Embed settings</span>
+              </div>
             </>
           }
         />
