@@ -170,12 +170,12 @@ function EditModal({
           </span>
         </div>
 
-        {/* Status */}
+        {/* Inline status notices */}
         <div style={{ minHeight: 20, marginTop: 6, display: "flex", alignItems: "center", gap: 5 }}>
           {status === "invalid" && <>
             <IconAlertCircle size={13} style={{ color: "var(--cg-danger)", flexShrink: 0 }} />
             <span style={{ fontSize: 12, color: "var(--cg-danger)" }}>
-              Only letters, numbers, and hyphens. Must start with a letter or digit.
+              Subdomain must be 1–63 characters long, start with a Latin letter or number, and contain only Latin letters, numbers, or hyphens.
             </span>
           </>}
           {status === "checking" && <>
@@ -184,7 +184,7 @@ function EditModal({
           </>}
           {status === "taken" && <>
             <IconAlertCircle size={13} style={{ color: "var(--cg-danger)", flexShrink: 0 }} />
-            <span style={{ fontSize: 12, color: "var(--cg-danger)" }}>This subdomain is taken by another account.</span>
+            <span style={{ fontSize: 12, color: "var(--cg-danger)" }}>This subdomain is already taken. Please choose a different one.</span>
           </>}
           {status === "available" && <>
             <IconCheck size={13} style={{ color: "var(--cg-success-700)", flexShrink: 0 }} />
@@ -194,6 +194,21 @@ function EditModal({
             <IconCheck size={13} style={{ color: "var(--cg-success-700)", flexShrink: 0 }} />
             <span style={{ fontSize: 12, color: "var(--cg-success-700)" }}>Your previous subdomain — you can reclaim it.</span>
           </>}
+        </div>
+
+        {/* Red warning — always visible */}
+        <div style={{
+          marginTop: 18,
+          padding: "12px 14px",
+          borderRadius: "var(--cg-radius-sm)",
+          background: "var(--cg-danger-100)",
+          border: "1px solid rgba(234,84,85,0.3)",
+          display: "flex", alignItems: "flex-start", gap: 10,
+        }}>
+          <IconAlertCircle size={16} style={{ color: "var(--cg-danger)", flexShrink: 0, marginTop: 1 }} />
+          <p style={{ margin: 0, fontSize: 13, lineHeight: 1.55, color: "var(--cg-danger-700)" }}>
+            <strong>Changing the subdomain takes effect immediately.</strong> Any links using the previous subdomain will stop working right away, which may disrupt users who already have access to those links.
+          </p>
         </div>
 
         {/* Footer */}
@@ -217,18 +232,19 @@ function EditModal({
             disabled={!canSave}
             onClick={() => canSave && onSave(val)}
             style={{
-              padding: "8px 24px",
+              padding: "8px 20px",
               borderRadius: "var(--cg-radius-sm)",
               border: "none",
-              background: canSave ? "var(--cg-primary)" : "var(--cg-primary-24)",
-              fontSize: 14, fontWeight: 600,
+              background: canSave ? "var(--cg-danger)" : "rgba(234,84,85,0.3)",
+              fontSize: 13, fontWeight: 600,
               color: "#fff",
               cursor: canSave ? "pointer" : "not-allowed",
               transition: "background 120ms",
               fontFamily: "var(--cg-font)",
+              whiteSpace: "nowrap",
             }}
           >
-            Save
+            I understand and want to proceed
           </button>
         </div>
       </div>
