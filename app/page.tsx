@@ -61,10 +61,10 @@ function EditModal({
 
   const canSave = (status === "available" || status === "own") && val !== currentPrefix;
 
-  const borderColor = status === "invalid" || status === "taken"
-    ? "var(--cg-danger)"
-    : focused ? "var(--cg-primary)" : "var(--cg-border)";
-  const ringColor = status === "invalid" || status === "taken"
+  /* DS tokens: error border = --cg-danger, focus = --cg-primary, default = --cg-border */
+  const isErr    = status === "invalid" || status === "taken";
+  const borderColor = isErr ? "var(--cg-danger)" : focused ? "var(--cg-primary)" : "var(--cg-border)";
+  const ringColor   = isErr
     ? (focused ? "rgba(234,84,85,0.16)" : "transparent")
     : focused ? "var(--cg-primary-16)" : "transparent";
 
@@ -72,41 +72,49 @@ function EditModal({
     <div
       style={{
         position: "fixed", inset: 0,
-        background: "rgba(23,23,23,0.45)",
+        background: "rgba(23,23,23,0.5)",   /* bg-overlay token */
         zIndex: 50,
         display: "flex", alignItems: "center", justifyContent: "center",
-        padding: 24,
+        padding: "var(--cg-sp-6)",
       }}
       onClick={e => e.target === e.currentTarget && onClose()}
     >
-      {/* Close X (floats outside card) */}
+      {/* Close X */}
       <button
         onClick={onClose}
         style={{
           position: "absolute",
-          top: "calc(50% - 160px)", right: "calc(50% - 470px)",
+          top: "calc(50% - 164px)", right: "calc(50% - 274px)",
           width: 32, height: 32,
-          borderRadius: "var(--cg-radius-sm)",
+          borderRadius: "var(--cg-radius)",         /* radius-md = 8px */
           border: "1px solid var(--cg-border)",
           background: "var(--cg-bg-card)",
           display: "flex", alignItems: "center", justifyContent: "center",
           cursor: "pointer", color: "var(--cg-fg-3)",
           boxShadow: "var(--cg-shadow-sm)",
+          transition: "background var(--cg-dur-fast)",
         }}
+        onMouseEnter={e => (e.currentTarget.style.background = "var(--cg-gray-100)")}
+        onMouseLeave={e => (e.currentTarget.style.background = "var(--cg-bg-card)")}
       >
         <IconX size={14} />
       </button>
 
-      {/* Card */}
+      {/* Card — radius-lg = 16px per DS modal spec */}
       <div style={{
         background: "var(--cg-bg-card)",
-        borderRadius: 16,
+        borderRadius: "var(--cg-radius-lg)",
         width: "100%", maxWidth: 520,
         boxShadow: "var(--cg-shadow-modal)",
-        padding: "28px 28px 24px",
-        animation: "modal-in 180ms var(--cg-ease)",
+        padding: "var(--cg-sp-7) var(--cg-sp-7) var(--cg-sp-6)",
+        animation: "modal-in 200ms var(--cg-ease)",
       }}>
-        <div style={{ fontSize: 18, fontWeight: 700, color: "var(--cg-fg-1)", marginBottom: 20 }}>
+
+        {/* Title — h3: 20px / 600 */}
+        <div style={{
+          fontSize: 20, fontWeight: 600, lineHeight: "28px",
+          color: "var(--cg-fg-1)", marginBottom: "var(--cg-sp-5)",
+        }}>
           Custom share link
         </div>
 
@@ -115,10 +123,10 @@ function EditModal({
           style={{
             display: "flex", alignItems: "center",
             border: `1px solid ${borderColor}`,
-            borderRadius: "var(--cg-radius)",
-            padding: "9px 14px",
+            borderRadius: "var(--cg-radius)",        /* inputs: radius-md = 8px */
+            padding: "var(--cg-sp-2) var(--cg-sp-4)",
             boxShadow: `0 0 0 3px ${ringColor}`,
-            transition: "border-color 120ms, box-shadow 120ms",
+            transition: "border-color var(--cg-dur-fast), box-shadow var(--cg-dur-fast)",
             cursor: "text",
             overflow: "hidden",
           }}
@@ -136,7 +144,7 @@ function EditModal({
             {val || "x"}
           </span>
 
-          {/* Real input — sized to mirror */}
+          {/* Real input */}
           <input
             ref={inputRef}
             value={val}
@@ -160,9 +168,10 @@ function EditModal({
               flexShrink: 0,
             }}
           />
+          {/* Fixed suffix — primary-48 tint */}
           <span style={{
-            fontSize: 14,
-            color: "rgba(115,103,240,0.55)",
+            fontSize: 14, fontFamily: "var(--cg-font)",
+            color: "var(--cg-primary-48)",
             whiteSpace: "nowrap",
             userSelect: "none",
           }}>
@@ -170,79 +179,67 @@ function EditModal({
           </span>
         </div>
 
-        {/* Inline status notices */}
-        <div style={{ minHeight: 20, marginTop: 6, display: "flex", alignItems: "center", gap: 5 }}>
+        {/* Inline status — helper-12 token */}
+        <div style={{
+          minHeight: 20, marginTop: "var(--cg-sp-2)",
+          display: "flex", alignItems: "flex-start", gap: "var(--cg-sp-1)",
+        }}>
           {status === "invalid" && <>
-            <IconAlertCircle size={13} style={{ color: "var(--cg-danger)", flexShrink: 0 }} />
-            <span style={{ fontSize: 12, color: "var(--cg-danger)" }}>
+            <IconAlertCircle size={13} style={{ color: "var(--cg-danger)", flexShrink: 0, marginTop: 1 }} />
+            <span style={{ fontSize: 12, lineHeight: "16px", color: "var(--cg-danger)" }}>
               Subdomain must be 1–63 characters long, start with a Latin letter or number, and contain only Latin letters, numbers, or hyphens.
             </span>
           </>}
           {status === "checking" && <>
-            <IconLoader2 size={13} style={{ color: "var(--cg-fg-4)", animation: "spin 0.8s linear infinite", flexShrink: 0 }} />
-            <span style={{ fontSize: 12, color: "var(--cg-fg-3)" }}>Checking availability…</span>
+            <IconLoader2 size={13} style={{ color: "var(--cg-fg-4)", animation: "spin 0.8s linear infinite", flexShrink: 0, marginTop: 1 }} />
+            <span style={{ fontSize: 12, lineHeight: "16px", color: "var(--cg-fg-3)" }}>Checking availability…</span>
           </>}
           {status === "taken" && <>
-            <IconAlertCircle size={13} style={{ color: "var(--cg-danger)", flexShrink: 0 }} />
-            <span style={{ fontSize: 12, color: "var(--cg-danger)" }}>This subdomain is already taken. Please choose a different one.</span>
+            <IconAlertCircle size={13} style={{ color: "var(--cg-danger)", flexShrink: 0, marginTop: 1 }} />
+            <span style={{ fontSize: 12, lineHeight: "16px", color: "var(--cg-danger)" }}>
+              This subdomain is already taken. Please choose a different one.
+            </span>
           </>}
           {status === "available" && <>
-            <IconCheck size={13} style={{ color: "var(--cg-success-700)", flexShrink: 0 }} />
-            <span style={{ fontSize: 12, color: "var(--cg-success-700)" }}>Available</span>
+            <IconCheck size={13} style={{ color: "var(--cg-success-700)", flexShrink: 0, marginTop: 1 }} />
+            <span style={{ fontSize: 12, lineHeight: "16px", color: "var(--cg-success-700)" }}>Available</span>
           </>}
           {status === "own" && <>
-            <IconCheck size={13} style={{ color: "var(--cg-success-700)", flexShrink: 0 }} />
-            <span style={{ fontSize: 12, color: "var(--cg-success-700)" }}>Your previous subdomain — you can reclaim it.</span>
+            <IconCheck size={13} style={{ color: "var(--cg-success-700)", flexShrink: 0, marginTop: 1 }} />
+            <span style={{ fontSize: 12, lineHeight: "16px", color: "var(--cg-success-700)" }}>
+              Your previous subdomain — you can reclaim it.
+            </span>
           </>}
         </div>
 
-        {/* Red warning — always visible */}
-        <div style={{
-          marginTop: 18,
-          padding: "12px 14px",
-          borderRadius: "var(--cg-radius-sm)",
-          background: "var(--cg-danger-100)",
-          border: "1px solid rgba(234,84,85,0.3)",
-          display: "flex", alignItems: "flex-start", gap: 10,
-        }}>
-          <IconAlertCircle size={16} style={{ color: "var(--cg-danger)", flexShrink: 0, marginTop: 1 }} />
-          <p style={{ margin: 0, fontSize: 13, lineHeight: 1.55, color: "var(--cg-danger-700)" }}>
-            <strong>Changing the subdomain takes effect immediately.</strong> Any links using the previous subdomain will stop working right away, which may disrupt users who already have access to those links.
+        {/* Warning alert — cg-alert + cg-alert-danger DS class */}
+        <div className="cg-alert cg-alert-danger" style={{ marginBottom: 0, marginTop: "var(--cg-sp-5)" }}>
+          <IconAlertCircle size={16} style={{ flexShrink: 0, marginTop: 1 }} />
+          <p style={{ margin: 0, fontSize: 13, lineHeight: "18px" }}>
+            <strong>Changing the subdomain takes effect immediately.</strong>{" "}
+            Any links using the previous subdomain will stop working right away, which may disrupt users who already have access to those links.
           </p>
         </div>
 
         {/* Footer */}
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 20 }}>
+        <div style={{
+          display: "flex", justifyContent: "flex-end",
+          gap: "var(--cg-sp-2)", marginTop: "var(--cg-sp-5)",
+        }}>
+          {/* Cancel — btn-outline (secondary) */}
           <button
             onClick={onClose}
-            style={{
-              padding: "8px 20px",
-              borderRadius: "var(--cg-radius-sm)",
-              border: "none",
-              background: "var(--cg-primary-100)",
-              fontSize: 14, fontWeight: 500,
-              color: "var(--cg-primary)",
-              cursor: "pointer",
-              fontFamily: "var(--cg-font)",
-            }}
+            className="cg-btn cg-btn-outline"
           >
             Cancel
           </button>
+
+          {/* CTA — btn-destructive; disabled state uses .is-disabled */}
           <button
             disabled={!canSave}
             onClick={() => canSave && onSave(val)}
-            style={{
-              padding: "8px 20px",
-              borderRadius: "var(--cg-radius-sm)",
-              border: "none",
-              background: canSave ? "var(--cg-danger)" : "rgba(234,84,85,0.3)",
-              fontSize: 13, fontWeight: 600,
-              color: "#fff",
-              cursor: canSave ? "pointer" : "not-allowed",
-              transition: "background 120ms",
-              fontFamily: "var(--cg-font)",
-              whiteSpace: "nowrap",
-            }}
+            className={`cg-btn cg-btn-destructive${canSave ? "" : " is-disabled"}`}
+            style={{ whiteSpace: "nowrap" }}
           >
             I understand and want to proceed
           </button>
@@ -268,13 +265,13 @@ function IconBtn({ title, onClick, children, active }: {
       title={title}
       onClick={onClick}
       style={{
-        width: 30, height: 30, flexShrink: 0,
+        width: 32, height: 32, flexShrink: 0,
         border: "none", background: active ? "var(--cg-success-100)" : "transparent",
-        borderRadius: "var(--cg-radius-sm)",
+        borderRadius: "var(--cg-radius)",
         display: "flex", alignItems: "center", justifyContent: "center",
         cursor: "pointer",
         color: active ? "var(--cg-success-700)" : "var(--cg-fg-4)",
-        transition: "background 120ms, color 120ms",
+        transition: "background var(--cg-dur-fast), color var(--cg-dur-fast)",
       }}
       onMouseEnter={e => !active && ((e.currentTarget as HTMLElement).style.background = "var(--cg-gray-100)")}
       onMouseLeave={e => !active && ((e.currentTarget as HTMLElement).style.background = "transparent")}
@@ -297,19 +294,19 @@ function CodeBlock({ code }: { code: string }) {
       border: "1px solid var(--cg-divider)",
       borderRadius: "var(--cg-radius)",
       background: "var(--cg-bg-card)",
-      padding: "14px 14px 10px",
+      padding: "var(--cg-sp-4) var(--cg-sp-4) var(--cg-sp-3)",
       position: "relative",
     }}>
       <pre style={{
         margin: 0, fontSize: 12, lineHeight: 1.7,
         color: "var(--cg-fg-3)",
-        fontFamily: "ui-monospace, SFMono-Regular, monospace",
+        fontFamily: "var(--cg-font-mono, ui-monospace, SFMono-Regular, monospace)",
         whiteSpace: "pre-wrap", wordBreak: "break-all",
-        paddingRight: 60,
+        paddingRight: "var(--cg-sp-12)",
       }}>{code}</pre>
       <div style={{
-        position: "absolute", bottom: 10, right: 10,
-        display: "flex", gap: 4,
+        position: "absolute", bottom: "var(--cg-sp-2)", right: "var(--cg-sp-2)",
+        display: "flex", gap: "var(--cg-sp-1)",
       }}>
         <IconBtn title="Copy" onClick={handleCopy} active={copied}>
           {copied ? <IconCheck size={15} /> : <IconCopy size={15} />}
@@ -328,12 +325,12 @@ function SectionHeading({ label, actions }: {
   actions?: React.ReactNode;
 }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--cg-sp-2)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--cg-sp-2)" }}>
         <span style={{ color: "var(--cg-primary)", fontSize: 16, lineHeight: 1 }}>✦</span>
-        <span style={{ fontSize: 15, fontWeight: 600, color: "var(--cg-fg-1)" }}>{label}</span>
+        <span style={{ fontSize: 16, fontWeight: 600, color: "var(--cg-fg-1)" }}>{label}</span>
       </div>
-      {actions && <div style={{ display: "flex", alignItems: "center", gap: 8 }}>{actions}</div>}
+      {actions && <div style={{ display: "flex", alignItems: "center", gap: "var(--cg-sp-2)" }}>{actions}</div>}
     </div>
   );
 }
@@ -363,28 +360,28 @@ div_id="customgpt_chat" p_id="${AGENT_ID}"
 p_key="${AGENT_KEY}"></script>`;
 
   return (
-    <div style={{ padding: "28px 32px", maxWidth: 780 }}>
+    <div style={{ padding: "var(--cg-sp-7) var(--cg-sp-8)", maxWidth: 780 }}>
 
       {/* Share link section */}
-      <section style={{ marginBottom: 36 }}>
+      <section style={{ marginBottom: "var(--cg-sp-8)" }}>
         <SectionHeading label="Share link" />
-        <p style={{ fontSize: 13, color: "var(--cg-fg-3)", marginBottom: 12 }}>
+        <p style={{ fontSize: 14, color: "var(--cg-fg-3)", marginBottom: "var(--cg-sp-3)" }}>
           Send this URL for quick access to the agent.
         </p>
 
-        {/* URL field */}
+        {/* URL field — input height 40px per DS btn-md spec */}
         <div style={{
           display: "flex", alignItems: "center",
           border: "1px solid var(--cg-border)",
           borderRadius: "var(--cg-radius)",
           background: "var(--cg-bg-card)",
-          padding: "0 10px 0 14px",
-          height: 42,
+          padding: "0 var(--cg-sp-2) 0 var(--cg-sp-4)",
+          height: 40,
         }}>
           <span style={{ flex: 1, fontSize: 14, color: "var(--cg-fg-2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {fullUrl}
           </span>
-          <div style={{ display: "flex", gap: 2, marginLeft: 8, flexShrink: 0 }}>
+          <div style={{ display: "flex", gap: "var(--cg-sp-1)", marginLeft: "var(--cg-sp-2)", flexShrink: 0 }}>
             <IconBtn title="Edit share link" onClick={onEdit}>
               <IconPencil size={15} />
             </IconBtn>
@@ -394,8 +391,8 @@ p_key="${AGENT_KEY}"></script>`;
           </div>
         </div>
 
-        <div style={{ textAlign: "right", marginTop: 8 }}>
-          <a href="#" style={{ fontSize: 13, color: "var(--cg-primary)", textDecoration: "none" }}
+        <div style={{ textAlign: "right", marginTop: "var(--cg-sp-2)" }}>
+          <a href="#" style={{ fontSize: 14, color: "var(--cg-primary)", textDecoration: "none" }}
             onMouseEnter={e => (e.currentTarget.style.textDecoration = "underline")}
             onMouseLeave={e => (e.currentTarget.style.textDecoration = "none")}
           >
@@ -405,28 +402,26 @@ p_key="${AGENT_KEY}"></script>`;
       </section>
 
       {/* Divider */}
-      <div style={{ height: 1, background: "var(--cg-divider)", marginBottom: 36 }} />
+      <div style={{ height: 1, background: "var(--cg-divider)", marginBottom: "var(--cg-sp-8)" }} />
 
       {/* Live chat section */}
-      <section style={{ marginBottom: 36 }}>
+      <section style={{ marginBottom: "var(--cg-sp-8)" }}>
         <SectionHeading
           label="Add a live chat to your website"
           actions={
             <>
+              {/* btn-outline (secondary) — DS spec */}
+              <button className="cg-btn cg-btn-outline cg-btn-sm">Try it out</button>
               <button style={{
-                padding: "5px 14px",
-                border: "1px solid var(--cg-primary)",
-                borderRadius: "var(--cg-radius-sm)",
-                background: "transparent",
-                fontSize: 13, fontWeight: 500, color: "var(--cg-primary)",
-                cursor: "pointer", fontFamily: "var(--cg-font)",
-              }}>Try it out</button>
-              <button style={{
-                width: 30, height: 30, border: "1px solid var(--cg-border)",
-                borderRadius: "var(--cg-radius-sm)", background: "transparent",
+                width: 32, height: 32, border: "1px solid var(--cg-border)",
+                borderRadius: "var(--cg-radius)", background: "transparent",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 cursor: "pointer", color: "var(--cg-fg-3)",
-              }}>
+                transition: "background var(--cg-dur-fast)",
+              }}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "var(--cg-gray-100)")}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "transparent")}
+              >
                 <IconSettings size={15} />
               </button>
             </>
@@ -448,26 +443,23 @@ p_key="${AGENT_KEY}"></script>`;
           label="Embed an agent into your website"
           actions={
             <>
+              <button className="cg-btn cg-btn-outline cg-btn-sm">Try it out</button>
               <button style={{
-                padding: "5px 14px",
-                border: "1px solid var(--cg-primary)",
-                borderRadius: "var(--cg-radius-sm)",
-                background: "transparent",
-                fontSize: 13, fontWeight: 500, color: "var(--cg-primary)",
-                cursor: "pointer", fontFamily: "var(--cg-font)",
-              }}>Try it out</button>
-              <button style={{
-                width: 30, height: 30, border: "1px solid var(--cg-border)",
-                borderRadius: "var(--cg-radius-sm)", background: "transparent",
+                width: 32, height: 32, border: "1px solid var(--cg-border)",
+                borderRadius: "var(--cg-radius)", background: "transparent",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 cursor: "pointer", color: "var(--cg-fg-3)",
-              }}>
+                transition: "background var(--cg-dur-fast)",
+              }}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "var(--cg-gray-100)")}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "transparent")}
+              >
                 <IconSettings size={15} />
               </button>
             </>
           }
         />
-        <p style={{ fontSize: 13, color: "var(--cg-fg-3)", marginBottom: 12 }}>
+        <p style={{ fontSize: 14, color: "var(--cg-fg-3)", marginBottom: "var(--cg-sp-3)" }}>
           To add the agent anywhere on a page, copy the following code and paste it into the &lt;body&gt;
           section of your webpage.
         </p>
@@ -497,30 +489,24 @@ function Sidebar() {
       minHeight: "100vh",
     }}>
       {/* Logo */}
-      <div style={{ padding: "16px 20px 12px", borderBottom: "1px solid var(--cg-divider)" }}>
+      <div style={{ padding: "var(--cg-sp-4) var(--cg-sp-5)", borderBottom: "1px solid var(--cg-divider)" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.svg" alt="CustomGPT.ai" style={{ height: 28 }} />
       </div>
 
       {/* New Agent button */}
-      <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--cg-divider)" }}>
-        <button style={{
-          width: "100%", height: 36,
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-          background: "var(--cg-primary)", color: "#fff",
-          border: "none", borderRadius: "var(--cg-radius-sm)",
-          fontSize: 13, fontWeight: 600, cursor: "pointer",
-          fontFamily: "var(--cg-font)",
-        }}>
+      <div style={{ padding: "var(--cg-sp-3) var(--cg-sp-4)", borderBottom: "1px solid var(--cg-divider)" }}>
+        {/* btn-primary, height 40px (btn-md) */}
+        <button className="cg-btn cg-btn-primary" style={{ width: "100%", justifyContent: "center" }}>
           <IconPlus size={15} /> New Agent
         </button>
       </div>
 
       {/* My Agent */}
-      <div style={{ padding: "6px 10px", borderBottom: "1px solid var(--cg-divider)" }}>
+      <div style={{ padding: "var(--cg-sp-1) var(--cg-sp-2)", borderBottom: "1px solid var(--cg-divider)" }}>
         <button style={{
-          width: "100%", display: "flex", alignItems: "center", gap: 8,
-          padding: "8px 10px", borderRadius: "var(--cg-radius-sm)",
+          width: "100%", display: "flex", alignItems: "center", gap: "var(--cg-sp-2)",
+          padding: "var(--cg-sp-2) var(--cg-sp-2)", borderRadius: "var(--cg-radius)",
           border: "none", background: "transparent",
           fontSize: 13, fontWeight: 600, color: "var(--cg-primary)",
           cursor: "pointer", fontFamily: "var(--cg-font)",
@@ -537,11 +523,11 @@ function Sidebar() {
           return (
             <button key={item.id} style={{
               width: "100%", display: "flex", alignItems: "center", gap: 10,
-              padding: "8px 12px", marginBottom: 2,
-              borderRadius: "var(--cg-radius-sm)",
+              padding: "var(--cg-sp-2) var(--cg-sp-3)", marginBottom: "var(--cg-sp-1)",
+              borderRadius: "var(--cg-radius)",
               border: "none",
               background: item.active ? "var(--cg-primary-8)" : "transparent",
-              fontSize: 13, fontWeight: item.active ? 600 : 400,
+              fontSize: 14, fontWeight: item.active ? 600 : 400,
               color: item.active ? "var(--cg-primary)" : "var(--cg-fg-2)",
               cursor: "pointer", textAlign: "left",
               fontFamily: "var(--cg-font)",
@@ -559,21 +545,21 @@ function Sidebar() {
 
       {/* Copilot */}
       <div style={{
-        margin: "0 10px 10px",
+        margin: "0 var(--cg-sp-2) var(--cg-sp-2)",
         border: "1px solid var(--cg-divider)",
         borderRadius: "var(--cg-radius)",
-        padding: "10px 12px",
+        padding: "var(--cg-sp-2) var(--cg-sp-3)",
       }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: "var(--cg-fg-3)", marginBottom: 8, letterSpacing: "0.02em" }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: "var(--cg-fg-3)", marginBottom: "var(--cg-sp-2)", letterSpacing: "0.02em" }}>
           CustomGPT.ai Copilot
         </div>
         <div style={{
           display: "flex", alignItems: "center",
           border: "1px solid var(--cg-border)",
-          borderRadius: "var(--cg-radius-sm)",
-          padding: "7px 10px",
+          borderRadius: "var(--cg-radius)",
+          padding: "var(--cg-sp-2) var(--cg-sp-3)",
           background: "var(--cg-bg-card)",
-          gap: 8,
+          gap: "var(--cg-sp-2)",
         }}>
           <span style={{ flex: 1, fontSize: 12, color: "var(--cg-fg-4)" }}>I need help with…</span>
           <IconSend size={14} style={{ color: "var(--cg-fg-4)", flexShrink: 0 }} />
@@ -582,42 +568,50 @@ function Sidebar() {
 
       {/* Developers */}
       <div style={{
-        padding: "12px 20px",
+        padding: "var(--cg-sp-3) var(--cg-sp-5)",
         borderTop: "1px solid var(--cg-divider)",
         display: "flex", alignItems: "center", justifyContent: "space-between",
         cursor: "pointer",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        transition: "background var(--cg-dur-fast)",
+      }}
+        onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "var(--cg-gray-50)")}
+        onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "transparent")}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--cg-sp-2)" }}>
           <div style={{
-            width: 30, height: 30, borderRadius: "var(--cg-radius-sm)",
+            width: 32, height: 32, borderRadius: "var(--cg-radius)",
             background: "var(--cg-primary-8)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            color: "var(--cg-primary)", fontSize: 13,
+            color: "var(--cg-primary)",
           }}>
-            <IconCode size={15} />
+            <IconCode size={16} />
           </div>
-          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--cg-fg-1)" }}>Developers</span>
+          <span style={{ fontSize: 14, fontWeight: 500, color: "var(--cg-fg-1)" }}>Developers</span>
         </div>
         <IconChevronLeft size={14} style={{ color: "var(--cg-fg-4)", transform: "rotate(180deg)" }} />
       </div>
 
       {/* My Profile */}
       <div style={{
-        padding: "12px 20px",
+        padding: "var(--cg-sp-3) var(--cg-sp-5)",
         borderTop: "1px solid var(--cg-divider)",
         display: "flex", alignItems: "center", justifyContent: "space-between",
         cursor: "pointer",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        transition: "background var(--cg-dur-fast)",
+      }}
+        onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = "var(--cg-gray-50)")}
+        onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = "transparent")}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--cg-sp-2)" }}>
           <div style={{
-            width: 30, height: 30, borderRadius: "var(--cg-radius-full)",
+            width: 32, height: 32, borderRadius: "var(--cg-radius-full)",
             background: "var(--cg-primary-24)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            color: "var(--cg-primary)", fontSize: 11, fontWeight: 700,
+            color: "var(--cg-primary)", fontSize: 12, fontWeight: 700,
           }}>
             MR
           </div>
-          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--cg-fg-1)" }}>My Profile</span>
+          <span style={{ fontSize: 14, fontWeight: 500, color: "var(--cg-fg-1)" }}>My Profile</span>
         </div>
         <IconChevronLeft size={14} style={{ color: "var(--cg-fg-4)", transform: "rotate(180deg)" }} />
       </div>
@@ -656,35 +650,37 @@ export default function DeployPage() {
 
       <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
 
-        {/* Top bar */}
+        {/* Top bar — 56px height */}
         <div style={{
           height: 56, background: "var(--cg-bg-card)",
           borderBottom: "1px solid var(--cg-divider)",
           display: "flex", alignItems: "center",
-          padding: "0 24px 0 28px", gap: 12, flexShrink: 0,
+          padding: "0 var(--cg-sp-6) 0 var(--cg-sp-7)",
+          gap: "var(--cg-sp-3)", flexShrink: 0,
         }}>
           <IconLayoutSidebar size={18} style={{ color: "var(--cg-fg-4)", cursor: "pointer", flexShrink: 0 }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--cg-fg-1)", margin: 0, whiteSpace: "nowrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--cg-sp-3)", flex: 1, minWidth: 0 }}>
+            {/* h3 token: 20px / 600 */}
+            <h1 style={{ fontSize: 20, fontWeight: 700, color: "var(--cg-fg-1)", margin: 0, whiteSpace: "nowrap" }}>
               Deploy
               <span style={{ color: "var(--cg-fg-3)", fontWeight: 400 }}> • </span>
               My Agent
             </h1>
+            {/* BETA badge — warning-100 bg / warning-700 text per DS status colors */}
             <span style={{
-              display: "inline-flex", alignItems: "center", gap: 4,
-              background: "#FFF3CD", color: "#856404",
-              border: "1px solid #FFEAA7",
-              padding: "2px 10px", borderRadius: 20,
-              fontSize: 11, fontWeight: 600, whiteSpace: "nowrap",
+              display: "inline-flex", alignItems: "center", gap: "var(--cg-sp-1)",
+              background: "var(--cg-warning-100)", color: "var(--cg-warning-700)",
+              padding: "2px var(--cg-sp-2)", borderRadius: "var(--cg-radius-full)",
+              fontSize: 12, fontWeight: 600, whiteSpace: "nowrap",
             }}>
               <IconBolt size={11} />
               Plan and Act (BETA)
             </span>
           </div>
-          {/* Agent ID / Key */}
+          {/* Agent ID / Key — helper-12 token */}
           <div style={{ textAlign: "right", flexShrink: 0 }}>
-            <div style={{ fontSize: 11, color: "var(--cg-fg-4)" }}>Agent ID: {AGENT_ID}</div>
-            <div style={{ fontSize: 11, color: "var(--cg-fg-4)" }}>Agent Key: {AGENT_KEY}</div>
+            <div style={{ fontSize: 12, color: "var(--cg-fg-4)" }}>Agent ID: {AGENT_ID}</div>
+            <div style={{ fontSize: 12, color: "var(--cg-fg-4)" }}>Agent Key: {AGENT_KEY}</div>
           </div>
         </div>
 
@@ -693,7 +689,7 @@ export default function DeployPage() {
           display: "flex",
           borderBottom: "1px solid var(--cg-divider)",
           background: "var(--cg-bg-card)",
-          padding: "0 28px",
+          padding: "0 var(--cg-sp-7)",
           flexShrink: 0,
         }}>
           {tabs.map(tab => {
@@ -703,12 +699,12 @@ export default function DeployPage() {
               <button key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 style={{
-                  display: "inline-flex", alignItems: "center", gap: 6,
-                  padding: "12px 14px",
+                  display: "inline-flex", alignItems: "center", gap: "var(--cg-sp-2)",
+                  padding: "var(--cg-sp-3) var(--cg-sp-4)",
                   border: "none",
                   borderBottom: `2px solid ${active ? "var(--cg-primary)" : "transparent"}`,
                   background: "transparent",
-                  fontSize: 13, fontWeight: active ? 600 : 400,
+                  fontSize: 14, fontWeight: active ? 600 : 400,
                   color: active ? "var(--cg-primary)" : "var(--cg-fg-3)",
                   cursor: "pointer",
                   transition: "color var(--cg-dur-fast), border-color var(--cg-dur-fast)",
@@ -731,7 +727,7 @@ export default function DeployPage() {
             <ShareTab prefix={prefix} onEdit={() => setModalOpen(true)} />
           )}
           {activeTab !== "share" && (
-            <div style={{ padding: "64px 32px", textAlign: "center", color: "var(--cg-fg-4)", fontSize: 14 }}>
+            <div style={{ padding: "var(--cg-sp-12) var(--cg-sp-8)", textAlign: "center", color: "var(--cg-fg-4)", fontSize: 14 }}>
               Coming soon
             </div>
           )}
@@ -747,21 +743,16 @@ export default function DeployPage() {
         />
       )}
 
+      {/* Toast — cg-alert-success pattern */}
       {toast && (
-        <div style={{
-          position: "fixed", bottom: 24, right: 24,
-          padding: "11px 16px",
-          background: "var(--cg-success-100)",
-          color: "var(--cg-success-700)",
-          border: "1px solid rgba(28,199,111,0.3)",
-          borderRadius: "var(--cg-radius-sm)",
-          fontSize: 13, fontWeight: 500,
-          display: "flex", alignItems: "center", gap: 8,
+        <div className="cg-alert cg-alert-success" style={{
+          position: "fixed", bottom: "var(--cg-sp-6)", right: "var(--cg-sp-6)",
+          marginBottom: 0, zIndex: 60,
           boxShadow: "var(--cg-shadow)",
-          zIndex: 60,
           animation: "modal-in 200ms var(--cg-ease)",
+          fontWeight: 500,
         }}>
-          <IconCheck size={15} />
+          <IconCheck size={15} style={{ flexShrink: 0 }} />
           {toast}
         </div>
       )}
