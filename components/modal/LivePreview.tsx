@@ -13,9 +13,11 @@ const ICON_DIAMETER: Record<IconSize, number> = { small: 11, medium: 14, large: 
 export default function LivePreview({ iconPosition, chatWindowPosition, iconSize }: LivePreviewProps) {
   const d = ICON_DIAMETER[iconSize];
   const isRight = iconPosition === 'right';
+  const isFocus = chatWindowPosition === 'focus';
   const showWindow = chatWindowPosition !== 'bubble';
-  const windowW = chatWindowPosition === 'focus' ? 82 : 62;
-  const windowH = chatWindowPosition === 'focus' ? 88 : 68;
+
+  const windowW = isFocus ? 96 : 62;
+  const windowH = isFocus ? 72 : 68;
 
   return (
     <div
@@ -62,9 +64,14 @@ export default function LivePreview({ iconPosition, chatWindowPosition, iconSize
         <div
           style={{
             position: 'absolute',
-            bottom: d + 10,
-            right: isRight ? 5 : undefined,
-            left: !isRight ? 5 : undefined,
+            // Focus: centered overlay starting just below chrome
+            // Compact/Bubble: anchored to bottom corner
+            ...(isFocus
+              ? { top: 16, left: 12 }
+              : {
+                  bottom: d + 10,
+                  ...(isRight ? { right: 5 } : { left: 5 }),
+                }),
             width: windowW,
             height: windowH,
             backgroundColor: '#FFF',
@@ -131,34 +138,35 @@ export default function LivePreview({ iconPosition, chatWindowPosition, iconSize
         </div>
       )}
 
-      {/* Widget icon */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 6,
-          right: isRight ? 6 : undefined,
-          left: !isRight ? 6 : undefined,
-          width: d,
-          height: d,
-          borderRadius: '50%',
-          backgroundColor: '#7367F0',
-          boxShadow: '0 2px 6px rgba(115,103,240,0.45)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'all 200ms cubic-bezier(0,0,0.2,1)',
-          flexShrink: 0,
-        }}
-      >
+      {/* Widget icon — hidden in focus mode (window fills the viewport) */}
+      {!isFocus && (
         <div
           style={{
-            width: d * 0.48,
-            height: d * 0.48,
-            backgroundColor: 'rgba(255,255,255,0.85)',
+            position: 'absolute',
+            bottom: 6,
+            ...(isRight ? { right: 6 } : { left: 6 }),
+            width: d,
+            height: d,
             borderRadius: '50%',
+            backgroundColor: '#7367F0',
+            boxShadow: '0 2px 6px rgba(115,103,240,0.45)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 200ms cubic-bezier(0,0,0.2,1)',
+            flexShrink: 0,
           }}
-        />
-      </div>
+        >
+          <div
+            style={{
+              width: d * 0.48,
+              height: d * 0.48,
+              backgroundColor: 'rgba(255,255,255,0.85)',
+              borderRadius: '50%',
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

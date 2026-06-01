@@ -55,14 +55,6 @@ function RadioOption({
   );
 }
 
-function HelpBtn({ title }: { title: string }) {
-  return (
-    <span title={title} style={{ color: '#A3A3A3', display: 'inline-flex', flexShrink: 0 }}>
-      <IconInfoCircle size={14} />
-    </span>
-  );
-}
-
 function Divider() {
   return <div style={{ height: 1, backgroundColor: '#E5E5E5' }} />;
 }
@@ -75,9 +67,17 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
+function HelpBtn({ title }: { title: string }) {
+  return (
+    <span title={title} style={{ color: '#A3A3A3', display: 'inline-flex', flexShrink: 0, cursor: 'help' }}>
+      <IconInfoCircle size={14} />
+    </span>
+  );
+}
+
 export default function AppearanceTab({ settings, onChange }: Props) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
       {/* Agent icon position */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
@@ -129,52 +129,33 @@ export default function AppearanceTab({ settings, onChange }: Props) {
       <Divider />
 
       {/* Chat window position */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ marginBottom: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <p style={{ fontSize: 14, fontWeight: 600, color: '#171717', margin: 0 }}>Chat window position</p>
-            </div>
-            <p style={{ margin: 0, fontSize: 12, lineHeight: '16px', color: '#737373' }}>
-              Choose the chat window position as size for your agent.
-            </p>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {[
-              { v: 'focus', l: 'Focus mode', d: 'Larger, centered chat window for an immersive experience — ideal for long-form conversations.' },
-              { v: 'compact', l: 'Compact', d: 'Smaller window anchored near the icon, allowing visitors to browse while chatting.' },
-              { v: 'bubble', l: 'Bubble in the corner', d: 'Lightweight bubble-style window in the corner, keeping the chat subtle and unobtrusive.' },
-            ].map(({ v, l, d }) => (
-              <RadioOption
-                key={v}
-                name="chatWindowPosition"
-                value={v}
-                checked={settings.chatWindowPosition === v}
-                onChange={() => onChange('chatWindowPosition', v as LiveChatSettings['chatWindowPosition'])}
-                label={l}
-                description={d}
-              />
-            ))}
-          </div>
+      <div>
+        <SectionLabel>Chat window position</SectionLabel>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {([
+            { v: 'focus',   l: 'Focus mode' },
+            { v: 'compact', l: 'Compact' },
+            { v: 'bubble',  l: 'Bubble in the corner' },
+          ] as const).map(({ v, l }) => (
+            <RadioOption
+              key={v}
+              name="chatWindowPosition"
+              value={v}
+              checked={settings.chatWindowPosition === v}
+              onChange={() => onChange('chatWindowPosition', v)}
+              label={l}
+            />
+          ))}
         </div>
-        <LivePreview
-          iconPosition={settings.iconPosition}
-          chatWindowPosition={settings.chatWindowPosition}
-          iconSize={settings.iconSize}
-        />
       </div>
 
       <Divider />
 
       {/* Mobile font size */}
       <div>
-        <div style={{ marginBottom: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-            <p style={{ fontSize: 14, fontWeight: 600, color: '#171717', margin: 0 }}>Mobile font size</p>
-          </div>
-          <p style={{ margin: 0, fontSize: 12, lineHeight: '16px', color: '#737373' }}>
-            If &ldquo;Reduced&rdquo; is selected, text on viewports under 700px will appear one size smaller than on desktop. If not, the font size remains consistent across all viewports.
-          </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+          <p style={{ fontSize: 14, fontWeight: 600, color: '#171717', margin: 0 }}>Mobile font size</p>
+          <HelpBtn title="If 'Reduced' is selected, text on viewports under 700px will appear one size smaller than on desktop. If not, the font size remains consistent across all viewports." />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <RadioOption

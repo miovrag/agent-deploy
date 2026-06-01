@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="90" viewBox="0 0 120 90">
+  <defs>
+    <clipPath id="canvas">
+      <rect x="0" y="0" width="120" height="90" rx="6"/>
+    </clipPath>
+    <clipPath id="win">
+      <rect x="53" y="1" width="62" height="68" rx="5"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#canvas)">
+    <rect width="120" height="90" fill="#FAFAFA"/>
+    <rect width="120" height="14" fill="#FFF"/>
+    <line x1="0" y1="14" x2="120" y2="14" stroke="#E5E5E5" stroke-width="1"/>
+    <circle cx="9" cy="7" r="2.5" fill="#EA5455"/>
+    <circle cx="16" cy="7" r="2.5" fill="#FF9F43"/>
+    <circle cx="23" cy="7" r="2.5" fill="#28C76F"/>
+    <rect x="28" y="5" width="86" height="4" rx="2" fill="#E5E5E5"/>
+    <rect x="8" y="20" width="90" height="5" rx="2" fill="#D4D4D4"/>
+    <rect x="8" y="29" width="70" height="4" rx="2" fill="#E5E5E5"/>
+    <rect x="8" y="37" width="82" height="4" rx="2" fill="#E5E5E5"/>
+    <rect x="8" y="45" width="58" height="4" rx="2" fill="#E5E5E5"/>
+    <g clip-path="url(#win)">
+      <rect x="53" y="1" width="62" height="68" fill="#FFF"/>
+      <rect x="53" y="1" width="62" height="14" fill="#7367F0"/>
+      <circle cx="59" cy="8" r="3" fill="#FFF" fill-opacity="0.7"/>
+      <rect x="65" y="5.5" width="40" height="3" rx="1" fill="#FFF" fill-opacity="0.5"/>
+      <rect x="58" y="32" width="32" height="9" rx="3" fill="#EAE8FD"/>
+      <rect x="61" y="35.5" width="22" height="3" rx="1" fill="#A39BF6"/>
+      <rect x="84" y="45" width="26" height="9" rx="3" fill="#7367F0"/>
+      <rect x="87" y="48.5" width="16" height="3" rx="1" fill="#FFF" fill-opacity="0.75"/>
+      <rect x="53" y="59" width="62" height="10" fill="#F5F5F5"/>
+      <line x1="53" y1="59" x2="115" y2="59" stroke="#E5E5E5" stroke-width="1"/>
+    </g>
+    <rect x="53" y="1" width="62" height="68" rx="5" fill="none" stroke="#D4D4D4" stroke-width="1"/>
+    <!-- icon RIGHT -->
+    <circle cx="108.5" cy="78.5" r="5.5" fill="#7367F0"/>
+    <circle cx="108.5" cy="78.5" r="2.6" fill="#FFF" fill-opacity="0.85"/>
+  </g>
+  <rect x="0.5" y="0.5" width="119" height="89" rx="5.5" fill="none" stroke="#E5E5E5" stroke-width="1"/>
+</svg>
