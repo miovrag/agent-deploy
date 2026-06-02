@@ -126,7 +126,7 @@ export default function LiveChatSettingsModal({ onClose, currentPlan = 'standard
               zIndex: 10,
               backgroundColor: 'var(--cg-success)',
               color: 'var(--cg-fg-on-primary)',
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: 500,
               padding: '8px 16px',
               borderRadius: 'var(--cg-radius)',
@@ -168,7 +168,7 @@ export default function LiveChatSettingsModal({ onClose, currentPlan = 'standard
             style={{
               width: 32,
               height: 32,
-              borderRadius: 'var(--cg-radius-sm)',
+              borderRadius: 'var(--cg-radius)',
               border: 'none',
               backgroundColor: 'transparent',
               cursor: 'pointer',
@@ -240,7 +240,7 @@ export default function LiveChatSettingsModal({ onClose, currentPlan = 'standard
           style={{
             flex: 1,
             overflowY: 'auto',
-            padding: '24px 24px 8px',
+            padding: '24px 24px 16px',
           }}
         >
           {activeTab === 'appearance' && (

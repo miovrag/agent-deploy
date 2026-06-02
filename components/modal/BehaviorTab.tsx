@@ -48,7 +48,7 @@ function ToggleRow({
           opacity: disabled ? 0.5 : 1,
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ fontSize: 14, lineHeight: '20px', color: disabled ? 'var(--cg-fg-3)' : 'var(--cg-fg-2)' }}>
               {label}
@@ -61,7 +61,7 @@ function ToggleRow({
             </p>
           )}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, paddingTop: description ? 2 : 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, paddingTop: description ? 4 : 0 }}>
           <Toggle checked={checked} onChange={onChange} disabled={disabled} />
           <span
             style={{
@@ -91,7 +91,7 @@ function ToggleRow({
           <span style={{ color: 'var(--cg-warning)', lineHeight: 1, flexShrink: 0, marginTop: 1, display: 'inline-flex' }}>
             <IconAlertTriangle size={14} />
           </span>
-          <p style={{ margin: 0, fontSize: 12, lineHeight: '18px', color: 'var(--cg-warning-700)' }}>{warning}</p>
+          <p style={{ margin: 0, fontSize: 12, lineHeight: '16px', color: 'var(--cg-warning-700)' }}>{warning}</p>
         </div>
       )}
     </div>
