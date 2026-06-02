@@ -391,7 +391,6 @@ function SectionHeading({ label, actions }: {
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--cg-sp-2)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--cg-sp-2)" }}>
-        <span style={{ color: "var(--cg-primary)", fontSize: 16, lineHeight: 1 }}>✦</span>
         <span style={{ fontSize: 16, fontWeight: 600, color: "var(--cg-fg-1)" }}>{label}</span>
       </div>
       {actions && <div style={{ display: "flex", alignItems: "center", gap: "var(--cg-sp-2)" }}>{actions}</div>}
@@ -621,7 +620,7 @@ function Sidebar() {
         borderRadius: "var(--cg-radius)",
         padding: "var(--cg-sp-2) var(--cg-sp-3)",
       }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: "var(--cg-fg-3)", marginBottom: "var(--cg-sp-2)", letterSpacing: "0.02em" }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: "var(--cg-fg-3)", marginBottom: "var(--cg-sp-2)" }}>
           CustomGPT.ai Copilot
         </div>
         <div style={{
