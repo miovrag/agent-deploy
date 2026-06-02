@@ -77,14 +77,14 @@ function PlanBadge({ plan }: { plan: string }) {
       gap: 4,
       fontSize: 12,
       fontWeight: 500,
-      color: '#5C53C0',
-      backgroundColor: '#EAE8FD',
-      borderRadius: 999,
+      color: 'var(--cg-primary-active)',
+      backgroundColor: 'var(--cg-primary-100)',
+      borderRadius: 'var(--cg-radius-full)',
       padding: '2px 8px 2px 6px',
       flexShrink: 0,
       whiteSpace: 'nowrap',
     }}>
-      <span style={{ color: '#7367F0', display: 'inline-flex' }}>
+      <span style={{ color: 'var(--cg-primary)', display: 'inline-flex' }}>
         <IconLock size={12} />
       </span>
       {label}
@@ -101,7 +101,7 @@ export default function AdvancedTab({ currentPlan = 'standard' }: { currentPlan?
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-      <p style={{ margin: '0 0 16px', fontSize: 13, lineHeight: '20px', color: '#737373' }}>
+      <p style={{ margin: '0 0 16px', fontSize: 13, lineHeight: '20px', color: 'var(--cg-fg-3)' }}>
         Advanced features are available on higher-tier plans. Click any feature to learn more.
       </p>
 
@@ -113,8 +113,8 @@ export default function AdvancedTab({ currentPlan = 'standard' }: { currentPlan?
           <div
             key={feature.key}
             style={{
-              borderTop: i === 0 ? '1px solid #E5E5E5' : undefined,
-              borderBottom: '1px solid #E5E5E5',
+              borderTop: i === 0 ? '1px solid var(--cg-divider)' : undefined,
+              borderBottom: '1px solid var(--cg-divider)',
             }}
           >
             {/* Feature row */}
@@ -137,13 +137,13 @@ export default function AdvancedTab({ currentPlan = 'standard' }: { currentPlan?
               {/* Left: name + description */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: '#171717' }}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--cg-fg-1)' }}>
                     {feature.name}
                   </span>
                   {isLocked && <PlanBadge plan={feature.plan} />}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2, flexWrap: 'wrap' }}>
-                  <p style={{ margin: 0, fontSize: 12, color: '#737373', lineHeight: '16px' }}>
+                  <p style={{ margin: 0, fontSize: 12, color: 'var(--cg-fg-3)', lineHeight: '16px' }}>
                     {feature.description}
                   </p>
                   {feature.learnMoreUrl && (
@@ -155,17 +155,17 @@ export default function AdvancedTab({ currentPlan = 'standard' }: { currentPlan?
                       style={{
                         fontSize: 12,
                         fontWeight: 500,
-                        color: '#7367F0',
+                        color: 'var(--cg-primary)',
                         textDecoration: 'none',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: 3,
+                        gap: 4,
                         flexShrink: 0,
                       }}
                     >
                       {feature.learnMoreText ?? 'Learn More'}
                       <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M1.5 8.5L8.5 1.5M8.5 1.5H3.5M8.5 1.5V6.5" stroke="#7367F0" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M1.5 8.5L8.5 1.5M8.5 1.5H3.5M8.5 1.5V6.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     </a>
                   )}
@@ -175,14 +175,14 @@ export default function AdvancedTab({ currentPlan = 'standard' }: { currentPlan?
               {/* Right: toggle + state + chevron */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                 <Toggle checked={false} onChange={() => {}} disabled={isLocked} />
-                <span style={{ fontSize: 12, fontWeight: 500, color: '#A3A3A3', minWidth: 44 }}>
+                <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--cg-fg-4)', minWidth: 44 }}>
                   Disabled
                 </span>
                 <span
                   style={{
-                    color: '#A3A3A3',
+                    color: 'var(--cg-fg-4)',
                     transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-                    transition: 'transform 200ms',
+                    transition: 'transform var(--cg-dur)',
                     display: 'inline-flex',
                   }}
                 >
@@ -198,30 +198,30 @@ export default function AdvancedTab({ currentPlan = 'standard' }: { currentPlan?
             >
               <div
                 style={{
-                  backgroundColor: '#FAFAFA',
-                  border: '1px solid #E5E5E5',
-                  borderRadius: 8,
-                  padding: '14px 16px',
+                  backgroundColor: 'var(--cg-bg-body)',
+                  border: '1px solid var(--cg-divider)',
+                  borderRadius: 'var(--cg-radius)',
+                  padding: '12px 16px',
                   marginBottom: 12,
                 }}
               >
-                <p style={{ margin: '0 0 8px', fontSize: 13, lineHeight: '20px', color: '#404040' }}>
+                <p style={{ margin: '0 0 8px', fontSize: 13, lineHeight: '20px', color: 'var(--cg-fg-2)' }}>
                   {feature.upgradeDesc}
                 </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ fontSize: 12, color: '#737373' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ fontSize: 12, color: 'var(--cg-fg-3)' }}>
                     Requires{' '}
-                    <strong style={{ color: '#404040' }}>{feature.plan}</strong>
+                    <strong style={{ color: 'var(--cg-fg-2)' }}>{feature.plan}</strong>
                   </span>
                   <span
                     style={{
-                      color: '#7367F0',
+                      color: 'var(--cg-primary)',
                       fontSize: 12,
                       fontWeight: 600,
                       cursor: 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: 3,
+                      gap: 4,
                     }}
                   >
                     See plans →

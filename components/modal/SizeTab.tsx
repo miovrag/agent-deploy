@@ -11,7 +11,7 @@ interface Props {
 
 function HelpBtn({ title }: { title: string }) {
   return (
-    <span title={title} style={{ color: '#A3A3A3', display: 'inline-flex', flexShrink: 0 }}>
+    <span title={title} style={{ color: 'var(--cg-fg-4)', display: 'inline-flex', flexShrink: 0 }}>
       <IconInfoCircle size={14} />
     </span>
   );
@@ -40,17 +40,25 @@ export default function SizeTab({ settings, onChange }: Props) {
     }
   }
 
+  const inputBorderColor = isDisabled
+    ? 'var(--cg-divider)'
+    : widthError
+      ? 'var(--cg-danger)'
+      : widthFocused
+        ? 'var(--cg-primary)'
+        : 'var(--cg-border)';
+
   const inputBase: React.CSSProperties = {
     width: '100%',
     height: 40,
     padding: '0 40px 0 12px',
     fontSize: 14,
-    color: isDisabled ? '#A3A3A3' : '#404040',
-    backgroundColor: isDisabled ? '#FAFAFA' : '#FFF',
-    border: `1px solid ${isDisabled ? '#E5E5E5' : widthError ? '#EA5455' : widthFocused ? '#7367F0' : '#D4D4D4'}`,
-    borderRadius: 8,
+    color: isDisabled ? 'var(--cg-fg-4)' : 'var(--cg-fg-2)',
+    backgroundColor: isDisabled ? 'var(--cg-bg-body)' : 'var(--cg-bg-card)',
+    border: `1px solid ${inputBorderColor}`,
+    borderRadius: 'var(--cg-radius)',
     outline: 'none',
-    transition: 'border-color 120ms',
+    transition: 'border-color var(--cg-dur-fast)',
     boxSizing: 'border-box',
     cursor: isDisabled ? 'not-allowed' : 'text',
   };
@@ -60,14 +68,15 @@ export default function SizeTab({ settings, onChange }: Props) {
     height: 40,
     padding: '0 12px',
     fontSize: 14,
-    color: isDisabled ? '#A3A3A3' : '#404040',
-    backgroundColor: isDisabled ? '#FAFAFA' : '#FFF',
-    border: `1px solid ${isDisabled ? '#E5E5E5' : '#D4D4D4'}`,
-    borderRadius: 8,
+    color: isDisabled ? 'var(--cg-fg-4)' : 'var(--cg-fg-2)',
+    backgroundColor: isDisabled ? 'var(--cg-bg-body)' : 'var(--cg-bg-card)',
+    border: `1px solid ${isDisabled ? 'var(--cg-divider)' : 'var(--cg-border)'}`,
+    borderRadius: 'var(--cg-radius)',
     outline: 'none',
     appearance: 'none',
     WebkitAppearance: 'none',
     cursor: isDisabled ? 'not-allowed' : 'pointer',
+    /* SVG data URI uses hex — CSS vars not supported in data URIs */
     backgroundImage: `url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='${isDisabled ? '%23D4D4D4' : '%23737373'}' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'right 12px center',
@@ -78,7 +87,7 @@ export default function SizeTab({ settings, onChange }: Props) {
 
       {/* Widget type selector */}
       <div>
-        <p style={{ margin: '0 0 8px', fontSize: 14, fontWeight: 600, color: '#171717' }}>Widget type</p>
+        <p style={{ margin: '0 0 8px', fontSize: 14, fontWeight: 600, color: 'var(--cg-fg-1)' }}>Widget type</p>
         <div style={{ display: 'flex', gap: 24 }}>
           {([
             { val: 'bubble', label: 'Floating bubble' },
@@ -93,7 +102,7 @@ export default function SizeTab({ settings, onChange }: Props) {
                 onChange={() => setWidgetType(val)}
                 className="cg-radio"
               />
-              <span style={{ fontSize: 14, lineHeight: '20px', color: '#404040' }}>{label}</span>
+              <span style={{ fontSize: 14, lineHeight: '20px', color: 'var(--cg-fg-2)' }}>{label}</span>
             </label>
           ))}
         </div>
@@ -104,16 +113,16 @@ export default function SizeTab({ settings, onChange }: Props) {
         <div style={{
           display: 'flex',
           alignItems: 'flex-start',
-          gap: 10,
-          backgroundColor: 'rgba(115,103,240,0.06)',
-          border: '1px solid rgba(115,103,240,0.2)',
-          borderRadius: 8,
+          gap: 12,
+          backgroundColor: 'var(--cg-primary-8)',
+          border: '1px solid var(--cg-primary-24)',
+          borderRadius: 'var(--cg-radius)',
           padding: '12px 16px',
         }}>
-          <span style={{ color: '#7367F0', display: 'inline-flex', flexShrink: 0, marginTop: 1 }}>
+          <span style={{ color: 'var(--cg-primary)', display: 'inline-flex', flexShrink: 0, marginTop: 1 }}>
             <IconInfoCircle size={16} />
           </span>
-          <p style={{ margin: 0, fontSize: 13, lineHeight: '20px', color: '#525252' }}>
+          <p style={{ margin: 0, fontSize: 13, lineHeight: '20px', color: 'var(--cg-gray-600)' }}>
             Size is managed automatically by the floating bubble. Switch to <strong>Embedded (iframe)</strong> to set custom dimensions.
           </p>
         </div>
@@ -125,15 +134,15 @@ export default function SizeTab({ settings, onChange }: Props) {
         {/* Width */}
         <div>
           <div style={{ marginBottom: 8 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
               <label
                 htmlFor="chat-width"
-                style={{ fontSize: 14, fontWeight: 600, color: isDisabled ? '#A3A3A3' : '#171717', cursor: isDisabled ? 'default' : 'pointer' }}
+                style={{ fontSize: 14, fontWeight: 600, color: isDisabled ? 'var(--cg-fg-4)' : 'var(--cg-fg-1)', cursor: isDisabled ? 'default' : 'pointer' }}
               >
                 Width
               </label>
             </div>
-            <p style={{ margin: 0, fontSize: 12, lineHeight: '16px', color: isDisabled ? '#A3A3A3' : '#737373' }}>
+            <p style={{ margin: 0, fontSize: 12, lineHeight: '16px', color: isDisabled ? 'var(--cg-fg-4)' : 'var(--cg-fg-3)' }}>
               Control the width of the chat bubble.
             </p>
           </div>
@@ -157,18 +166,18 @@ export default function SizeTab({ settings, onChange }: Props) {
               top: '50%',
               transform: 'translateY(-50%)',
               fontSize: 13,
-              color: isDisabled ? '#D4D4D4' : '#A3A3A3',
+              color: isDisabled ? 'var(--cg-gray-300)' : 'var(--cg-fg-4)',
               pointerEvents: 'none',
             }}>
               px
             </span>
           </div>
           {widthError && !isDisabled ? (
-            <p style={{ margin: '6px 0 0', fontSize: 12, color: '#EA5455', lineHeight: '16px' }}>
+            <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--cg-danger)', lineHeight: '16px' }}>
               {widthError}
             </p>
           ) : (
-            <p style={{ margin: '6px 0 0', fontSize: 12, color: isDisabled ? '#A3A3A3' : '#737373', lineHeight: '16px' }}>
+            <p style={{ margin: '4px 0 0', fontSize: 12, color: isDisabled ? 'var(--cg-fg-4)' : 'var(--cg-fg-3)', lineHeight: '16px' }}>
               Recommended: {WIDTH_REC_MIN}–{WIDTH_REC_MAX}px
             </p>
           )}
@@ -177,15 +186,15 @@ export default function SizeTab({ settings, onChange }: Props) {
         {/* Height */}
         <div>
           <div style={{ marginBottom: 8 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
               <label
                 htmlFor="chat-height-mode"
-                style={{ fontSize: 14, fontWeight: 600, color: isDisabled ? '#A3A3A3' : '#171717', cursor: isDisabled ? 'default' : 'pointer' }}
+                style={{ fontSize: 14, fontWeight: 600, color: isDisabled ? 'var(--cg-fg-4)' : 'var(--cg-fg-1)', cursor: isDisabled ? 'default' : 'pointer' }}
               >
                 Height
               </label>
             </div>
-            <p style={{ margin: 0, fontSize: 12, lineHeight: '16px', color: isDisabled ? '#A3A3A3' : '#737373' }}>
+            <p style={{ margin: 0, fontSize: 12, lineHeight: '16px', color: isDisabled ? 'var(--cg-fg-4)' : 'var(--cg-fg-3)' }}>
               Control the height of the chat bubble.
             </p>
           </div>
@@ -206,13 +215,13 @@ export default function SizeTab({ settings, onChange }: Props) {
             className="height-input-wrap"
             data-visible={settings.heightMode === 'fixed' ? 'true' : 'false'}
           >
-            <div style={{ position: 'relative', marginTop: 10 }}>
+            <div style={{ position: 'relative', marginTop: 12 }}>
               <input
                 id="chat-height"
                 type="number"
                 disabled={isDisabled}
                 value={settings.height}
-                style={{ ...inputBase, border: `1px solid ${isDisabled ? '#E5E5E5' : '#D4D4D4'}` }}
+                style={{ ...inputBase, border: `1px solid ${isDisabled ? 'var(--cg-divider)' : 'var(--cg-border)'}` }}
                 onChange={(e) => {
                   const v = parseInt(e.target.value, 10);
                   if (!isNaN(v)) onChange('height', v);
@@ -224,13 +233,13 @@ export default function SizeTab({ settings, onChange }: Props) {
                 top: '50%',
                 transform: 'translateY(-50%)',
                 fontSize: 13,
-                color: isDisabled ? '#D4D4D4' : '#A3A3A3',
+                color: isDisabled ? 'var(--cg-gray-300)' : 'var(--cg-fg-4)',
                 pointerEvents: 'none',
               }}>
                 px
               </span>
             </div>
-            <p style={{ margin: '6px 0 0', fontSize: 12, color: isDisabled ? '#A3A3A3' : '#737373', lineHeight: '16px' }}>
+            <p style={{ margin: '4px 0 0', fontSize: 12, color: isDisabled ? 'var(--cg-fg-4)' : 'var(--cg-fg-3)', lineHeight: '16px' }}>
               Recommended: 600–800px
             </p>
           </div>

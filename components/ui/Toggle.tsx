@@ -8,7 +8,11 @@ interface ToggleProps {
 }
 
 export default function Toggle({ checked, onChange, disabled, id }: ToggleProps) {
-  const trackColor = disabled ? '#DBDADE' : checked ? '#7367F0' : '#D4D4D4';
+  const trackColor = disabled
+    ? 'var(--cg-gray-200)'
+    : checked
+      ? 'var(--cg-primary)'
+      : 'var(--cg-gray-300)';
 
   return (
     <button
@@ -23,17 +27,17 @@ export default function Toggle({ checked, onChange, disabled, id }: ToggleProps)
         alignItems: 'center',
         width: 36,
         height: 20,
-        borderRadius: 1000,
+        borderRadius: 'var(--cg-radius-full)',
         border: 'none',
         padding: 2,
         cursor: disabled ? 'not-allowed' : 'pointer',
-        transition: 'background-color 200ms',
+        transition: `background-color var(--cg-dur-fast)`,
         backgroundColor: trackColor,
         flexShrink: 0,
         outline: 'none',
       }}
       onFocus={(e) => {
-        if (!disabled) e.currentTarget.style.boxShadow = '0 0 0 3px rgba(115,103,240,0.2)';
+        if (!disabled) e.currentTarget.style.boxShadow = '0 0 0 3px var(--cg-primary-16)';
       }}
       onBlur={(e) => {
         e.currentTarget.style.boxShadow = 'none';
@@ -44,9 +48,9 @@ export default function Toggle({ checked, onChange, disabled, id }: ToggleProps)
           width: 16,
           height: 16,
           borderRadius: '50%',
-          backgroundColor: '#FFFFFF',
+          backgroundColor: 'var(--cg-bg-card)',
           boxShadow: '0 1px 3px rgba(0,0,0,0.18)',
-          transition: 'transform 200ms cubic-bezier(0,0,0.2,1)',
+          transition: 'transform var(--cg-dur-fast) var(--cg-ease)',
           transform: checked ? 'translateX(16px)' : 'translateX(0)',
           flexShrink: 0,
         }}

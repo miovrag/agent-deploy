@@ -44,9 +44,9 @@ function RadioOption({
         style={{ marginTop: description ? 3 : 0 }}
       />
       <span>
-        <span style={{ display: 'block', fontSize: 14, lineHeight: '20px', color: '#404040' }}>{label}</span>
+        <span style={{ display: 'block', fontSize: 14, lineHeight: '20px', color: 'var(--cg-fg-2)' }}>{label}</span>
         {description && (
-          <span style={{ display: 'block', fontSize: 12, lineHeight: '16px', color: '#737373', marginTop: 2 }}>
+          <span style={{ display: 'block', fontSize: 12, lineHeight: '16px', color: 'var(--cg-fg-3)', marginTop: 2 }}>
             {description}
           </span>
         )}
@@ -56,12 +56,12 @@ function RadioOption({
 }
 
 function Divider() {
-  return <div style={{ height: 1, backgroundColor: '#E5E5E5' }} />;
+  return <div style={{ height: 1, backgroundColor: 'var(--cg-divider)' }} />;
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p style={{ fontSize: 14, fontWeight: 600, color: '#171717', margin: '0 0 12px 0' }}>
+    <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--cg-fg-1)', margin: '0 0 12px 0' }}>
       {children}
     </p>
   );
@@ -69,7 +69,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 function HelpBtn({ title }: { title: string }) {
   return (
-    <span title={title} style={{ color: '#A3A3A3', display: 'inline-flex', flexShrink: 0, cursor: 'help' }}>
+    <span title={title} style={{ color: 'var(--cg-fg-4)', display: 'inline-flex', flexShrink: 0, cursor: 'help' }}>
       <IconInfoCircle size={14} />
     </span>
   );
@@ -154,7 +154,7 @@ export default function AppearanceTab({ settings, onChange }: Props) {
       {/* Mobile font size */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
-          <p style={{ fontSize: 14, fontWeight: 600, color: '#171717', margin: 0 }}>Mobile font size</p>
+          <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--cg-fg-1)', margin: 0 }}>Mobile font size</p>
           <HelpBtn title="If 'Reduced' is selected, text on viewports under 700px will appear one size smaller than on desktop. If not, the font size remains consistent across all viewports." />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

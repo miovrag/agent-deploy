@@ -106,9 +106,9 @@ export default function LiveChatSettingsModal({ onClose, currentPlan = 'standard
           width: '100%',
           maxWidth: 680,
           height: 520,
-          backgroundColor: '#FFFFFF',
-          borderRadius: 16,
-          boxShadow: '0 8px 32px 0 rgba(23,23,23,0.18)',
+          backgroundColor: 'var(--cg-bg-card)',
+          borderRadius: 'var(--cg-radius-lg)',
+          boxShadow: 'var(--cg-shadow-modal)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -124,17 +124,17 @@ export default function LiveChatSettingsModal({ onClose, currentPlan = 'standard
               left: '50%',
               transform: 'translateX(-50%)',
               zIndex: 10,
-              backgroundColor: '#28C76F',
-              color: '#FFF',
+              backgroundColor: 'var(--cg-success)',
+              color: 'var(--cg-fg-on-primary)',
               fontSize: 13,
               fontWeight: 500,
               padding: '8px 16px',
-              borderRadius: 8,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+              borderRadius: 'var(--cg-radius)',
+              boxShadow: 'var(--cg-shadow-sm)',
               whiteSpace: 'nowrap',
             }}
           >
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
               <IconCheck size={14} /> Live Chat Settings saved.
             </span>
           </div>
@@ -155,7 +155,7 @@ export default function LiveChatSettingsModal({ onClose, currentPlan = 'standard
               margin: 0,
               fontSize: 18,
               fontWeight: 600,
-              color: '#171717',
+              color: 'var(--cg-fg-1)',
               lineHeight: '28px',
             }}
           >
@@ -168,17 +168,17 @@ export default function LiveChatSettingsModal({ onClose, currentPlan = 'standard
             style={{
               width: 32,
               height: 32,
-              borderRadius: 6,
+              borderRadius: 'var(--cg-radius-sm)',
               border: 'none',
               backgroundColor: 'transparent',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#737373',
-              transition: 'background-color 120ms',
+              color: 'var(--cg-fg-3)',
+              transition: 'background-color var(--cg-dur-fast)',
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#F5F5F5')}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--cg-gray-100)')}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
           >
             <IconX size={18} />
@@ -190,7 +190,7 @@ export default function LiveChatSettingsModal({ onClose, currentPlan = 'standard
           role="tablist"
           style={{
             display: 'flex',
-            borderBottom: '1px solid #E5E5E5',
+            borderBottom: '1px solid var(--cg-divider)',
             padding: '0 24px',
             marginTop: 16,
             flexShrink: 0,
@@ -210,20 +210,22 @@ export default function LiveChatSettingsModal({ onClose, currentPlan = 'standard
                   padding: '8px 16px',
                   fontSize: 14,
                   fontWeight: isActive ? 600 : 400,
-                  color: isActive ? '#7367F0' : '#737373',
+                  color: isActive ? 'var(--cg-primary)' : 'var(--cg-fg-3)',
                   border: 'none',
-                  borderBottom: isActive ? '2px solid #7367F0' : '2px solid transparent',
+                  borderBottom: isActive
+                    ? '2px solid var(--cg-primary)'
+                    : '2px solid transparent',
                   backgroundColor: 'transparent',
                   cursor: 'pointer',
                   marginBottom: -1,
-                  transition: 'color 120ms, border-color 120ms',
+                  transition: 'color var(--cg-dur-fast), border-color var(--cg-dur-fast)',
                   whiteSpace: 'nowrap',
                 }}
                 onMouseEnter={(e) => {
-                  if (!isActive) e.currentTarget.style.color = '#404040';
+                  if (!isActive) e.currentTarget.style.color = 'var(--cg-fg-2)';
                 }}
                 onMouseLeave={(e) => {
-                  if (!isActive) e.currentTarget.style.color = '#737373';
+                  if (!isActive) e.currentTarget.style.color = 'var(--cg-fg-3)';
                 }}
               >
                 {tab.label}
@@ -257,7 +259,7 @@ export default function LiveChatSettingsModal({ onClose, currentPlan = 'standard
         <div
           style={{
             padding: '16px 24px',
-            borderTop: '1px solid #E5E5E5',
+            borderTop: '1px solid var(--cg-divider)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -272,15 +274,15 @@ export default function LiveChatSettingsModal({ onClose, currentPlan = 'standard
               padding: '0 20px',
               fontSize: 14,
               fontWeight: 500,
-              color: '#525252',
+              color: 'var(--cg-gray-600)',
               backgroundColor: 'transparent',
-              border: '1px solid #D4D4D4',
-              borderRadius: 8,
+              border: '1px solid var(--cg-border)',
+              borderRadius: 'var(--cg-radius)',
               cursor: 'pointer',
-              transition: 'background-color 120ms, border-color 120ms',
+              transition: 'background-color var(--cg-dur-fast), border-color var(--cg-dur-fast)',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#F5F5F5';
+              e.currentTarget.style.backgroundColor = 'var(--cg-gray-100)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = 'transparent';
@@ -318,8 +320,12 @@ function SaveButton({
   const isSuccess = state === 'success';
   const isError = state === 'error';
 
-  const bg = isError ? '#EA5455' : '#7367F0';
-  const bgHover = isError ? '#D14B4C' : '#685DD8';
+  const bgDefault = isSuccess
+    ? 'var(--cg-success)'
+    : isError
+      ? 'var(--cg-danger)'
+      : 'var(--cg-primary)';
+  const bgHover = isError ? 'var(--cg-danger-600)' : 'var(--cg-primary-hover)';
 
   return (
     <button
@@ -334,20 +340,20 @@ function SaveButton({
         padding: '0 24px',
         fontSize: 14,
         fontWeight: 600,
-        color: '#FFFFFF',
-        backgroundColor: isSuccess ? '#28C76F' : bg,
+        color: 'var(--cg-fg-on-primary)',
+        backgroundColor: bgDefault,
         border: 'none',
-        borderRadius: 8,
+        borderRadius: 'var(--cg-radius)',
         cursor: isSaving ? 'not-allowed' : 'pointer',
-        transition: 'background-color 200ms',
+        transition: 'background-color var(--cg-dur)',
         minWidth: 132,
         justifyContent: 'center',
       }}
       onMouseEnter={(e) => {
-        if (!isSaving && !isSuccess) e.currentTarget.style.backgroundColor = isError ? '#D14B4C' : bgHover;
+        if (!isSaving && !isSuccess) e.currentTarget.style.backgroundColor = bgHover;
       }}
       onMouseLeave={(e) => {
-        if (!isSaving && !isSuccess) e.currentTarget.style.backgroundColor = isSuccess ? '#28C76F' : bg;
+        if (!isSaving && !isSuccess) e.currentTarget.style.backgroundColor = bgDefault;
       }}
       title={!hasUnsaved && state === 'idle' ? 'No changes to save' : undefined}
     >
@@ -383,22 +389,22 @@ function UnsavedDialog({
     >
       <div
         style={{
-          backgroundColor: '#FFF',
-          borderRadius: 16,
+          backgroundColor: 'var(--cg-bg-card)',
+          borderRadius: 'var(--cg-radius-lg)',
           padding: '24px',
           width: 360,
-          boxShadow: '0 8px 32px rgba(23,23,23,0.22)',
+          boxShadow: 'var(--cg-shadow-modal)',
           position: 'relative',
           zIndex: 1,
         }}
       >
-        <h3 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 600, color: '#171717' }}>
+        <h3 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 600, color: 'var(--cg-fg-1)' }}>
           Unsaved changes
         </h3>
-        <p style={{ margin: '0 0 20px', fontSize: 14, lineHeight: '20px', color: '#525252' }}>
+        <p style={{ margin: '0 0 20px', fontSize: 14, lineHeight: '20px', color: 'var(--cg-gray-600)' }}>
           You have unsaved changes. What would you like to do?
         </p>
-        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
           <button
             type="button"
             onClick={onCancel}
@@ -406,10 +412,10 @@ function UnsavedDialog({
               padding: '8px 16px',
               fontSize: 14,
               fontWeight: 500,
-              color: '#525252',
+              color: 'var(--cg-gray-600)',
               backgroundColor: 'transparent',
-              border: '1px solid #D4D4D4',
-              borderRadius: 8,
+              border: '1px solid var(--cg-border)',
+              borderRadius: 'var(--cg-radius)',
               cursor: 'pointer',
             }}
           >
@@ -422,10 +428,10 @@ function UnsavedDialog({
               padding: '8px 16px',
               fontSize: 14,
               fontWeight: 500,
-              color: '#EA5455',
-              backgroundColor: '#FEF2F2',
-              border: '1px solid #FBDCDC',
-              borderRadius: 8,
+              color: 'var(--cg-danger)',
+              backgroundColor: 'var(--cg-danger-100)',
+              border: '1px solid var(--cg-danger-100)',
+              borderRadius: 'var(--cg-radius)',
               cursor: 'pointer',
             }}
           >
@@ -438,10 +444,10 @@ function UnsavedDialog({
               padding: '8px 16px',
               fontSize: 14,
               fontWeight: 600,
-              color: '#FFF',
-              backgroundColor: '#7367F0',
+              color: 'var(--cg-fg-on-primary)',
+              backgroundColor: 'var(--cg-primary)',
               border: 'none',
-              borderRadius: 8,
+              borderRadius: 'var(--cg-radius)',
               cursor: 'pointer',
             }}
           >

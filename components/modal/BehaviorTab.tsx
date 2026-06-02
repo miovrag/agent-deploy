@@ -3,6 +3,7 @@
 import Toggle from '@/components/ui/Toggle';
 import { IconInfoCircle, IconAlertTriangle } from '@/components/ui/Icons';
 import { LiveChatSettings } from '@/lib/types';
+import { AgentInitiativePreview, AutoPopupPreview } from './BehaviorPreview';
 
 interface Props {
   settings: LiveChatSettings;
@@ -11,7 +12,7 @@ interface Props {
 
 function HelpBtn({ title }: { title: string }) {
   return (
-    <span title={title} style={{ color: '#A3A3A3', display: 'inline-flex', flexShrink: 0 }}>
+    <span title={title} style={{ color: 'var(--cg-fg-4)', display: 'inline-flex', flexShrink: 0 }}>
       <IconInfoCircle size={14} />
     </span>
   );
@@ -49,13 +50,13 @@ function ToggleRow({
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 14, lineHeight: '20px', color: disabled ? '#737373' : '#404040' }}>
+            <span style={{ fontSize: 14, lineHeight: '20px', color: disabled ? 'var(--cg-fg-3)' : 'var(--cg-fg-2)' }}>
               {label}
             </span>
             {helpText && <HelpBtn title={helpText} />}
           </div>
           {description && (
-            <p style={{ margin: 0, fontSize: 12, lineHeight: '16px', color: '#737373' }}>
+            <p style={{ margin: 0, fontSize: 12, lineHeight: '16px', color: 'var(--cg-fg-3)' }}>
               {description}
             </p>
           )}
@@ -66,7 +67,7 @@ function ToggleRow({
             style={{
               fontSize: 12,
               fontWeight: 500,
-              color: checked && !disabled ? '#7367F0' : '#A3A3A3',
+              color: checked && !disabled ? 'var(--cg-primary)' : 'var(--cg-fg-4)',
               minWidth: 48,
             }}
           >
@@ -80,17 +81,17 @@ function ToggleRow({
             display: 'flex',
             alignItems: 'flex-start',
             gap: 8,
-            backgroundColor: '#FFF7EE',
-            border: '1px solid #FECDA0',
-            borderRadius: 6,
+            backgroundColor: 'var(--cg-warning-100)',
+            border: '1px solid rgba(255,159,67,0.3)',
+            borderRadius: 'var(--cg-radius-sm)',
             padding: '8px 12px',
             marginBottom: 8,
           }}
         >
-          <span style={{ color: '#FF9F43', lineHeight: 1, flexShrink: 0, marginTop: 1, display: 'inline-flex' }}>
+          <span style={{ color: 'var(--cg-warning)', lineHeight: 1, flexShrink: 0, marginTop: 1, display: 'inline-flex' }}>
             <IconAlertTriangle size={14} />
           </span>
-          <p style={{ margin: 0, fontSize: 12, lineHeight: '18px', color: '#92400E' }}>{warning}</p>
+          <p style={{ margin: 0, fontSize: 12, lineHeight: '18px', color: 'var(--cg-warning-700)' }}>{warning}</p>
         </div>
       )}
     </div>
@@ -98,21 +99,12 @@ function ToggleRow({
 }
 
 function RowDivider() {
-  return <div style={{ height: 1, backgroundColor: '#F5F5F5' }} />;
+  return <div style={{ height: 1, backgroundColor: 'var(--cg-gray-100)' }} />;
 }
 
 function SectionHeader({ children }: { children: React.ReactNode }) {
   return (
-    <p
-      style={{
-        margin: 0,
-        fontSize: 11,
-        fontWeight: 600,
-        letterSpacing: '0.06em',
-        textTransform: 'uppercase',
-        color: '#A3A3A3',
-      }}
-    >
+    <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: 'var(--cg-fg-1)' }}>
       {children}
     </p>
   );
@@ -123,12 +115,20 @@ export default function BehaviorTab({ settings, onChange }: Props) {
 
   return (
     <div>
-      {/* Agent behavior */}
-      <SectionHeader>Agent Initiative</SectionHeader>
-      <p style={{ margin: '4px 0 0', fontSize: 12, lineHeight: '16px', color: '#737373' }}>
-        If enabled, the agent will take the initiative and display the first Starter Question as a suggested prompt next to its avatar.
-      </p>
-      <div style={{ borderBottom: '1px solid #E5E5E5', marginBottom: 24 }}>
+      {/* Agent Initiative */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginBottom: 12 }}>
+        <div>
+          <SectionHeader>Agent Initiative</SectionHeader>
+          <p style={{ margin: '4px 0 0', fontSize: 12, lineHeight: '16px', color: 'var(--cg-fg-3)' }}>
+            If enabled, the agent will take the initiative and display the first Starter Question as a suggested prompt next to its avatar.
+          </p>
+        </div>
+        <AgentInitiativePreview
+          promptStarterQuestion={settings.promptStarterQuestion}
+          autoStartConversation={settings.autoStartConversation}
+        />
+      </div>
+      <div style={{ borderBottom: '1px solid var(--cg-divider)', marginBottom: 24 }}>
         <ToggleRow
           label="Prompt user with a Starter Question"
           description="If enabled, the agent will take the initiative and display the first Starter Question as a suggested prompt next to its avatar."
@@ -166,7 +166,10 @@ export default function BehaviorTab({ settings, onChange }: Props) {
       </div>
 
       {/* Auto-popup */}
-      <SectionHeader>Auto-popup</SectionHeader>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginBottom: 8 }}>
+        <SectionHeader>Auto-popup</SectionHeader>
+        <AutoPopupPreview autoPopupDesktop={settings.autoPopupDesktop} />
+      </div>
       <div>
         <ToggleRow
           label="Pop up chat bubble (Desktop)"
