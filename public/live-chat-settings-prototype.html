@@ -7,6 +7,11 @@
   <link href="https://unpkg.com/vuetify@3/dist/vuetify.min.css" rel="stylesheet">
   <link href="https://unpkg.com/@mdi/font@7/css/materialdesignicons.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    // Disable Tailwind Preflight to avoid conflicts with Vuetify's base reset
+    tailwind = { config: { corePlugins: { preflight: false } } }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
     :root {
@@ -338,8 +343,7 @@
     }
 
     /* ── Page layout ── */
-    html, body { height: 100%; overflow: hidden; }
-    .page-shell { display: flex; height: 100vh; overflow: hidden; background: #F5F5F5; }
+    html, body { height: 100%; }
 
     /* Sidebar */
     .sidebar {
@@ -414,109 +418,111 @@
   <div id="app">
     <v-app theme="customgpt">
 
-      <!-- ── Full page ── -->
-      <div class="page-shell">
-
-        <!-- Sidebar -->
-        <aside class="sidebar">
-          <!-- Logo -->
-          <div style="padding:16px 20px;border-bottom:1px solid var(--border-default);">
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div style="width:28px;height:28px;background:var(--brand-primary-default);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <v-icon size="16" color="white">mdi-creation</v-icon>
-              </div>
-              <span style="font:700 14px/20px 'Inter',sans-serif;color:var(--text-heading);">CustomGPT.ai</span>
+      <!-- ── Navigation Drawer (sidebar) ── -->
+      <v-navigation-drawer permanent width="270" color="white" border="r">
+        <!-- Logo -->
+        <template #prepend>
+          <div class="flex items-center gap-2 px-5 py-4 border-b border-gray-200">
+            <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style="background:var(--brand-primary-default);">
+              <v-icon size="16" color="white">mdi-creation</v-icon>
             </div>
+            <span class="font-bold text-sm" style="color:var(--text-heading);">CustomGPT.ai</span>
           </div>
-          <!-- New Agent -->
-          <div style="padding:12px 16px;border-bottom:1px solid var(--border-default);">
+          <div class="px-4 py-3 border-b border-gray-200">
             <v-btn color="primary" variant="flat" rounded="md" block prepend-icon="mdi-plus">New Agent</v-btn>
           </div>
-          <!-- Back -->
-          <div style="padding:4px 8px;border-bottom:1px solid var(--border-default);">
-            <button class="sidebar-nav-btn" style="color:var(--brand-primary-default);font-weight:600;">
-              <v-icon size="18" color="primary">mdi-chevron-left</v-icon> My Agent
-            </button>
+          <div class="px-2 py-1 border-b border-gray-200">
+            <v-btn variant="text" color="primary" prepend-icon="mdi-chevron-left" block class="justify-start font-semibold">My Agent</v-btn>
           </div>
-          <!-- Nav -->
-          <nav style="padding:8px 10px;flex:1;">
-            <button v-for="item in sidebarNav" :key="item.id" class="sidebar-nav-btn" :class="{ active: item.active }">
-              <v-icon size="18">{{ 'mdi-' + item.icon }}</v-icon>
-              {{ item.label }}
-            </button>
-          </nav>
-          <!-- Copilot -->
-          <div style="margin:0 8px 8px;border:1px solid var(--border-default);border-radius:8px;padding:8px 12px;">
-            <div style="font:600 12px/16px 'Inter',sans-serif;color:var(--text-muted);margin-bottom:8px;">CustomGPT.ai Copilot</div>
-            <div style="display:flex;align-items:center;border:1px solid var(--border-default);border-radius:8px;padding:8px 12px;background:#fff;gap:8px;">
-              <span style="flex:1;font:400 12px/16px 'Inter',sans-serif;color:var(--text-muted);">I need help with…</span>
+        </template>
+
+        <!-- Nav items -->
+        <v-list density="compact" nav class="px-2 py-2">
+          <v-list-item
+            v-for="item in sidebarNav" :key="item.id"
+            :prepend-icon="'mdi-' + item.icon"
+            :title="item.label"
+            :active="item.active"
+            active-color="primary"
+            rounded="md"
+            class="mb-0.5"
+          />
+        </v-list>
+
+        <!-- Copilot + bottom rows -->
+        <template #append>
+          <div class="mx-2 mb-2 border border-gray-200 rounded-lg p-3">
+            <p class="text-xs font-semibold mb-2" style="color:var(--text-muted);">CustomGPT.ai Copilot</p>
+            <div class="flex items-center border border-gray-200 rounded-lg px-3 py-2 bg-white gap-2">
+              <span class="flex-1 text-xs" style="color:var(--text-muted);">I need help with…</span>
               <v-icon size="14" color="#B7B5BE">mdi-send-outline</v-icon>
             </div>
           </div>
-          <!-- Developers -->
-          <div style="padding:12px 20px;border-top:1px solid var(--border-default);display:flex;align-items:center;justify-content:space-between;cursor:pointer;" @mouseenter="$event.currentTarget.style.background='#FAFAFA'" @mouseleave="$event.currentTarget.style.background='transparent'">
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div style="width:32px;height:32px;border-radius:8px;background:var(--brand-primary-tint);display:flex;align-items:center;justify-content:center;">
-                <v-icon size="16" color="primary">mdi-code-tags</v-icon>
-              </div>
-              <span style="font:500 14px/20px 'Inter',sans-serif;color:var(--text-heading);">Developers</span>
-            </div>
-            <v-icon size="16" color="#B7B5BE">mdi-chevron-right</v-icon>
-          </div>
-          <!-- My Profile -->
-          <div style="padding:12px 20px;border-top:1px solid var(--border-default);display:flex;align-items:center;justify-content:space-between;cursor:pointer;" @mouseenter="$event.currentTarget.style.background='#FAFAFA'" @mouseleave="$event.currentTarget.style.background='transparent'">
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div style="width:32px;height:32px;border-radius:999px;background:var(--brand-primary-tint);display:flex;align-items:center;justify-content:center;font:700 12px/1 'Inter',sans-serif;color:var(--brand-primary-default);">MR</div>
-              <span style="font:500 14px/20px 'Inter',sans-serif;color:var(--text-heading);">My Profile</span>
-            </div>
-            <v-icon size="16" color="#B7B5BE">mdi-chevron-right</v-icon>
-          </div>
-        </aside>
+          <v-divider />
+          <v-list-item
+            prepend-icon="mdi-code-tags"
+            title="Developers"
+            append-icon="mdi-chevron-right"
+            class="cursor-pointer"
+          />
+          <v-divider />
+          <v-list-item append-icon="mdi-chevron-right" class="cursor-pointer">
+            <template #prepend>
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mr-3 flex-shrink-0" style="background:var(--brand-primary-tint);color:var(--brand-primary-default);">MR</div>
+            </template>
+            <v-list-item-title>My Profile</v-list-item-title>
+          </v-list-item>
+        </template>
+      </v-navigation-drawer>
 
-        <!-- Right panel -->
-        <div class="right-panel">
-
-          <!-- Top bar -->
-          <div class="topbar">
-            <v-icon size="20" color="#B7B5BE" style="cursor:pointer;flex-shrink:0;">mdi-view-split-vertical</v-icon>
-            <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
-              <h1 style="font:700 20px/28px 'Inter',sans-serif;color:var(--text-heading);margin:0;white-space:nowrap;">
-                Deploy <span style="color:var(--text-muted);font-weight:400;">•</span> My Agent
-              </h1>
-              <span style="display:inline-flex;align-items:center;gap:4px;background:#FFE4C4;color:#C27B34;padding:2px 8px;border-radius:999px;font:600 11px/16px 'Inter',sans-serif;white-space:nowrap;">
-                <v-icon size="12" color="#C27B34">mdi-lightning-bolt</v-icon>
-                Plan and Act (BETA)
-              </span>
-            </div>
-            <div style="text-align:right;flex-shrink:0;">
-              <div style="font:400 12px/16px 'Inter',sans-serif;color:var(--text-muted);">Agent ID: 95211</div>
-              <div style="font:400 12px/16px 'Inter',sans-serif;color:var(--text-muted);">Agent Key: 7390dddd…</div>
-            </div>
+      <!-- ── App Bar (topbar + tabs as extension) ── -->
+      <v-app-bar elevation="0" border="b" color="white" height="56" extension-height="44">
+        <template #prepend>
+          <v-btn icon variant="text" color="#B7B5BE" size="small" class="ml-2">
+            <v-icon>mdi-view-split-vertical</v-icon>
+          </v-btn>
+        </template>
+        <div class="flex items-center gap-3 min-w-0">
+          <h1 class="text-xl font-bold whitespace-nowrap m-0" style="color:var(--text-heading);">
+            Deploy <span class="font-normal" style="color:var(--text-muted);">•</span> My Agent
+          </h1>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap" style="background:#FFE4C4;color:#C27B34;">
+            <v-icon size="12" color="#C27B34">mdi-lightning-bolt</v-icon>
+            Plan and Act (BETA)
+          </span>
+        </div>
+        <template #append>
+          <div class="text-right mr-4 flex-shrink-0">
+            <div class="text-xs" style="color:var(--text-muted);">Agent ID: 95211</div>
+            <div class="text-xs" style="color:var(--text-muted);">Agent Key: 7390dddd…</div>
           </div>
-
-          <!-- Page tab nav -->
-          <div class="page-tabs-bar">
-            <button v-for="t in pageTabs" :key="t.id" class="page-tab-btn" :class="{ active: activePageTab === t.id }" @click="activePageTab = t.id">
-              <v-icon size="14">{{ 'mdi-' + t.icon }}</v-icon>
+        </template>
+        <template #extension>
+          <v-tabs v-model="activePageTab" color="primary" density="compact" height="44" class="px-4">
+            <v-tab v-for="t in pageTabs" :key="t.id" :value="t.id" :prepend-icon="'mdi-' + t.icon">
               {{ t.label }}
-            </button>
-          </div>
+            </v-tab>
+          </v-tabs>
+        </template>
+      </v-app-bar>
 
-          <!-- Content -->
-          <main class="page-content">
+      <!-- ── Main content ── -->
+      <v-main>
+        <v-window v-model="activePageTab" class="h-full">
 
-            <!-- Share tab -->
-            <div v-if="activePageTab === 'share'" class="share-content">
+          <!-- Share tab -->
+          <v-window-item value="share">
+            <div class="p-7 max-w-3xl">
 
               <!-- Share link -->
-              <section style="margin-bottom:32px;">
-                <div class="section-heading">
-                  <span class="section-heading-label">Share link</span>
+              <section class="mb-8">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-base font-semibold" style="color:var(--text-heading);">Share link</span>
                 </div>
-                <p style="font:400 14px/20px 'Inter',sans-serif;color:var(--text-muted);margin-bottom:12px;">Send this URL for quick access to the agent.</p>
+                <p class="text-sm mb-3" style="color:var(--text-muted);">Send this URL for quick access to the agent.</p>
                 <div class="url-field">
-                  <span style="flex:1;font:400 14px/20px 'Inter',sans-serif;color:var(--text-body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">https://{{ pagePrefix }}.customgpt-agents.com</span>
-                  <div style="display:flex;gap:4px;margin-left:8px;flex-shrink:0;">
+                  <span class="flex-1 text-sm overflow-hidden text-ellipsis whitespace-nowrap" style="color:var(--text-body);">https://{{ pagePrefix }}.customgpt-agents.com</span>
+                  <div class="flex gap-1 ml-2 flex-shrink-0">
                     <div class="icon-wrap">
                       <button class="icon-action-btn" @click="openEditModal"><v-icon size="16">mdi-pencil-outline</v-icon></button>
                       <span class="icon-tip">Edit share link</span>
@@ -529,18 +535,18 @@
                     </div>
                   </div>
                 </div>
-                <div style="text-align:right;margin-top:8px;">
-                  <a href="#" style="font:400 14px/20px 'Inter',sans-serif;color:var(--brand-primary-default);text-decoration:none;" @mouseenter="$event.target.style.textDecoration='underline'" @mouseleave="$event.target.style.textDecoration='none'">Prefer the old link format?</a>
+                <div class="text-right mt-2">
+                  <a href="#" class="text-sm" style="color:var(--brand-primary-default);text-decoration:none;" @mouseenter="$event.target.style.textDecoration='underline'" @mouseleave="$event.target.style.textDecoration='none'">Prefer the old link format?</a>
                 </div>
               </section>
 
-              <div style="height:1px;background:var(--border-default);margin-bottom:32px;"></div>
+              <v-divider class="mb-8" />
 
               <!-- Live chat -->
-              <section style="margin-bottom:32px;">
-                <div class="section-heading">
-                  <span class="section-heading-label">Add a live chat to your website</span>
-                  <div style="display:flex;align-items:center;gap:8px;">
+              <section class="mb-8">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-base font-semibold" style="color:var(--text-heading);">Add a live chat to your website</span>
+                  <div class="flex items-center gap-2">
                     <v-btn variant="outlined" color="primary" rounded="md" density="compact" size="small">Try it out</v-btn>
                     <div class="icon-wrap">
                       <button class="icon-action-btn bordered" @click="open = true"><v-icon size="16">mdi-cog-outline</v-icon></button>
@@ -548,10 +554,10 @@
                     </div>
                   </div>
                 </div>
-                <p style="font:400 14px/20px 'Inter',sans-serif;color:var(--text-muted);margin-bottom:12px;">To add a chat widget in the bottom right corner, copy the following code and paste it anywhere inside the &lt;body&gt; section of your webpage.</p>
+                <p class="text-sm mb-3" style="color:var(--text-muted);">To add a chat widget in the bottom right corner, copy the following code and paste it anywhere inside the &lt;body&gt; section of your webpage.</p>
                 <div class="code-block">
                   <pre>{{ liveChatCode }}</pre>
-                  <div style="position:absolute;bottom:8px;right:8px;display:flex;gap:4px;">
+                  <div class="absolute bottom-2 right-2 flex gap-1">
                     <div class="icon-wrap">
                       <button class="icon-action-btn" :class="{ active: codeCopied1 }" @click="copyCode(liveChatCode, 'code1')"><v-icon size="15">{{ codeCopied1 ? 'mdi-check' : 'mdi-content-copy' }}</v-icon></button>
                       <span class="icon-tip">Copy</span>
@@ -564,13 +570,13 @@
                 </div>
               </section>
 
-              <div style="height:1px;background:var(--border-default);margin-bottom:32px;"></div>
+              <v-divider class="mb-8" />
 
               <!-- Embed -->
               <section>
-                <div class="section-heading">
-                  <span class="section-heading-label">Embed an agent into your website</span>
-                  <div style="display:flex;align-items:center;gap:8px;">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-base font-semibold" style="color:var(--text-heading);">Embed an agent into your website</span>
+                  <div class="flex items-center gap-2">
                     <v-btn variant="outlined" color="primary" rounded="md" density="compact" size="small">Try it out</v-btn>
                     <div class="icon-wrap">
                       <button class="icon-action-btn bordered"><v-icon size="16">mdi-cog-outline</v-icon></button>
@@ -578,10 +584,10 @@
                     </div>
                   </div>
                 </div>
-                <p style="font:400 14px/20px 'Inter',sans-serif;color:var(--text-muted);margin-bottom:12px;">To add the agent anywhere on a page, copy the following code and paste it into the &lt;body&gt; section of your webpage.</p>
+                <p class="text-sm mb-3" style="color:var(--text-muted);">To add the agent anywhere on a page, copy the following code and paste it into the &lt;body&gt; section of your webpage.</p>
                 <div class="code-block">
                   <pre>{{ embedCode }}</pre>
-                  <div style="position:absolute;bottom:8px;right:8px;display:flex;gap:4px;">
+                  <div class="absolute bottom-2 right-2 flex gap-1">
                     <div class="icon-wrap">
                       <button class="icon-action-btn" :class="{ active: codeCopied2 }" @click="copyCode(embedCode, 'code2')"><v-icon size="15">{{ codeCopied2 ? 'mdi-check' : 'mdi-content-copy' }}</v-icon></button>
                       <span class="icon-tip">Copy</span>
@@ -595,12 +601,15 @@
               </section>
 
             </div>
+          </v-window-item>
 
-            <!-- Other tabs -->
-            <div v-if="activePageTab !== 'share'" style="padding:64px 32px;text-align:center;font:400 14px/20px 'Inter',sans-serif;color:var(--text-muted);">Coming soon</div>
-          </main>
-        </div>
-      </div>
+          <!-- Other tabs -->
+          <v-window-item v-for="t in pageTabs.filter(x => x.id !== 'share')" :key="t.id" :value="t.id">
+            <div class="flex items-center justify-center py-16 text-sm" style="color:var(--text-muted);">Coming soon</div>
+          </v-window-item>
+
+        </v-window>
+      </v-main>
 
       <!-- ── Edit modal (custom share link) ── -->
       <v-dialog v-model="editModalOpen" width="520" scrim="rgba(23,23,23,0.5)">
