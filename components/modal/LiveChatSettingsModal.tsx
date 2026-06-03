@@ -319,6 +319,7 @@ function SaveButton({
   const isSaving = state === 'saving';
   const isSuccess = state === 'success';
   const isError = state === 'error';
+  const isNoOp = !hasUnsaved && state === 'idle';
 
   const bgDefault = isSuccess
     ? 'var(--cg-success)'
@@ -330,7 +331,7 @@ function SaveButton({
   return (
     <button
       type="button"
-      disabled={isSaving}
+      disabled={isSaving || isNoOp}
       onClick={onClick}
       style={{
         display: 'flex',
@@ -344,18 +345,19 @@ function SaveButton({
         backgroundColor: bgDefault,
         border: 'none',
         borderRadius: 'var(--cg-radius)',
-        cursor: isSaving ? 'not-allowed' : 'pointer',
+        cursor: isSaving || isNoOp ? 'not-allowed' : 'pointer',
         transition: 'background-color var(--cg-dur)',
         minWidth: 132,
         justifyContent: 'center',
+        opacity: isNoOp ? 0.45 : 1,
       }}
       onMouseEnter={(e) => {
-        if (!isSaving && !isSuccess) e.currentTarget.style.backgroundColor = bgHover;
+        if (!isSaving && !isSuccess && !isNoOp) e.currentTarget.style.backgroundColor = bgHover;
       }}
       onMouseLeave={(e) => {
-        if (!isSaving && !isSuccess) e.currentTarget.style.backgroundColor = bgDefault;
+        if (!isSaving && !isSuccess && !isNoOp) e.currentTarget.style.backgroundColor = bgDefault;
       }}
-      title={!hasUnsaved && state === 'idle' ? 'No changes to save' : undefined}
+      title={isNoOp ? 'No changes to save' : undefined}
     >
       {isSaving && <span className="spinner" />}
       {isSaving && 'Saving…'}

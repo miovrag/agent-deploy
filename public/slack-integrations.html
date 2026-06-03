@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="color-scheme" content="light">
+  <title>Deploy · Integrations — CustomGPT.ai</title>
+  <link href="https://unpkg.com/vuetify@3/dist/vuetify.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/@mdi/font@7/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --brand-primary:      #7367F0;
+      --brand-primary-hover:#685DD8;
+      --brand-primary-tint: #EAE8FD;
+      --bg-body:            #F5F5F5;
+      --bg-surface:         #FFFFFF;
+      --text-heading:       #212121;
+      --text-body:          #565656;
+      --text-muted:         #B7B5BE;
+      --text-placeholder:   #999999;
+      --border-default:     #E5E5E5;
+      --border-emphasis:    #D4D4D4;
+      --color-success:      #28C76F;
+      --color-warning:      #FF9F43;
+      --color-danger:       #EA5455;
+      --shadow-card:        0px 4px 18px 0px rgba(75,70,92,0.10);
+      --shadow-modal:       0px 5px 20px 0px rgba(75,70,92,0.40);
+      --radius-md:          6px;
+      --radius-xl:          16px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg-body); font-family: 'Public Sans', sans-serif; }
+
+    /* ── Vuetify overrides ── */
+    .v-btn { text-transform: none !important; letter-spacing: normal !important; font-family: 'Public Sans', sans-serif !important; }
+    .v-tab { text-transform: none !important; letter-spacing: normal !important; }
+    .v-card { font-family: 'Public Sans', sans-serif !important; }
+
+    /* ── Shell ── */
+    .shell { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 260px; flex-shrink: 0;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-default);
+      display: flex; flex-direction: column;
+      padding: 0 0 16px;
+    }
+    .sidebar-logo {
+      padding: 16px 20px; border-bottom: 1px solid var(--border-default);
+    }
+    .sidebar-logo img { height: 28px; }
+    .sidebar-logo-text {
+      font-size: 18px; font-weight: 700; color: var(--brand-primary);
+      font-family: 'Public Sans', sans-serif;
+    }
+    .sidebar-new-btn { padding: 12px 16px; border-bottom: 1px solid var(--border-default); }
+    .sidebar-agent-link {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px; border-bottom: 1px solid var(--border-default);
+      font-size: 13px; font-weight: 600; color: var(--brand-primary);
+      cursor: pointer;
+    }
+    .sidebar-nav { flex: 1; padding: 8px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 6px; margin-bottom: 2px;
+      font-size: 14px; color: var(--text-body); cursor: pointer;
+      transition: background 120ms;
+    }
+    .nav-item:hover { background: #F5F5F5; }
+    .nav-item.active { background: var(--brand-primary-tint); color: var(--brand-primary); font-weight: 600; }
+    .nav-item .mdi { font-size: 18px; }
+
+    /* ── Main area ── */
+    .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+    /* ── Topbar ── */
+    .topbar {
+      height: 56px; background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-default);
+      display: flex; align-items: center;
+      padding: 0 24px 0 28px;
+      gap: 12px; flex-shrink: 0;
+    }
+    .topbar-title {
+      font-size: 20px; font-weight: 700; color: var(--text-heading);
+      font-family: 'Public Sans', sans-serif; flex: 1;
+    }
+    .topbar-meta { text-align: right; }
+    .topbar-meta p { font-size: 12px; color: var(--text-muted); margin: 0; line-height: 18px; }
+    .beta-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #FFF3E0; color: #F57C00;
+      font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 999px;
+      margin-left: 8px;
+    }
+
+    /* ── Tab nav ── */
+    .tab-nav {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-default);
+      display: flex; padding: 0 28px; flex-shrink: 0;
+    }
+    .tab-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 12px 16px;
+      font-size: 14px; font-weight: 500; color: var(--text-muted);
+      border: none; background: none; cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 120ms, border-color 120ms;
+      font-family: 'Public Sans', sans-serif;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--text-body); }
+    .tab-btn.active { color: var(--brand-primary); border-bottom-color: var(--brand-primary); font-weight: 600; }
+    .tab-btn .mdi { font-size: 16px; }
+
+    /* ── Content area ── */
+    .content { flex: 1; overflow-y: auto; }
+
+    /* ── Integrations grid ── */
+    .integ-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 16px; padding: 28px 32px; max-width: 960px;
+    }
+    .integ-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex; flex-direction: column; gap: 12px;
+      transition: box-shadow 120ms;
+      min-width: 0; /* prevent grid column blowout */
+    }
+    .integ-actions { flex-wrap: wrap; }
+    .integ-actions .v-btn { flex-shrink: 0; }
+    .integ-card:hover { box-shadow: var(--shadow-card); }
+    .integ-card.slack-connected {
+      border-color: rgba(40,199,111,0.35);
+      box-shadow: 0 0 0 3px rgba(40,199,111,0.08);
+    }
+    .integ-card-header { display: flex; align-items: center; justify-content: space-between; }
+    .integ-card-title { display: flex; align-items: center; gap: 12px; }
+    .brand-logo {
+      width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .brand-logo img { width: 28px; height: 28px; object-fit: contain; }
+    .brand-logo .mdi { font-size: 28px; }
+    .integ-name { font-size: 15px; font-weight: 600; color: var(--text-heading); }
+    .integ-code-icon { color: var(--text-muted); }
+    .integ-desc {
+      font-size: 13px; line-height: 18px; color: var(--text-body); flex: 1; margin: 0;
+    }
+    .integ-actions { display: flex; gap: 8px; margin-top: 4px; }
+
+    /* connected badge */
+    .connected-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #D6F5E3; border: 1px solid rgba(40,199,111,0.35);
+      border-radius: 999px; padding: 3px 10px;
+      font-size: 12px; font-weight: 600; color: #1F9C57;
+    }
+    .connected-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-success); flex-shrink: 0; }
+
+    /* connected key row */
+    .connected-key-row {
+      background: #FAFAFA; border: 1px solid var(--border-default);
+      border-radius: 8px; padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .key-label { font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+    .key-value { font-size: 13px; font-weight: 500; color: var(--text-body); font-family: 'JetBrains Mono', monospace; }
+    .regen-link { font-size: 12px; font-weight: 600; color: var(--brand-primary); cursor: pointer; white-space: nowrap; }
+    .regen-link:hover { text-decoration: underline; }
+
+    /* ── Completion screen ── */
+    .completion-wrap { padding: 28px 32px; max-width: 920px; }
+
+    .back-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 13px; font-weight: 500; color: var(--text-muted);
+      background: none; border: none; cursor: pointer;
+      font-family: 'Public Sans', sans-serif;
+      transition: color 120ms;
+    }
+    .back-btn:hover { color: var(--text-heading); }
+    .step-counter { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+
+    /* success banner */
+    .success-banner {
+      display: flex; align-items: center; gap: 12px;
+      background: #D6F5E3; border: 1px solid rgba(40,199,111,0.35);
+      border-radius: 12px; padding: 16px 20px; margin-bottom: 28px;
+    }
+    .success-banner-icon {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(40,199,111,0.15); border: 1.5px solid rgba(40,199,111,0.4);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .success-banner-icon .mdi { font-size: 18px; color: #1F9C57; }
+    .success-banner-title { font-size: 14px; font-weight: 600; color: #1F9C57; }
+    .success-banner-sub { font-size: 12px; color: #1F9C57; opacity: 0.8; margin-top: 1px; }
+
+    /* two-col layout */
+    .completion-body { display: flex; gap: 32px; align-items: flex-start; }
+    .stepper-col { width: 220px; flex-shrink: 0; padding-top: 2px; }
+    .col-divider { width: 1px; background: var(--border-default); align-self: stretch; flex-shrink: 0; }
+    .form-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+
+    /* stepper */
+    .stepper-list { display: flex; flex-direction: column; }
+    .stepper-item { display: flex; align-items: flex-start; gap: 12px; }
+    .stepper-spine { display: flex; flex-direction: column; align-items: center; width: 24px; flex-shrink: 0; }
+    .stepper-dot {
+      width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; flex-shrink: 0;
+      transition: all 200ms;
+    }
+    .stepper-dot.done { background: #D6F5E3; border: 1.5px solid rgba(40,199,111,0.4); color: #1F9C57; }
+    .stepper-dot.active { background: var(--brand-primary); border: 1.5px solid var(--brand-primary); color: #fff; }
+    .stepper-dot.pending { background: #F5F5F5; border: 1.5px solid var(--border-emphasis); color: var(--text-muted); }
+    .stepper-line { width: 1.5px; flex: 1; min-height: 20px; margin: 2px 0; }
+    .stepper-line.done { background: rgba(40,199,111,0.3); }
+    .stepper-line.pending { background: var(--border-default); }
+    .stepper-label {
+      padding-top: 3px; font-size: 13px;
+    }
+    .stepper-label.done { color: #1F9C57; }
+    .stepper-label.active { color: var(--text-heading); font-weight: 600; }
+    .stepper-label.pending { color: var(--text-muted); }
+    .stepper-spacer { padding-bottom: 16px; }
+
+    /* form section heading */
+    .form-heading { font-size: 16px; font-weight: 600; color: var(--text-heading); margin-bottom: 4px; }
+    .form-subheading { font-size: 13px; color: var(--text-body); }
+    .field-label { font-size: 13px; font-weight: 500; color: var(--text-body); margin-bottom: 6px; }
+
+    /* one-time warning */
+    .warn-banner {
+      display: flex; gap: 10px; align-items: flex-start;
+      background: #FFF3E0; border: 1px solid rgba(255,159,67,0.35);
+      border-radius: 8px; padding: 12px 16px;
+    }
+    .warn-banner .mdi { color: var(--color-warning); font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .warn-text { font-size: 13px; line-height: 18px; color: #C27B34; }
+
+    /* step 3 instruction box */
+    .instruction-box {
+      background: #FAFAFA; border: 1px solid var(--border-default);
+      border-radius: 10px; padding: 16px 20px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .instruction-label { font-size: 13px; font-weight: 500; color: var(--text-body); }
+    .breadcrumb-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .breadcrumb-pill {
+      background: var(--bg-surface); border: 1px solid var(--border-emphasis);
+      border-radius: 6px; padding: 4px 12px;
+      font-size: 13px; font-weight: 500; color: var(--text-heading);
+    }
+    .breadcrumb-arrow { color: var(--text-muted); font-size: 13px; }
+    .instruction-sub { font-size: 13px; color: var(--text-body); }
+
+    /* key display row */
+    .key-display {
+      background: var(--bg-surface); border: 1px solid var(--border-default);
+      border-radius: 8px; padding: 12px 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .key-mono { font-size: 13px; font-family: monospace; color: var(--text-body); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ── Custom radio ── */
+    .radio-custom-group { display: flex; flex-direction: column; gap: 10px; }
+    .radio-custom-opt {
+      display: flex; align-items: flex-start; gap: 10px;
+      cursor: pointer; user-select: none;
+    }
+    .radio-circle {
+      width: 18px !important; height: 18px !important; min-width: 18px; min-height: 18px;
+      border-radius: 50% !important; flex-shrink: 0; margin-top: 2px;
+      border: 2px solid #B7B5BE !important;
+      background: #fff !important;
+      display: flex !important; align-items: center; justify-content: center;
+      transition: border-color 120ms;
+      box-sizing: border-box !important;
+    }
+    .radio-circle.checked { border-color: var(--brand-primary) !important; }
+    .radio-fill {
+      width: 8px !important; height: 8px !important;
+      border-radius: 50% !important; background: var(--brand-primary) !important;
+      flex-shrink: 0;
+    }
+    .radio-label-main { font-size: 13px; font-weight: 500; color: var(--text-heading); line-height: 18px; }
+    .radio-label-sub   { font-size: 11px; color: var(--text-muted); margin-top: 1px; line-height: 16px; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 999;
+      display: flex; align-items: center; gap: 8px;
+      background: #D6F5E3; border: 1px solid rgba(40,199,111,0.35);
+      border-radius: 8px; padding: 12px 16px;
+      font-size: 13px; font-weight: 500; color: #1F9C57;
+      box-shadow: var(--shadow-card);
+      animation: toast-in 200ms cubic-bezier(.2,.7,.3,1);
+    }
+    @keyframes toast-in { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }
+
+    /* ── v-btn text fix ── */
+    .cg-btn-primary.v-btn { background: var(--brand-primary) !important; color: #fff !important; }
+    .cg-btn-primary.v-btn:hover { background: var(--brand-primary-hover) !important; }
+    .cg-btn-outline.v-btn { background: transparent !important; color: var(--brand-primary) !important; border: 1px solid var(--brand-primary) !important; }
+    .cg-btn-outline.v-btn:hover { background: var(--brand-primary-tint) !important; }
+    .cg-btn-ghost.v-btn { background: transparent !important; color: var(--text-body) !important; border: 1px solid var(--border-emphasis) !important; }
+    .cg-btn-ghost.v-btn:hover { background: #F5F5F5 !important; }
+    .cg-btn-danger.v-btn { background: var(--color-danger) !important; color: #fff !important; }
+    .cg-btn-success-ghost.v-btn { background: transparent !important; color: #1F9C57 !important; border: 1px solid rgba(40,199,111,0.4) !important; }
+
+    .fade-enter-active, .fade-leave-active { transition: opacity 200ms, transform 200ms cubic-bezier(.2,.7,.3,1); }
+    .fade-enter-from { opacity: 0; transform: translateY(6px); }
+    .fade-leave-to   { opacity: 0; transform: translateY(-4px); }
+
+    /* ── Settings modal ── */
+    .modal-wrap { position: relative; }
+    .modal-close-x {
+      position: absolute; top: -14px; right: -14px; z-index: 10;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #fff; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(75,70,92,0.25);
+      color: var(--text-body); font-size: 18px;
+      transition: background 120ms;
+    }
+    .modal-close-x:hover { background: #F5F5F5; }
+    .modal-card { box-shadow: var(--shadow-modal) !important; }
+
+    /* compact success banner (modal header) */
+    .modal-success-hdr {
+      display: flex; align-items: center; gap: 12px;
+      background: #D6F5E3; border-bottom: 1px solid rgba(40,199,111,0.2);
+      padding: 14px 24px;
+    }
+    .modal-success-hdr-icon {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(40,199,111,0.2); border: 1.5px solid rgba(40,199,111,0.4);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-success-hdr-icon .mdi { font-size: 16px; color: #1F9C57; }
+    .modal-success-title { font-size: 13px; font-weight: 600; color: #1F9C57; }
+    .modal-success-sub   { font-size: 11px; color: #1F9C57; opacity: 0.8; margin-top: 1px; }
+
+    /* horizontal stepper */
+    .hstepper {
+      display: flex; align-items: flex-start;
+      padding: 20px 24px 16px; gap: 0;
+    }
+    .hstep {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      position: relative;
+    }
+    .hstep:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 11px; left: calc(50% + 14px); right: calc(-50% + 14px);
+      height: 1.5px; background: var(--border-default);
+      transition: background 200ms;
+    }
+    .hstep.done:not(:last-child)::after { background: rgba(40,199,111,0.4); }
+    .hstep.active:not(:last-child)::after { background: var(--border-default); }
+    .hstep-dot {
+      width: 22px; height: 22px; border-radius: 50%; z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; transition: all 200ms;
+    }
+    .hstep-dot.done   { background: #D6F5E3; border: 1.5px solid rgba(40,199,111,0.4); color: #1F9C57; }
+    .hstep-dot.active { background: var(--brand-primary); border: 1.5px solid var(--brand-primary); color: #fff; }
+    .hstep-dot.pending{ background: #F5F5F5; border: 1.5px solid var(--border-emphasis); color: var(--text-muted); }
+    .hstep-label { font-size: 11px; margin-top: 6px; text-align: center; line-height: 14px; max-width: 80px; }
+    .hstep-label.done   { color: #1F9C57; }
+    .hstep-label.active { color: var(--brand-primary); font-weight: 600; }
+    .hstep-label.pending{ color: var(--text-muted); }
+
+    /* modal body + footer */
+    .modal-body { padding: 20px 24px 24px; max-height: 55vh; overflow-y: auto; box-sizing: border-box; }
+    .modal-body::-webkit-scrollbar { width: 5px; }
+    .modal-body::-webkit-scrollbar-track { background: transparent; }
+    .modal-body::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 4px; }
+    .modal-ft {
+      padding: 16px 24px; border-top: 1px solid var(--border-default);
+      display: flex; align-items: center; gap: 12px;
+    }
+
+    /* ── Vuetify card overrides ── */
+    .modal-card > * { box-sizing: border-box; }
+    .modal-card .v-card__loader { display: none; }
+    /* Vuetify adds negative margin to v-card children in some versions */
+    .modal-card { padding: 0 !important; }
+    .modal-card .v-card-text,
+    .modal-card .v-card__text { padding: 0 !important; }
+
+    /* ── Resume banner (setup incomplete) ── */
+    .resume-banner {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: #FFF3E0; border: 1px solid rgba(255,159,67,0.35);
+      border-radius: 8px; padding: 10px 12px; margin-bottom: 4px;
+    }
+    .resume-banner .mdi-alert { font-size: 16px; color: var(--color-warning); flex-shrink: 0; margin-top: 1px; }
+    .resume-banner-text { flex: 1; font-size: 12px; line-height: 17px; color: #C27B34; }
+    .resume-banner-text strong { color: #A06020; }
+    .resume-link { font-weight: 600; color: #C27B34; text-decoration: underline; cursor: pointer; margin-left: 4px; }
+    .resume-banner .close-x { font-size: 14px; color: #C27B34; cursor: pointer; flex-shrink: 0; opacity: 0.7; }
+    .resume-banner .close-x:hover { opacity: 1; }
+
+    /* ── Close guard dialog ── */
+    .close-guard-overlay {
+      position: fixed; inset: 0; z-index: 400;
+      background: rgba(23,23,23,0.4);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .close-guard-card {
+      background: #fff; border-radius: 12px;
+      box-shadow: var(--shadow-modal);
+      padding: 24px 28px; max-width: 380px; width: 90%;
+      animation: fade-up 180ms cubic-bezier(.2,.7,.3,1);
+    }
+    .close-guard-title { font-size: 16px; font-weight: 600; color: var(--text-heading); margin-bottom: 8px; }
+    .close-guard-body  { font-size: 13px; color: var(--text-body); line-height: 18px; margin-bottom: 20px; }
+    .close-guard-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* ── Clipboard fallback ── */
+    .clipboard-fallback {
+      margin-top: 12px;
+      background: #FFF3E0; border: 1px solid rgba(255,159,67,0.35);
+      border-radius: 8px; padding: 12px 14px;
+    }
+    .clipboard-fallback-label { font-size: 12px; color: #C27B34; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .clipboard-fallback input {
+      width: 100%; font-family: monospace; font-size: 12px;
+      padding: 8px 10px; border: 1px solid rgba(255,159,67,0.4);
+      border-radius: 6px; background: #fff; color: var(--text-body);
+      outline: none; cursor: text;
+    }
+    .clipboard-fallback input:focus { border-color: var(--color-warning); }
+
+    /* ── Admin pending screen ── */
+    .admin-pending-body {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; padding: 48px 32px; gap: 16px;
+    }
+    .admin-pending-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: #FFF3E0; border: 2px solid rgba(255,159,67,0.4);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .admin-pending-icon .mdi { font-size: 28px; color: var(--color-warning); }
+    .admin-pending-title { font-size: 22px; font-weight: 700; color: #1D1C1D; }
+    .admin-pending-body p { font-size: 14px; color: #616061; line-height: 20px; max-width: 380px; margin: 0; }
+    .admin-pending-body p a { color: #1264A3; text-decoration: none; }
+    .admin-pending-body p a:hover { text-decoration: underline; }
+
+    /* ── Did it work follow-up ── */
+    .did-it-work {
+      margin-top: 16px; padding: 12px 14px;
+      background: var(--bg-body); border: 1px solid var(--border-default);
+      border-radius: 8px; display: flex; align-items: center; justify-content: space-between;
+      gap: 12px;
+    }
+    .did-it-work-label { font-size: 13px; color: var(--text-body); }
+    .did-it-work-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    /* ── Workspace select ── */
+    .ws-option {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px; cursor: pointer;
+      border-radius: 4px; transition: background 100ms;
+    }
+    .ws-option:hover { background: #F8F8F8; }
+    .ws-option.selected { background: #F0F0F0; }
+    .ws-option-check { margin-left: auto; color: #1D1C1D; }
+
+    /* ── Slack OAuth overlay ── */
+    .oauth-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: #fff;
+      display: flex; flex-direction: column;
+      animation: fade-up 220ms cubic-bezier(.2,.7,.3,1);
+    }
+    @keyframes fade-up { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
+
+    .oauth-topbar {
+      height: 56px; border-bottom: 1px solid #E8E8E8;
+      display: flex; align-items: center; padding: 0 24px; gap: 8px;
+      background: #fff;
+    }
+    .oauth-topbar-logo { display: flex; align-items: center; gap: 6px; }
+    .slack-logo-mark { width: 28px; height: 28px; }
+
+    .oauth-body {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 40px 24px; background: #fff; overflow-y: auto;
+    }
+    .oauth-card {
+      width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 20px;
+    }
+    .oauth-app-header { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+    .oauth-app-icon {
+      width: 64px; height: 64px; border-radius: 16px;
+      background: linear-gradient(135deg, #7367F0 0%, #9B8FF4 100%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .oauth-app-icon .mdi { font-size: 32px; color: #fff; }
+    .oauth-title { font-size: 22px; font-weight: 700; color: #1D1C1D; line-height: 28px; font-family: 'Lato', 'Inter', sans-serif; }
+    .oauth-not-approved {
+      display: flex; align-items: flex-start; gap: 6px;
+      color: #E8322A; font-size: 13px; line-height: 18px;
+    }
+    .oauth-not-approved .mdi { font-size: 15px; margin-top: 1px; flex-shrink: 0; }
+    .oauth-not-approved a { color: #1264A3; text-decoration: none; }
+    .oauth-not-approved a:hover { text-decoration: underline; }
+    .oauth-workspace-row { display: flex; flex-direction: column; gap: 4px; }
+    .oauth-workspace-label { font-size: 13px; font-weight: 600; color: #1D1C1D; }
+    .oauth-workspace-select {
+      display: flex; align-items: center; gap: 8px;
+      border: 1px solid #D8D8D8; border-radius: 6px;
+      padding: 8px 12px; background: #fff; cursor: pointer;
+      font-size: 14px; color: #1D1C1D;
+    }
+    .oauth-workspace-icon {
+      width: 22px; height: 22px; border-radius: 4px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #fff;
+      background: linear-gradient(135deg, #36C5F0, #2EB67D);
+    }
+    .oauth-permissions {
+      border: 1px solid #D8D8D8; border-radius: 8px; overflow: hidden;
+    }
+    .oauth-perm-section { padding: 0; }
+    .oauth-perm-header {
+      padding: 12px 16px; background: #F8F8F8;
+      font-size: 12px; font-weight: 600; color: #616061;
+      text-transform: uppercase; letter-spacing: .04em;
+      border-bottom: 1px solid #D8D8D8;
+    }
+    .oauth-perm-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; border-bottom: 1px solid #F0F0F0;
+      font-size: 14px; color: #1D1C1D;
+    }
+    .oauth-perm-item:last-child { border-bottom: none; }
+    .oauth-perm-item .mdi { font-size: 16px; color: #616061; }
+    .oauth-perm-chevron { font-size: 14px; color: #616061; }
+    .oauth-perm-between { border-top: 1px solid #D8D8D8; }
+    .oauth-legalese {
+      font-size: 12px; color: #616061; line-height: 17px;
+    }
+    .oauth-legalese a { color: #1264A3; text-decoration: none; }
+    .oauth-legalese a:hover { text-decoration: underline; }
+    .oauth-actions { display: flex; gap: 12px; justify-content: flex-end; }
+    .oauth-btn-cancel {
+      height: 40px; padding: 0 20px; border: 1px solid #D8D8D8;
+      border-radius: 6px; background: #fff;
+      font-size: 14px; font-weight: 700; color: #1D1C1D;
+      cursor: pointer; font-family: 'Lato','Inter',sans-serif;
+      transition: background 120ms;
+    }
+    .oauth-btn-cancel:hover { background: #F8F8F8; }
+    .oauth-btn-allow {
+      height: 40px; padding: 0 20px; border: none;
+      border-radius: 6px; background: #007A5A;
+      font-size: 14px; font-weight: 700; color: #fff;
+      cursor: pointer; font-family: 'Lato','Inter',sans-serif;
+      transition: background 120ms;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .oauth-btn-allow:hover { background: #006649; }
+    .oauth-btn-allow .spinner-sm {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform:rotate(360deg) } }
+
+    /* ── Thank you screen ── */
+    .thankyou-screen {
+      position: fixed; inset: 0; z-index: 200;
+      background: #9B9EA4;
+      display: flex; align-items: center; justify-content: center;
+      animation: fade-up 200ms cubic-bezier(.2,.7,.3,1);
+    }
+    .thankyou-card {
+      background: #fff; border-radius: 12px;
+      padding: 32px 36px; max-width: 480px; width: 90%;
+      text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    }
+    .thankyou-title { font-size: 24px; font-weight: 700; color: #1D1C1D; margin-bottom: 16px; }
+    .thankyou-body { font-size: 15px; color: #616061; line-height: 22px; }
+    .thankyou-body a { color: #1264A3; text-decoration: none; font-weight: 600; }
+    .thankyou-body a:hover { text-decoration: underline; }
+    .thankyou-progress {
+      margin-top: 24px; height: 3px; background: #E8E8E8; border-radius: 2px; overflow: hidden;
+    }
+    .thankyou-progress-fill {
+      height: 100%; background: #007A5A; border-radius: 2px;
+      animation: progress-fill 1.6s cubic-bezier(.4,0,.2,1) forwards;
+    }
+    @keyframes progress-fill { from { width:0 } to { width:100% } }
+  </style>
+</head>
+<body>
+<div id="app">
+  <v-app>
+    <div class="shell">
+
+      <!-- ── Sidebar ── -->
+      <aside class="sidebar">
+        <div class="sidebar-logo">
+          <span class="sidebar-logo-text">CustomGPT.ai</span>
+        </div>
+        <div class="sidebar-new-btn">
+          <v-btn class="cg-btn-primary" block rounded="md" height="40" prepend-icon="mdi-plus">
+            New Agent
+          </v-btn>
+        </div>
+        <div class="sidebar-agent-link">
+          <span class="mdi mdi-chevron-left"></span>
+          My Agent
+        </div>
+        <nav class="sidebar-nav">
+          <div v-for="item in navItems" :key="item.id"
+               :class="['nav-item', item.active && 'active']">
+            <span :class="['mdi', item.icon]"></span>
+            {{ item.label }}
+          </div>
+        </nav>
+        <div style="padding: 12px 16px; border-top: 1px solid var(--border-default);">
+          <div style="font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px;">CustomGPT.ai Copilot</div>
+          <div style="display:flex;align-items:center;gap:8px;border:1px solid var(--border-default);border-radius:8px;padding:8px 12px;background:var(--bg-surface);">
+            <span style="flex:1;font-size:12px;color:var(--text-placeholder);">I need help with…</span>
+            <span class="mdi mdi-send" style="font-size:14px;color:var(--text-muted)"></span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ── Main ── -->
+      <div class="main">
+
+        <!-- Topbar -->
+        <div class="topbar">
+          <span class="mdi mdi-view-sidebar" style="font-size:18px;color:var(--text-muted);cursor:pointer"></span>
+          <div class="topbar-title">
+            Deploy
+            <span style="color:var(--text-muted);font-weight:400"> • </span>
+            My Agent
+            <span class="beta-chip">
+              <span class="mdi mdi-lightning-bolt" style="font-size:11px"></span>
+              Plan and Act (BETA)
+            </span>
+          </div>
+          <div class="topbar-meta">
+            <p>Agent ID: 95211</p>
+            <p>Agent Key: 7390ddddafa2f53b...</p>
+          </div>
+        </div>
+
+        <!-- Tab nav -->
+        <div class="tab-nav">
+          <button v-for="tab in tabs" :key="tab.id"
+                  :class="['tab-btn', activeTab === tab.id && 'active']"
+                  @click="activeTab = tab.id">
+            <span :class="['mdi', tab.icon]"></span>
+            {{ tab.label }}
+          </button>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+
+          <!-- ── Integrations tab ── -->
+          <template v-if="activeTab === 'integrations'">
+
+            <!-- Always-visible integrations grid -->
+            <div class="integ-grid">
+
+              <!-- Row 1 pos 1: WordPress (beforeSlack) -->
+              <div v-for="card in beforeSlack" :key="card.id" class="integ-card">
+                <div class="integ-card-header">
+                  <div class="integ-card-title">
+                    <div class="brand-logo">
+                      <span v-if="card.tablerIcon" :class="['mdi', card.tablerIcon]" :style="{ fontSize:'28px', color: card.iconColor }"></span>
+                      <img v-else :src="card.logoSrc" :alt="card.name" style="width:28px;height:28px;object-fit:contain">
+                    </div>
+                    <span class="integ-name">{{ card.name }}</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+                    <v-btn v-if="card.hasTryItOut" variant="outlined" color="primary" density="compact" rounded="md" style="height:32px;font-size:12px;font-weight:500;padding:0 12px">Try it out</v-btn>
+                    <span v-if="card.hasGear" class="mdi mdi-cog-outline" style="font-size:18px;color:var(--text-muted);cursor:pointer"></span>
+                    <span v-if="card.isCode" class="mdi mdi-code-tags" style="font-size:16px;color:var(--text-muted)"></span>
+                  </div>
+                </div>
+                <p class="integ-desc" style="flex:1">{{ card.description }}</p>
+                <div class="integ-actions" style="display:flex;align-items:center;gap:12px;margin-top:4px">
+                  <template v-if="card.hasConnect">
+                    <v-btn class="cg-btn-outline" height="40" rounded="md" style="flex:1" prepend-icon="mdi-link-variant">Connect</v-btn>
+                    <v-btn variant="text" color="primary" height="40" rounded="md" append-icon="mdi-open-in-new" style="padding:0 4px;flex-shrink:0">Docs</v-btn>
+                  </template>
+                  <template v-else>
+                    <v-btn class="cg-btn-outline" height="40" rounded="md" block append-icon="mdi-open-in-new">Docs</v-btn>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Row 1 pos 2: Slack -->
+              <div :class="['integ-card', slackPhase === 'connected' && 'slack-connected']">
+                <div class="integ-card-header">
+                  <div class="integ-card-title">
+                    <div class="brand-logo">
+                      <span class="mdi mdi-slack" style="font-size:28px;color:#611f69"></span>
+                    </div>
+                    <span class="integ-name">Slack</span>
+                  </div>
+                  <div v-if="slackPhase === 'connected'" class="connected-badge">
+                    <span class="connected-dot"></span>
+                    Connected · HS360
+                  </div>
+                </div>
+
+                <!-- Resume banner — shown when key was created but Step 3 not completed -->
+                <div v-if="slackPhase === 'incomplete'" class="resume-banner">
+                  <span class="mdi mdi-alert"></span>
+                  <div class="resume-banner-text">
+                    <strong>Setup incomplete</strong> — your connection key was created but not activated in Slack yet.
+                    <span class="resume-link" @click="slackPhase = 'key_ready'">Finish setup →</span>
+                  </div>
+                  <span class="mdi mdi-close close-x" @click="slackPhase = 'idle'"></span>
+                </div>
+
+                <p class="integ-desc" style="flex:1">
+                  Connect the agent with your Slack workspace, add it to channels, and choose who can access it and where.
+                </p>
+
+                <div v-if="slackPhase === 'connected'" class="connected-key-row">
+                  <div>
+                    <div class="key-label">Connection key</div>
+                    <div class="key-value">95211|J8kP•••••••••••••••••••6yE</div>
+                  </div>
+                  <span class="regen-link" @click="slackPhase = 'completing'">Regenerate</span>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:12px;margin-top:4px">
+                  <template v-if="slackPhase !== 'connected'">
+                    <v-btn class="cg-btn-outline" height="40" rounded="md" style="flex:1"
+                           :loading="slackPhase === 'connecting'"
+                           prepend-icon="mdi-link-variant"
+                           @click="handleConnect">Connect</v-btn>
+                    <v-btn variant="text" color="primary" height="40" rounded="md" append-icon="mdi-open-in-new" style="padding:0 4px;flex-shrink:0">Docs</v-btn>
+                  </template>
+                  <template v-else>
+                    <v-btn class="cg-btn-ghost" height="40" rounded="md" style="flex:1"
+                           prepend-icon="mdi-close" @click="handleDisconnect">Disconnect</v-btn>
+                    <v-btn variant="text" color="primary" height="40" rounded="md" append-icon="mdi-open-in-new" style="padding:0 4px;flex-shrink:0">Docs</v-btn>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Other integrations -->
+              <div v-for="card in otherIntegrations" :key="card.id" class="integ-card">
+                <div class="integ-card-header">
+                  <div class="integ-card-title">
+                    <div class="brand-logo">
+                      <span v-if="card.tablerIcon" :class="['mdi', card.tablerIcon]" :style="{ fontSize:'28px', color: card.iconColor }"></span>
+                      <img v-else :src="card.logoSrc" :alt="card.name" style="width:28px;height:28px;object-fit:contain">
+                    </div>
+                    <span class="integ-name">{{ card.name }}</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+                    <span v-if="card.isCode" class="mdi mdi-code-tags" style="font-size:16px;color:var(--text-muted)"></span>
+                    <span v-if="card.hasGear" class="mdi mdi-cog-outline" style="font-size:18px;color:var(--text-muted);cursor:pointer"></span>
+                  </div>
+                </div>
+                <p class="integ-desc" style="flex:1">{{ card.description }}</p>
+                <div style="display:flex;align-items:center;gap:12px;margin-top:4px">
+                  <template v-if="card.hasConnect">
+                    <v-btn class="cg-btn-outline" height="40" rounded="md" style="flex:1" prepend-icon="mdi-link-variant">Connect</v-btn>
+                    <v-btn variant="text" color="primary" height="40" rounded="md" append-icon="mdi-open-in-new" style="padding:0 4px;flex-shrink:0">Docs</v-btn>
+                  </template>
+                  <template v-else>
+                    <v-btn class="cg-btn-outline" height="40" rounded="md" block append-icon="mdi-open-in-new">Docs</v-btn>
+                  </template>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- ── Slack settings modal ── -->
+            <v-dialog
+              :model-value="slackPhase === 'completing' || slackPhase === 'key_ready' || slackPhase === 'incomplete'"
+              max-width="560"
+              persistent
+              @update:model-value="val => { if (!val) handleModalClose() }"
+            >
+              <div class="modal-wrap">
+
+                <!-- Close X — outside card, top-right -->
+                <button class="modal-close-x" @click="handleModalClose">
+                  <span class="mdi mdi-close"></span>
+                </button>
+
+                <div style="background:#fff;border-radius:16px;box-shadow:0px 5px 20px 0px rgba(75,70,92,0.40);overflow:hidden;position:relative">
+
+                  <!-- Header: compact success banner -->
+                  <div class="modal-success-hdr">
+                    <div class="modal-success-hdr-icon">
+                      <span class="mdi mdi-slack"></span>
+                    </div>
+                    <div>
+                      <div class="modal-success-title">Slack workspace "HS360" connected!</div>
+                      <div class="modal-success-sub">
+                        {{ slackPhase === 'completing'
+                            ? 'One more step — create a connection key to activate your agent.'
+                            : 'Almost done — open Slack and paste your key to activate the bot.' }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Horizontal stepper -->
+                  <div class="hstepper">
+                    <div v-for="step in stepperSteps" :key="step.n" :class="['hstep', step.state]">
+                      <div :class="['hstep-dot', step.state]">
+                        <span v-if="step.state === 'done'" class="mdi mdi-check" style="font-size:12px"></span>
+                        <span v-else>{{ step.n }}</span>
+                      </div>
+                      <div :class="['hstep-label', step.state]">{{ step.label }}</div>
+                    </div>
+                  </div>
+
+                  <div style="height:1px;background:#E5E5E5"></div>
+
+                  <!-- Body -->
+                  <div style="padding:24px;max-height:52vh;overflow-y:auto">
+                    <transition name="fade" mode="out-in">
+
+                      <!-- Step 2: Create key -->
+                      <div v-if="slackPhase === 'completing'" key="step2">
+                        <div class="form-heading" style="margin-bottom:4px">Create your connection key</div>
+                        <div class="form-subheading" style="margin-bottom:20px">
+                          This key allows Slack to securely communicate with your agent.
+                        </div>
+
+                        <div style="margin-bottom:16px">
+                          <div class="field-label">Key name</div>
+                          <v-text-field v-model="keyName" variant="outlined" density="compact"
+                            rounded="md" hide-details bg-color="white" />
+                        </div>
+
+                        <div style="margin-bottom:16px">
+                          <div class="field-label">Scope</div>
+                          <div style="display:flex;flex-direction:column;gap:10px">
+                            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;user-select:none" @click="keyScope = 'agent'">
+                              <div :style="{width:'18px',height:'18px',minWidth:'18px',borderRadius:'50%',flexShrink:'0',marginTop:'2px',border: keyScope==='agent' ? '2px solid #7367F0' : '2px solid #B7B5BE',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',boxSizing:'border-box'}">
+                                <div v-if="keyScope === 'agent'" style="width:8px;height:8px;border-radius:50%;background:#7367F0;flex-shrink:0"></div>
+                              </div>
+                              <div>
+                                <div style="font-size:13px;font-weight:500;color:#212121;line-height:18px">This agent only</div>
+                                <div style="font-size:11px;color:#B7B5BE;margin-top:1px;line-height:16px">Only "My Agent" can use this key</div>
+                              </div>
+                            </label>
+                            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;user-select:none" @click="keyScope = 'all'">
+                              <div :style="{width:'18px',height:'18px',minWidth:'18px',borderRadius:'50%',flexShrink:'0',marginTop:'2px',border: keyScope==='all' ? '2px solid #7367F0' : '2px solid #B7B5BE',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',boxSizing:'border-box'}">
+                                <div v-if="keyScope === 'all'" style="width:8px;height:8px;border-radius:50%;background:#7367F0;flex-shrink:0"></div>
+                              </div>
+                              <div>
+                                <div style="font-size:13px;font-weight:500;color:#212121;line-height:18px">All agents in my account</div>
+                                <div style="font-size:11px;color:#B7B5BE;margin-top:1px;line-height:16px">Any agent can use this key</div>
+                              </div>
+                            </label>
+                          </div>
+                        </div>
+
+                        <div style="margin-bottom:20px">
+                          <div class="field-label">Key expiry</div>
+                          <div style="display:flex;flex-direction:column;gap:10px">
+                            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;user-select:none" @click="keyExpiry = 'never'">
+                              <div :style="{width:'18px',height:'18px',minWidth:'18px',borderRadius:'50%',flexShrink:'0',marginTop:'2px',border: keyExpiry==='never' ? '2px solid #7367F0' : '2px solid #B7B5BE',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',boxSizing:'border-box'}">
+                                <div v-if="keyExpiry === 'never'" style="width:8px;height:8px;border-radius:50%;background:#7367F0;flex-shrink:0"></div>
+                              </div>
+                              <div style="font-size:13px;font-weight:500;color:#212121;line-height:18px">Never expires</div>
+                            </label>
+                            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;user-select:none" @click="keyExpiry = 'custom'">
+                              <div :style="{width:'18px',height:'18px',minWidth:'18px',borderRadius:'50%',flexShrink:'0',marginTop:'2px',border: keyExpiry==='custom' ? '2px solid #7367F0' : '2px solid #B7B5BE',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',boxSizing:'border-box'}">
+                                <div v-if="keyExpiry === 'custom'" style="width:8px;height:8px;border-radius:50%;background:#7367F0;flex-shrink:0"></div>
+                              </div>
+                              <div style="font-size:13px;font-weight:500;color:#212121;line-height:18px">Custom duration</div>
+                            </label>
+                          </div>
+                          <div v-if="keyExpiry === 'custom'"
+                               style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-left:28px">
+                            <v-text-field v-model="expiryDays" variant="outlined" density="compact"
+                              rounded="md" hide-details bg-color="white" type="number"
+                              placeholder="30" autocomplete="off" style="max-width:88px" />
+                            <span style="font-size:13px;color:var(--text-body)">days</span>
+                          </div>
+                        </div>
+
+                        <div class="warn-banner">
+                          <span class="mdi mdi-alert-circle-outline"></span>
+                          <p class="warn-text" style="margin:0">
+                            This key is <strong>shown only once</strong>. If you lose it, you can always regenerate from Deploy → API.
+                          </p>
+                        </div>
+                      </div>
+
+                      <!-- Step 3: Activate -->
+                      <div v-else-if="slackPhase === 'key_ready'" key="step3">
+                        <div class="form-heading" style="margin-bottom:4px">Activate in Slack</div>
+                        <div class="form-subheading" style="margin-bottom:20px">
+                          Your key has been copied. Now paste it in the Slack app.
+                        </div>
+
+                        <div class="instruction-box" style="margin-bottom:16px">
+                          <div class="instruction-label">In Slack, go to:</div>
+                          <div class="breadcrumb-row">
+                            <span class="breadcrumb-pill">Your bot</span>
+                            <span class="breadcrumb-arrow">→</span>
+                            <span class="breadcrumb-pill">Home</span>
+                            <span class="breadcrumb-arrow">→</span>
+                            <span class="breadcrumb-pill">Connection tab</span>
+                          </div>
+                          <div class="instruction-sub">
+                            Paste your key in the <strong>API Key</strong> field and click Connect.
+                          </div>
+                        </div>
+
+                        <div class="key-display">
+                          <span class="key-mono">95211|J8kP•••••••••••••••••••••••••6yE</span>
+                          <v-btn variant="outlined" color="primary" density="compact"
+                            rounded="md" height="32"
+                            :prepend-icon="copyAgainDone ? 'mdi-check' : 'mdi-content-copy'"
+                            @click="handleCopyAgain">
+                            {{ copyAgainDone ? 'Copied' : 'Copy again' }}
+                          </v-btn>
+                        </div>
+
+                        <!-- Clipboard fallback — shown when API fails -->
+                        <div v-if="clipboardFailed" class="clipboard-fallback">
+                          <div class="clipboard-fallback-label">
+                            <span class="mdi mdi-alert-circle-outline" style="color:var(--color-warning);font-size:14px"></span>
+                            Auto-copy failed. Select all and copy manually:
+                          </div>
+                          <input type="text" readonly :value="MOCK_KEY" @focus="e => e.target.select()" />
+                        </div>
+
+                        <!-- Did it work? -->
+                        <div class="did-it-work">
+                          <span class="did-it-work-label">Did your agent respond in Slack?</span>
+                          <div class="did-it-work-actions">
+                            <v-btn variant="outlined" color="success" density="compact" rounded="md" height="30"
+                              style="font-size:12px" prepend-icon="mdi-check"
+                              @click="handleOpenSlack">Yes, it's working!</v-btn>
+                            <v-btn variant="text" color="primary" density="compact" height="30"
+                              style="font-size:12px" append-icon="mdi-open-in-new">Help</v-btn>
+                          </div>
+                        </div>
+                      </div>
+
+                    </transition>
+                  </div>
+
+                  <div style="height:1px;background:#E5E5E5"></div>
+
+                  <!-- Footer actions -->
+                  <div style="padding:16px 24px;display:flex;align-items:center;gap:12px">
+                    <template v-if="slackPhase === 'completing'">
+                      <v-btn class="cg-btn-ghost" height="40" rounded="md"
+                             @click="handleModalClose">Cancel</v-btn>
+                      <v-btn class="cg-btn-primary" height="40" rounded="md"
+                             :loading="generating" :disabled="!keyName.trim()"
+                             prepend-icon="mdi-content-copy"
+                             @click="handleGenerate">
+                        Generate &amp; Copy Key
+                      </v-btn>
+                    </template>
+                    <template v-else-if="slackPhase === 'key_ready'">
+                      <span style="font-size:13px;color:var(--text-muted);flex:1">or switch to Slack and paste manually</span>
+                      <v-btn class="cg-btn-primary" height="40" rounded="md"
+                             prepend-icon="mdi-slack"
+                             @click="handleOpenSlack">
+                        Open in Slack
+                      </v-btn>
+                    </template>
+                  </div>
+
+                </div>
+              </div>
+            </v-dialog>
+
+          </template>
+
+          <!-- Other tabs placeholder -->
+          <template v-else>
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;gap:12px">
+              <div style="width:48px;height:48px;border-radius:12px;background:var(--brand-primary-tint);display:flex;align-items:center;justify-content:center">
+                <span class="mdi mdi-lightning-bolt" style="font-size:22px;color:var(--brand-primary)"></span>
+              </div>
+              <div style="font-size:15px;font-weight:600;color:var(--text-heading)">Coming soon</div>
+              <div style="font-size:13px;color:var(--text-muted)">This section is under construction.</div>
+            </div>
+          </template>
+
+        </div><!-- /content -->
+      </div><!-- /main -->
+    </div><!-- /shell -->
+
+    <!-- Toast -->
+    <transition name="fade">
+      <div v-if="toast" class="toast">
+        <span class="mdi mdi-check-circle" style="font-size:16px"></span>
+        {{ toast }}
+      </div>
+    </transition>
+
+    <!-- ── Slack OAuth overlay ── -->
+    <div v-if="oauthPhase === 'oauth'" class="oauth-overlay">
+      <!-- Slack topbar -->
+      <div class="oauth-topbar">
+        <div class="oauth-topbar-logo">
+          <svg class="slack-logo-mark" viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19.7 32.5c0 2.6-2.1 4.7-4.7 4.7s-4.7-2.1-4.7-4.7 2.1-4.7 4.7-4.7h4.7v4.7z" fill="#E01E5A"/>
+            <path d="M22.1 32.5c0-2.6 2.1-4.7 4.7-4.7s4.7 2.1 4.7 4.7v11.8c0 2.6-2.1 4.7-4.7 4.7s-4.7-2.1-4.7-4.7V32.5z" fill="#E01E5A"/>
+            <path d="M26.8 19.7c-2.6 0-4.7-2.1-4.7-4.7s2.1-4.7 4.7-4.7 4.7 2.1 4.7 4.7v4.7h-4.7z" fill="#36C5F0"/>
+            <path d="M26.8 22.1c2.6 0 4.7 2.1 4.7 4.7s-2.1 4.7-4.7 4.7H15c-2.6 0-4.7-2.1-4.7-4.7s2.1-4.7 4.7-4.7h11.8z" fill="#36C5F0"/>
+            <path d="M39.6 26.8c0-2.6 2.1-4.7 4.7-4.7s4.7 2.1 4.7 4.7-2.1 4.7-4.7 4.7h-4.7v-4.7z" fill="#2EB67D"/>
+            <path d="M37.2 26.8c0 2.6-2.1 4.7-4.7 4.7s-4.7-2.1-4.7-4.7V15c0-2.6 2.1-4.7 4.7-4.7s4.7 2.1 4.7 4.7v11.8z" fill="#2EB67D"/>
+            <path d="M32.5 39.6c2.6 0 4.7 2.1 4.7 4.7s-2.1 4.7-4.7 4.7-4.7-2.1-4.7-4.7v-4.7h4.7z" fill="#ECB22E"/>
+            <path d="M32.5 37.2c-2.6 0-4.7-2.1-4.7-4.7s2.1-4.7 4.7-4.7H44.3c2.6 0 4.7 2.1 4.7 4.7s-2.1 4.7-4.7 4.7H32.5z" fill="#ECB22E"/>
+          </svg>
+          <span style="font-size:18px;font-weight:700;color:#1D1C1D;font-family:'Lato','Inter',sans-serif">slack</span>
+        </div>
+      </div>
+
+      <!-- OAuth body -->
+      <div class="oauth-body">
+        <div class="oauth-card">
+
+          <!-- App header -->
+          <div class="oauth-app-header">
+            <div class="oauth-app-icon">
+              <span class="mdi mdi-robot-outline"></span>
+            </div>
+            <div>
+              <div class="oauth-title">Allow the "CustomGPT.ai" app<br>to access Slack</div>
+            </div>
+          </div>
+
+          <!-- Not approved warning -->
+          <div class="oauth-not-approved">
+            <span class="mdi mdi-alert-outline"></span>
+            <div>
+              App is not approved by Slack.
+              <a href="#" @click.prevent>Learn more about app reviews.</a>
+            </div>
+          </div>
+
+          <!-- Workspace selector -->
+          <div class="oauth-workspace-row">
+            <div class="oauth-workspace-label">Workspace</div>
+            <div style="border:1px solid #D8D8D8;border-radius:6px;overflow:hidden;background:#fff">
+              <div :class="['ws-option', selectedWorkspace==='hs360' && 'selected']" @click="selectedWorkspace='hs360'">
+                <div class="oauth-workspace-icon">H</div>
+                <div>
+                  <div style="font-size:14px;color:#1D1C1D;font-weight:500">HS360</div>
+                  <div style="font-size:11px;color:#616061">Standard workspace</div>
+                </div>
+                <span v-if="selectedWorkspace==='hs360'" class="mdi mdi-check ws-option-check" style="font-size:16px"></span>
+              </div>
+              <div style="height:1px;background:#E8E8E8"></div>
+              <div :class="['ws-option', selectedWorkspace==='admin' && 'selected']" @click="selectedWorkspace='admin'">
+                <div class="oauth-workspace-icon" style="background:linear-gradient(135deg,#E8322A,#FF6B5B)">A</div>
+                <div>
+                  <div style="font-size:14px;color:#1D1C1D;font-weight:500">Acme Corp</div>
+                  <div style="font-size:11px;color:#E8322A;display:flex;align-items:center;gap:3px">
+                    <span class="mdi mdi-lock-outline" style="font-size:11px"></span>
+                    Requires admin approval
+                  </div>
+                </div>
+                <span v-if="selectedWorkspace==='admin'" class="mdi mdi-check ws-option-check" style="font-size:16px"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Permissions -->
+          <div class="oauth-permissions">
+            <div class="oauth-perm-section">
+              <div class="oauth-perm-header">Information "CustomGPT.ai" can view</div>
+              <div class="oauth-perm-item">
+                <span><span class="mdi mdi-message-text-outline" style="margin-right:10px"></span>Content and info about channels &amp; conversations</span>
+                <span class="mdi mdi-chevron-right oauth-perm-chevron"></span>
+              </div>
+              <div class="oauth-perm-item">
+                <span><span class="mdi mdi-domain" style="margin-right:10px"></span>Content and info about your workspace</span>
+                <span class="mdi mdi-chevron-right oauth-perm-chevron"></span>
+              </div>
+            </div>
+            <div class="oauth-perm-between"></div>
+            <div class="oauth-perm-section">
+              <div class="oauth-perm-header">Actions "CustomGPT.ai" can take</div>
+              <div class="oauth-perm-item">
+                <span><span class="mdi mdi-message-plus-outline" style="margin-right:10px"></span>Perform actions in channels &amp; conversations</span>
+                <span class="mdi mdi-chevron-right oauth-perm-chevron"></span>
+              </div>
+              <div class="oauth-perm-item">
+                <span><span class="mdi mdi-cog-outline" style="margin-right:10px"></span>Perform actions in your workspace</span>
+                <span class="mdi mdi-chevron-right oauth-perm-chevron"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- More permissions link -->
+          <div style="font-size:13px;color:#1264A3;cursor:pointer;display:flex;align-items:center;gap:4px;margin-top:-8px">
+            <span class="mdi mdi-chevron-down" style="font-size:16px"></span>
+            More permissions
+          </div>
+
+          <!-- Legalese -->
+          <p class="oauth-legalese">
+            Slack will share your granted permissions with CustomGPT.ai.
+            View Slack's <a href="#" @click.prevent>privacy policy</a>.
+            By agreeing to allow Slack to share your granted permissions,
+            you are also agreeing to CustomGPT.ai's privacy agreement and terms of service.
+          </p>
+
+          <!-- Actions -->
+          <div class="oauth-actions">
+            <button class="oauth-btn-cancel" @click="oauthPhase = null">Cancel</button>
+            <button class="oauth-btn-allow" @click="handleOAuthAllow">
+              <span v-if="allowLoading" class="spinner-sm"></span>
+              Allow
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Thank you screen ── -->
+    <!-- Thank you redirect screen -->
+    <div v-if="oauthPhase === 'thankyou'" class="thankyou-screen">
+      <div class="thankyou-card">
+        <div class="thankyou-title">Thank you!</div>
+        <p class="thankyou-body">
+          Redirecting back to CustomGPT.ai…
+          <br><br>
+          <a href="#" @click.prevent>Click here</a> if you are not redirected automatically.
+        </p>
+        <div class="thankyou-progress">
+          <div class="thankyou-progress-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin pending approval screen -->
+    <div v-if="oauthPhase === 'admin_pending'" class="oauth-overlay">
+      <div class="oauth-topbar">
+        <div class="oauth-topbar-logo">
+          <svg class="slack-logo-mark" viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19.7 32.5c0 2.6-2.1 4.7-4.7 4.7s-4.7-2.1-4.7-4.7 2.1-4.7 4.7-4.7h4.7v4.7z" fill="#E01E5A"/><path d="M22.1 32.5c0-2.6 2.1-4.7 4.7-4.7s4.7 2.1 4.7 4.7v11.8c0 2.6-2.1 4.7-4.7 4.7s-4.7-2.1-4.7-4.7V32.5z" fill="#E01E5A"/><path d="M26.8 19.7c-2.6 0-4.7-2.1-4.7-4.7s2.1-4.7 4.7-4.7 4.7 2.1 4.7 4.7v4.7h-4.7z" fill="#36C5F0"/><path d="M26.8 22.1c2.6 0 4.7 2.1 4.7 4.7s-2.1 4.7-4.7 4.7H15c-2.6 0-4.7-2.1-4.7-4.7s2.1-4.7 4.7-4.7h11.8z" fill="#36C5F0"/><path d="M39.6 26.8c0-2.6 2.1-4.7 4.7-4.7s4.7 2.1 4.7 4.7-2.1 4.7-4.7 4.7h-4.7v-4.7z" fill="#2EB67D"/><path d="M37.2 26.8c0 2.6-2.1 4.7-4.7 4.7s-4.7-2.1-4.7-4.7V15c0-2.6 2.1-4.7 4.7-4.7s4.7 2.1 4.7 4.7v11.8z" fill="#2EB67D"/><path d="M32.5 39.6c2.6 0 4.7 2.1 4.7 4.7s-2.1 4.7-4.7 4.7-4.7-2.1-4.7-4.7v-4.7h4.7z" fill="#ECB22E"/><path d="M32.5 37.2c-2.6 0-4.7-2.1-4.7-4.7s2.1-4.7 4.7-4.7H44.3c2.6 0 4.7 2.1 4.7 4.7s-2.1 4.7-4.7 4.7H32.5z" fill="#ECB22E"/>
+          </svg>
+          <span style="font-size:18px;font-weight:700;color:#1D1C1D;font-family:'Lato','Inter',sans-serif">slack</span>
+        </div>
+      </div>
+      <div class="oauth-body">
+        <div class="admin-pending-body">
+          <div class="admin-pending-icon">
+            <span class="mdi mdi-clock-outline"></span>
+          </div>
+          <div class="admin-pending-title">Waiting for admin approval</div>
+          <p>Your <strong>Acme Corp</strong> workspace requires an admin to approve new app installations.</p>
+          <p style="margin-top:8px">We've sent a request to your workspace admin. You'll receive an email at <a href="#" @click.prevent>miodrag@customgpt.ai</a> once it's approved.</p>
+          <p style="margin-top:8px;font-size:12px;color:#8C8C8C">This typically takes 1–2 business days depending on your organization's policies.</p>
+          <button class="oauth-btn-cancel" style="margin-top:8px" @click="oauthPhase = null">
+            Back to Integrations
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Close guard confirmation -->
+    <div v-if="closeGuard" class="close-guard-overlay" @click.self="closeGuard = false">
+      <div class="close-guard-card">
+        <div class="close-guard-title">Cancel key creation?</div>
+        <div class="close-guard-body">
+          You haven't generated your connection key yet. If you close now, you'll need to start this step again to activate your Slack agent.
+        </div>
+        <div class="close-guard-actions">
+          <button class="oauth-btn-cancel" @click="closeGuard = false">Keep going</button>
+          <button class="oauth-btn-allow" style="background:var(--color-danger)" @click="confirmClose">
+            Yes, cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </v-app>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://unpkg.com/vuetify@3/dist/vuetify.js"></script>
+<script>
+const { createApp, ref, reactive, computed } = Vue
+const { createVuetify } = Vuetify
+
+const vuetify = createVuetify({
+  theme: {
+    defaultTheme: 'customgpt',
+    themes: {
+      customgpt: {
+        dark: false,
+        colors: {
+          primary:    '#7367F0',
+          secondary:  '#A8AAAE',
+          success:    '#28C76F',
+          warning:    '#FF9F43',
+          danger:     '#EA5455',
+          info:       '#0076E5',
+          background: '#F5F5F5',
+          surface:    '#FFFFFF',
+        },
+      },
+    },
+  },
+  defaults: {
+    VBtn:       { elevation: 0 },
+    VCard:      { elevation: 0 },
+    VTextField: { variant: 'outlined', rounded: 'md', density: 'compact', flat: true, hideDetails: true },
+    VRadioGroup:{ hideDetails: true },
+  },
+})
+
+createApp({
+  setup() {
+    const MOCK_KEY = '95211|J8kP2mQvR5nT9xL3bF7gH4wA1sZ6yE'
+
+    const activeTab   = ref('integrations')
+    const slackPhase  = ref('idle') // idle | completing | key_ready | connected
+    const oauthPhase  = ref(null)   // null | 'oauth' | 'thankyou'
+    const allowLoading  = ref(false)
+    const selectedWorkspace = ref('hs360')
+    const keyName       = ref('My Agent — Slack HS360')
+    const keyScope      = ref('agent')
+    const keyExpiry     = ref('never')
+    const expiryDays    = ref('')
+    const generating    = ref(false)
+    const copyAgainDone = ref(false)
+    const clipboardFailed = ref(false)
+    const closeGuard    = ref(false)
+    const toast         = ref(null)
+
+    function showToast(msg) {
+      toast.value = msg
+      setTimeout(() => toast.value = null, 3000)
+    }
+
+    function handleConnect() {
+      oauthPhase.value = 'oauth'
+    }
+
+    function handleOAuthAllow() {
+      allowLoading.value = true
+      setTimeout(() => {
+        allowLoading.value = false
+        if (selectedWorkspace.value === 'admin') {
+          oauthPhase.value = 'admin_pending'
+        } else {
+          oauthPhase.value = 'thankyou'
+          setTimeout(() => {
+            oauthPhase.value = null
+            slackPhase.value = 'completing'
+          }, 1800)
+        }
+      }, 800)
+    }
+
+    // Called when X or backdrop clicked on modal
+    function handleModalClose() {
+      if (slackPhase.value === 'completing') {
+        closeGuard.value = true   // show confirmation — key not yet generated
+      } else if (slackPhase.value === 'key_ready') {
+        slackPhase.value = 'incomplete'  // key generated but Step 3 not done
+      } else {
+        slackPhase.value = 'idle'
+      }
+    }
+
+    function confirmClose() {
+      closeGuard.value = false
+      slackPhase.value = 'idle'
+    }
+
+    function handleGenerate() {
+      generating.value = true
+      setTimeout(() => {
+        generating.value = false
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText(MOCK_KEY)
+            .then(() => { clipboardFailed.value = false })
+            .catch(() => { clipboardFailed.value = true })
+        } else {
+          clipboardFailed.value = true
+        }
+        slackPhase.value = 'key_ready'
+      }, 700)
+    }
+
+    function handleCopyAgain() {
+      navigator.clipboard?.writeText(MOCK_KEY)
+        .then(() => { clipboardFailed.value = false })
+        .catch(() => {})
+      copyAgainDone.value = true
+      setTimeout(() => copyAgainDone.value = false, 1800)
+    }
+
+    function handleOpenSlack() {
+      const ws = selectedWorkspace.value === 'admin' ? 'Acme Corp' : 'HS360'
+      slackPhase.value = 'connected'
+      showToast(`Agent activated in Slack workspace ${ws}`)
+    }
+
+    function handleDisconnect() {
+      slackPhase.value = 'idle'
+      keyName.value = 'My Agent — Slack HS360'
+      keyScope.value = 'agent'
+      keyExpiry.value = 'never'
+      clipboardFailed.value = false
+    }
+
+    const stepperSteps = computed(() => {
+      const s = slackPhase.value
+      return [
+        { n: 1, label: 'Authorize Slack workspace', state: 'done' },
+        {
+          n: 2,
+          label: s === 'key_ready' ? 'API key copied to clipboard' : 'Create your connection key',
+          state: s === 'key_ready' ? 'done' : 'active',
+        },
+        { n: 3, label: 'Activate in Slack', state: s === 'key_ready' ? 'active' : 'pending' },
+      ]
+    })
+
+    const navItems = [
+      { id: 'build',       label: 'Build',       icon: 'mdi-file-multiple-outline' },
+      { id: 'personalize', label: 'Personalize', icon: 'mdi-creation-outline' },
+      { id: 'actions',     label: 'Actions',     icon: 'mdi-lightning-bolt-outline' },
+      { id: 'ask',         label: 'Ask',         icon: 'mdi-message-outline' },
+      { id: 'deploy',      label: 'Deploy',      icon: 'mdi-rocket-launch-outline', active: true },
+      { id: 'analyze',     label: 'Analyze',     icon: 'mdi-chart-bar' },
+    ]
+
+    const tabs = [
+      { id: 'share',        label: 'Share',        icon: 'mdi-share-variant-outline' },
+      { id: 'integrations', label: 'Integrations', icon: 'mdi-connection' },
+      { id: 'advanced',     label: 'Advanced',     icon: 'mdi-cog-outline' },
+      { id: 'api',          label: 'API',          icon: 'mdi-code-braces' },
+      { id: 'mcp',          label: 'MCP Server',   icon: 'mdi-server-outline' },
+    ]
+
+    const beforeSlack = [
+      {
+        id: 'wordpress', name: 'WordPress',
+        description: 'Use the official CustomGPT.ai plugin for WordPress to add the chat widget to your website.',
+        bgColor: '#21759B18', borderColor: '#21759B30',
+        tablerIcon: 'mdi-wordpress', iconColor: '#21759B',
+        hasConnect: true, hasTryItOut: true, hasGear: true,
+      },
+    ]
+
+    const otherIntegrations = [
+      {
+        id: 'shopify', name: 'Shopify',
+        description: 'Add the chat widget to your Shopify store to respond to product queries and customer requests.',
+        bgColor: '#96BF4818', borderColor: '#96BF4830',
+        logoSrc: '/logos/shopify.svg',
+      },
+      {
+        id: 'sharepoint', name: 'SharePoint',
+        description: "Embed the agent directly into your SharePoint site to maximize your team's productivity.",
+        bgColor: '#0078D418', borderColor: '#0078D430',
+        logoSrc: '/logos/sharepoint.svg',
+        isCode: true,
+      },
+      {
+        id: 'notion', name: 'Notion',
+        description: 'Embed the agent directly into your Notion page to integrate it seamlessly into your workflows.',
+        bgColor: '#19191918', borderColor: '#19191930',
+        tablerIcon: 'mdi-note-text-outline', iconColor: '#191919',
+        isCode: true,
+      },
+      {
+        id: 'wix', name: 'WiX',
+        description: 'Add the agent to your WiX website to boost user engagement and deflect up to 93% of support tickets.',
+        bgColor: '#FAAD0018', borderColor: '#FAAD0030',
+        tablerIcon: 'mdi-web', iconColor: '#FAAD00',
+      },
+      {
+        id: 'readme', name: 'ReadMe',
+        description: 'Embed the agent in your ReadMe knowledge base to provide lightning-fast issue resolution.',
+        bgColor: '#018EF518', borderColor: '#018EF530',
+        logoSrc: '/logos/readme.svg',
+        isCode: true,
+      },
+      {
+        id: 'pendo', name: 'Pendo',
+        description: 'Deploy the agent inside the Pendo Resource Center widget for quick access for your customers.',
+        bgColor: '#FF487618', borderColor: '#FF487630',
+        logoSrc: '/logos/pendo.svg',
+        isCode: true,
+      },
+      {
+        id: 'iframe', name: 'iFrame',
+        description: 'Quickly embed the agent on any website or platform as a simple iframe.',
+        bgColor: '#73737318', borderColor: '#73737330',
+        tablerIcon: 'mdi-code-tags', iconColor: '#737373',
+      },
+    ]
+
+    return {
+      activeTab, slackPhase, keyName, keyScope, keyExpiry, expiryDays,
+      generating, copyAgainDone, clipboardFailed, closeGuard, toast,
+      oauthPhase, allowLoading, selectedWorkspace,
+      stepperSteps, navItems, tabs, beforeSlack, otherIntegrations,
+      MOCK_KEY,
+      handleConnect, handleOAuthAllow, handleGenerate, handleCopyAgain,
+      handleOpenSlack, handleDisconnect, handleModalClose, confirmClose,
+    }
+  }
+}).use(vuetify).mount('#app')
+</script>
+</body>
+</html>

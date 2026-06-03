@@ -77,11 +77,13 @@ function HelpBtn({ title }: { title: string }) {
 
 export default function AppearanceTab({ settings, onChange }: Props) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', gap: 24 }}>
 
-      {/* Agent icon position */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
-        <div style={{ flex: 1 }}>
+      {/* Settings column */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
+
+        {/* Agent icon position */}
+        <div>
           <SectionLabel>Agent icon position</SectionLabel>
           <div style={{ display: 'flex', gap: 24 }}>
             <RadioOption
@@ -100,79 +102,92 @@ export default function AppearanceTab({ settings, onChange }: Props) {
             />
           </div>
         </div>
+
+        <Divider />
+
+        {/* Agent icon size */}
+        <div>
+          <SectionLabel>Agent icon size</SectionLabel>
+          <div style={{ display: 'flex', gap: 24 }}>
+            {(['small', 'medium', 'large'] as const).map((s) => (
+              <RadioOption
+                key={s}
+                name="iconSize"
+                value={s}
+                checked={settings.iconSize === s}
+                onChange={() => onChange('iconSize', s)}
+                label={s.charAt(0).toUpperCase() + s.slice(1)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <Divider />
+
+        {/* Chat window position */}
+        <div>
+          <SectionLabel>Chat window position</SectionLabel>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {([
+              { v: 'focus',   l: 'Focus mode' },
+              { v: 'compact', l: 'Compact' },
+              { v: 'bubble',  l: 'Bubble in the corner' },
+            ] as const).map(({ v, l }) => (
+              <RadioOption
+                key={v}
+                name="chatWindowPosition"
+                value={v}
+                checked={settings.chatWindowPosition === v}
+                onChange={() => onChange('chatWindowPosition', v)}
+                label={l}
+              />
+            ))}
+          </div>
+        </div>
+
+        <Divider />
+
+        {/* Mobile font size */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+            <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--cg-fg-1)', margin: 0 }}>Mobile font size</p>
+            <HelpBtn title="If 'Reduced' is selected, text on viewports under 700px will appear one size smaller than on desktop. If not, the font size remains consistent across all viewports." />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <RadioOption
+              name="mobileFontSize"
+              value="reduced"
+              checked={settings.mobileFontSize === 'reduced'}
+              onChange={() => onChange('mobileFontSize', 'reduced')}
+              label="Reduced"
+            />
+            <RadioOption
+              name="mobileFontSize"
+              value="desktop"
+              checked={settings.mobileFontSize === 'desktop'}
+              onChange={() => onChange('mobileFontSize', 'desktop')}
+              label="Same as Desktop"
+            />
+          </div>
+        </div>
+
+      </div>
+
+      {/* Preview column — stays visible while any setting is changed */}
+      <div style={{
+        flexShrink: 0,
+        width: 132,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        gap: 6,
+      }}>
+        <p style={{ margin: 0, fontSize: 12, fontWeight: 500, color: 'var(--cg-fg-3)' }}>Preview</p>
         <LivePreview
           iconPosition={settings.iconPosition}
           chatWindowPosition={settings.chatWindowPosition}
           iconSize={settings.iconSize}
         />
-      </div>
-
-      <Divider />
-
-      {/* Agent icon size */}
-      <div>
-        <SectionLabel>Agent icon size</SectionLabel>
-        <div style={{ display: 'flex', gap: 24 }}>
-          {(['small', 'medium', 'large'] as const).map((s) => (
-            <RadioOption
-              key={s}
-              name="iconSize"
-              value={s}
-              checked={settings.iconSize === s}
-              onChange={() => onChange('iconSize', s)}
-              label={s.charAt(0).toUpperCase() + s.slice(1)}
-            />
-          ))}
-        </div>
-      </div>
-
-      <Divider />
-
-      {/* Chat window position */}
-      <div>
-        <SectionLabel>Chat window position</SectionLabel>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {([
-            { v: 'focus',   l: 'Focus mode' },
-            { v: 'compact', l: 'Compact' },
-            { v: 'bubble',  l: 'Bubble in the corner' },
-          ] as const).map(({ v, l }) => (
-            <RadioOption
-              key={v}
-              name="chatWindowPosition"
-              value={v}
-              checked={settings.chatWindowPosition === v}
-              onChange={() => onChange('chatWindowPosition', v)}
-              label={l}
-            />
-          ))}
-        </div>
-      </div>
-
-      <Divider />
-
-      {/* Mobile font size */}
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
-          <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--cg-fg-1)', margin: 0 }}>Mobile font size</p>
-          <HelpBtn title="If 'Reduced' is selected, text on viewports under 700px will appear one size smaller than on desktop. If not, the font size remains consistent across all viewports." />
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <RadioOption
-            name="mobileFontSize"
-            value="reduced"
-            checked={settings.mobileFontSize === 'reduced'}
-            onChange={() => onChange('mobileFontSize', 'reduced')}
-            label="Reduced"
-          />
-          <RadioOption
-            name="mobileFontSize"
-            value="desktop"
-            checked={settings.mobileFontSize === 'desktop'}
-            onChange={() => onChange('mobileFontSize', 'desktop')}
-            label="Same as Desktop"
-          />
-        </div>
       </div>
 
     </div>

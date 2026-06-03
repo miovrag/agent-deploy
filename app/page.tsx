@@ -11,6 +11,7 @@ import {
   IconBrandSlack,
 } from "@tabler/icons-react";
 import LiveChatSettingsModal from "@/components/modal/LiveChatSettingsModal";
+import IntegrationsTab from "@/components/integrations/IntegrationsTab";
 
 /* ── Mock data ──────────────────────────────────────────────────────────────── */
 const AGENT_ID   = "95211";
@@ -473,7 +474,7 @@ p_key="${AGENT_KEY}"></script>`;
           label="Add a live chat to your website"
           actions={
             <>
-              <button className="cg-btn cg-btn-outline cg-btn-sm">Try it out</button>
+              <a href="https://agent-deploy-swart.vercel.app" target="_blank" rel="noopener noreferrer" className="cg-btn cg-btn-outline cg-btn-sm">Try it out</a>
               <div className="icon-btn-wrap">
                 <button
                   onClick={onLiveChatSettings}
@@ -510,7 +511,7 @@ p_key="${AGENT_KEY}"></script>`;
           label="Embed an agent into your website"
           actions={
             <>
-              <button className="cg-btn cg-btn-outline cg-btn-sm">Try it out</button>
+              <a href="https://agent-deploy-swart.vercel.app" target="_blank" rel="noopener noreferrer" className="cg-btn cg-btn-outline cg-btn-sm">Try it out</a>
               <div className="icon-btn-wrap">
                 <button style={{
                   width: 32, height: 32, border: "1px solid var(--cg-border)",
@@ -691,7 +692,7 @@ function Sidebar() {
 
 /* ── Tabs ───────────────────────────────────────────────────────────────────── */
 const tabs = [
-  { id: "share",        label: "Share",       icon: IconBrandSlack },
+  { id: "share",        label: "Share",       icon: IconShare },
   { id: "integrations", label: "Integrations",icon: IconPlugConnected },
   { id: "advanced",     label: "Advanced",    icon: IconSettings },
   { id: "api",          label: "API",         icon: IconTerminal2 },
@@ -797,7 +798,8 @@ export default function DeployPage() {
           {activeTab === "share" && (
             <ShareTab prefix={prefix} onEdit={() => setModalOpen(true)} onLiveChatSettings={() => setLiveChatModalOpen(true)} />
           )}
-          {activeTab !== "share" && (
+          {activeTab === "integrations" && <IntegrationsTab />}
+          {activeTab !== "share" && activeTab !== "integrations" && (
             <div style={{ padding: "var(--cg-sp-12) var(--cg-sp-8)", textAlign: "center", color: "var(--cg-fg-4)", fontSize: 14 }}>
               Coming soon
             </div>

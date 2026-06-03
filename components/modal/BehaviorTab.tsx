@@ -120,7 +120,7 @@ export default function BehaviorTab({ settings, onChange }: Props) {
         <div>
           <SectionHeader>Agent Initiative</SectionHeader>
           <p style={{ margin: '4px 0 0', fontSize: 12, lineHeight: '16px', color: 'var(--cg-fg-3)' }}>
-            If enabled, the agent will take the initiative and display the first Starter Question as a suggested prompt next to its avatar.
+            Control when and how the agent proactively reaches out to visitors before they start typing.
           </p>
         </div>
         <AgentInitiativePreview
@@ -167,7 +167,12 @@ export default function BehaviorTab({ settings, onChange }: Props) {
 
       {/* Auto-popup */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginBottom: 8 }}>
-        <SectionHeader>Auto-popup</SectionHeader>
+        <div>
+          <SectionHeader>Auto-popup</SectionHeader>
+          <p style={{ margin: '4px 0 0', fontSize: 12, lineHeight: '16px', color: 'var(--cg-fg-3)' }}>
+            Automatically expand the chat bubble when visitors land on the page.
+          </p>
+        </div>
         <AutoPopupPreview autoPopupDesktop={settings.autoPopupDesktop} />
       </div>
       <div>
