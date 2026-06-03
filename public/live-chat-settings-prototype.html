@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="color-scheme" content="light">
+  <title>Deploy — My Agent | CustomGPT.ai</title>
+  <link href="https://unpkg.com/vuetify@3/dist/vuetify.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/@mdi/font@7/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --brand-primary-default: #7367F0;
+      --brand-primary-hover:   #685DD8;
+      --brand-primary-tint:    #EAE8FD;
+      --bg-surface:            #FFFFFF;
+      --text-heading:          #212121;
+      --text-body:             #565656;
+      --text-muted:            #B7B5BE;
+      --border-default:        #E5E5E5;
+      --shadow-card:           0px 4px 18px 0px rgba(75, 70, 92, 0.10);
+      --shadow-modal:          0px 5px 20px 0px rgba(75, 70, 92, 0.40);
+    }
+
+    html, body { margin: 0; font-family: 'Inter', sans-serif; background: #F5F5F5; }
+
+    .v-btn { text-transform: none !important; letter-spacing: normal !important; }
+    .v-tab { text-transform: none !important; letter-spacing: normal !important; font-size: 14px !important; font-weight: 500 !important; }
+
+    .modal-card { box-shadow: var(--shadow-modal) !important; }
+
+    /* ── Typography helpers ── */
+    .field-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-heading);
+      margin-bottom: 4px;
+    }
+    .field-helper {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      line-height: 16px;
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 12px;
+    }
+
+    /* ── Setting rows (label + toggle) ── */
+    .setting-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .setting-row-text .toggle-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-heading);
+      line-height: 20px;
+    }
+    .setting-row-text .toggle-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 16px;
+      margin-top: 2px;
+    }
+
+    /* ── Section divider ── */
+    .section-block {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border-default);
+    }
+    .section-block:last-child { border-bottom: none; }
+
+    /* ── Source list ── */
+    .source-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-default);
+    }
+    .source-item:last-child { border-bottom: none; }
+    .source-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      background: var(--brand-primary-tint);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .source-meta { flex: 1; min-width: 0; }
+    .source-name {
+      font-size: 14px; font-weight: 500;
+      color: var(--text-heading);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .source-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+    /* ── Badges ── */
+    .badge {
+      font-size: 11px; font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+    .badge-success { background: #D6F5E3; color: #1F9C57; }
+    .badge-warning { background: #FFE4C4; color: #C27B34; }
+    .badge-muted   { background: #F5F5F5; color: var(--text-muted); }
+
+    /* ── Color swatches ── */
+    .swatch-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .swatch {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 120ms, border-color 120ms;
+      flex-shrink: 0;
+    }
+    .swatch:hover { transform: scale(1.12); }
+    .swatch.selected { border-color: #212121; transform: scale(1.12); }
+
+    /* ── Chat preview ── */
+    .chat-preview {
+      background: #F5F5F5;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .bubble-row { display: flex; gap: 8px; align-items: flex-end; }
+    .bubble-row.is-user { flex-direction: row-reverse; }
+    .bubble-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--brand-primary-tint);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .bubble {
+      max-width: 76%;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .bubble.agent { background: #fff; color: var(--text-body); border: 1px solid var(--border-default); }
+    .bubble.user  { color: #fff; }
+
+    /* ── Key/value fields ── */
+    .key-field { display: flex; align-items: center; gap: 8px; }
+    .key-display {
+      flex: 1;
+      height: 40px;
+      padding: 0 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: var(--text-body);
+      background: #F5F5F5;
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    /* ── Advanced feature rows ── */
+    .adv-intro {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 19px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-default);
+    }
+    .adv-row {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border-default);
+    }
+    .adv-row:last-child { border-bottom: none; }
+    .adv-row-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .adv-left { flex: 1; min-width: 0; cursor: pointer; user-select: none; }
+    .adv-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-heading);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .adv-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--brand-primary-default);
+      background: var(--brand-primary-tint);
+      padding: 2px 9px 2px 6px;
+      border-radius: 999px;
+    }
+    .adv-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 18px;
+    }
+    .adv-link {
+      color: var(--brand-primary-default);
+      font-size: 13px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .adv-link:hover { text-decoration: underline; }
+    .adv-right {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+    .adv-status-label {
+      font-size: 13px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      min-width: 52px;
+    }
+    .adv-chevron {
+      transition: transform 0.25s ease;
+      flex-shrink: 0;
+    }
+    .adv-row.is-open .adv-chevron { transform: rotate(180deg); }
+    .adv-body { padding-top: 14px; }
+    /* Expand / collapse transition */
+    .adv-expand-enter-active,
+    .adv-expand-leave-active {
+      transition: max-height 0.28s ease, opacity 0.22s ease;
+      overflow: hidden;
+      max-height: 300px;
+    }
+    .adv-expand-enter-from,
+    .adv-expand-leave-to { max-height: 0; opacity: 0; }
+
+    /* ── Danger zone ── */
+    .danger-zone {
+      border: 1px solid #FBDCDC;
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .danger-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      background: #FBDCDC;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .danger-title {
+      font-size: 14px; font-weight: 600;
+      color: var(--text-heading);
+      margin-bottom: 2px;
+    }
+    .danger-desc { font-size: 12px; color: var(--text-muted); line-height: 16px; }
+
+    /* ── Radio labels ── */
+    .radio-label { font-size: 14px; color: var(--text-body); }
+
+    /* ── Settings section title (bolder than section-label) ── */
+    .settings-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-heading);
+      margin-bottom: 4px;
+    }
+    .settings-section-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 16px;
+      margin-bottom: 10px;
+    }
+
+    /* ── Radio with description ── */
+    .radio-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 16px;
+      margin-top: 1px;
+    }
+
+    /* ── Browser mockup preview ── */
+    .browser-mockup {
+      flex-shrink: 0;
+      width: 120px;
+      height: 90px;
+      border-radius: 6px;
+      border: 1px solid #E5E5E5;
+      background: #FAFAFA;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Dependent setting row ── */
+    .setting-row-child {
+      transition: opacity 0.2s ease;
+    }
+    .setting-row-child.is-disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    /* ── Mockup illustration transitions ── */
+    .m-page    { transition: opacity 0.3s ease; }
+    .m-panel   { transition: opacity 0.35s ease; pointer-events: none; }
+    .m-bubble  { transition: cx 0.45s cubic-bezier(0.34,1.56,0.64,1), r 0.3s ease; }
+    .m-slide   { transition: x  0.45s cubic-bezier(0.34,1.56,0.64,1); }
+    .m-slidecx { transition: cx 0.45s cubic-bezier(0.34,1.56,0.64,1); }
+
+    /* ── Radio label ── */
+    .radio-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-body);
+    }
+
+    /* ── Page layout ── */
+    html, body { height: 100%; overflow: hidden; }
+    .page-shell { display: flex; height: 100vh; overflow: hidden; background: #F5F5F5; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 270px; flex-shrink: 0;
+      background: #fff;
+      border-right: 1px solid var(--border-default);
+      display: flex; flex-direction: column;
+      overflow-y: auto;
+    }
+    .sidebar-nav-btn {
+      width: 100%; display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; margin-bottom: 2px;
+      border-radius: 8px; border: none; background: transparent;
+      font: 400 14px/20px 'Inter', sans-serif;
+      color: var(--text-body); cursor: pointer; text-align: left;
+      transition: background 120ms;
+    }
+    .sidebar-nav-btn:hover { background: rgba(0,0,0,0.04); }
+    .sidebar-nav-btn.active { background: var(--brand-primary-tint); color: var(--brand-primary-default); font-weight: 600; }
+    .sidebar-nav-btn.active .mdi { color: var(--brand-primary-default); }
+    .sidebar-nav-btn .mdi { font-size: 18px; color: var(--text-muted); }
+
+    /* Right panel */
+    .right-panel { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+    .topbar { height: 56px; flex-shrink: 0; background: #fff; border-bottom: 1px solid var(--border-default); display: flex; align-items: center; padding: 0 24px 0 28px; gap: 12px; }
+    .page-tabs-bar { flex-shrink: 0; background: #fff; border-bottom: 1px solid var(--border-default); padding: 0 28px; }
+    .page-tab-btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 14px; border: none; border-bottom: 2px solid transparent; background: transparent; font: 400 14px/20px 'Inter', sans-serif; color: var(--text-muted); cursor: pointer; transition: color 120ms, border-color 120ms; white-space: nowrap; }
+    .page-tab-btn:hover { color: var(--text-body); }
+    .page-tab-btn.active { color: var(--brand-primary-default); border-bottom-color: var(--brand-primary-default); font-weight: 600; }
+    .page-tab-btn .mdi { font-size: 14px; }
+    .page-content { flex: 1; overflow-y: auto; }
+
+    /* Share content */
+    .share-content { padding: 28px 32px; max-width: 780px; }
+    .section-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .section-heading-label { font: 600 16px/24px 'Inter', sans-serif; color: var(--text-heading); }
+    .url-field { display: flex; align-items: center; border: 1px solid var(--border-default); border-radius: 8px; background: #fff; padding: 0 8px 0 16px; height: 40px; }
+    .icon-action-btn { width: 32px; height: 32px; border: none; background: transparent; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: background 120ms, color 120ms; }
+    .icon-action-btn:hover { background: #F5F5F5; color: var(--text-heading); }
+    .icon-action-btn.active { background: #D6F5E3; color: #1F9C57; }
+    .icon-action-btn.bordered { border: 1px solid var(--border-default); }
+    .code-block { border: 1px solid var(--border-default); border-radius: 8px; background: #fff; padding: 16px 16px 12px; position: relative; }
+    .code-block pre { margin: 0; font-size: 12px; line-height: 1.7; color: var(--text-muted); font-family: 'Courier New', monospace; white-space: pre-wrap; word-break: break-all; padding-right: 48px; }
+
+    /* Icon tooltip */
+    .icon-wrap { position: relative; display: inline-flex; }
+    .icon-tip { position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%) translateY(4px); background: #fff; color: var(--text-heading); font: 500 12px/16px 'Inter', sans-serif; white-space: nowrap; padding: 5px 9px; border-radius: 6px; box-shadow: 0 1px 2.2px rgba(0,0,0,0.25); pointer-events: none; opacity: 0; transition: opacity 120ms 133ms, transform 120ms 133ms; z-index: 100; }
+    .icon-wrap:hover .icon-tip { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Edit modal custom input */
+    .edit-prefix-input { border: none; outline: none; background: transparent; font: 400 14px/20px 'Inter', sans-serif; color: var(--text-heading); padding: 0; min-width: 8ch; }
+    .edit-suffix { font: 400 14px/20px 'Inter', sans-serif; color: rgba(115,103,240,0.5); white-space: nowrap; user-select: none; }
+    .suggestion-chip { font: 400 12px/16px 'Inter', sans-serif; color: var(--brand-primary-default); background: var(--brand-primary-tint); border: 1px solid rgba(115,103,240,0.16); border-radius: 999px; padding: 2px 8px; cursor: pointer; transition: background 120ms; }
+    .suggestion-chip:hover { background: rgba(115,103,240,0.16); }
+
+    /* Page toast */
+    .page-toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 16px; border-radius: 6px; font: 500 13px/18px 'Inter', sans-serif; box-shadow: 0 4px 18px rgba(0,0,0,0.08); z-index: 9999; display: flex; align-items: center; gap: 8px; background: #D6F5E3; color: #1F9C57; border: 1px solid rgba(40,199,111,0.3); animation: fadeUp 200ms ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin-anim { to { transform: rotate(360deg); } }
+    .spin { animation: spin-anim 0.8s linear infinite; }
+
+    /* ── P3 enhancement ── */
+    @media (color-gamut: p3) {
+      :root {
+        --brand-primary-default: color(display-p3 0.45 0.40 0.94);
+        --brand-primary-hover:   color(display-p3 0.41 0.36 0.85);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <v-app theme="customgpt">
+
+      <!-- ── Full page ── -->
+      <div class="page-shell">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <!-- Logo -->
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border-default);">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:28px;height:28px;background:var(--brand-primary-default);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <v-icon size="16" color="white">mdi-creation</v-icon>
+              </div>
+              <span style="font:700 14px/20px 'Inter',sans-serif;color:var(--text-heading);">CustomGPT.ai</span>
+            </div>
+          </div>
+          <!-- New Agent -->
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border-default);">
+            <v-btn color="primary" variant="flat" rounded="md" block prepend-icon="mdi-plus">New Agent</v-btn>
+          </div>
+          <!-- Back -->
+          <div style="padding:4px 8px;border-bottom:1px solid var(--border-default);">
+            <button class="sidebar-nav-btn" style="color:var(--brand-primary-default);font-weight:600;">
+              <v-icon size="18" color="primary">mdi-chevron-left</v-icon> My Agent
+            </button>
+          </div>
+          <!-- Nav -->
+          <nav style="padding:8px 10px;flex:1;">
+            <button v-for="item in sidebarNav" :key="item.id" class="sidebar-nav-btn" :class="{ active: item.active }">
+              <v-icon size="18">{{ 'mdi-' + item.icon }}</v-icon>
+              {{ item.label }}
+            </button>
+          </nav>
+          <!-- Copilot -->
+          <div style="margin:0 8px 8px;border:1px solid var(--border-default);border-radius:8px;padding:8px 12px;">
+            <div style="font:600 12px/16px 'Inter',sans-serif;color:var(--text-muted);margin-bottom:8px;">CustomGPT.ai Copilot</div>
+            <div style="display:flex;align-items:center;border:1px solid var(--border-default);border-radius:8px;padding:8px 12px;background:#fff;gap:8px;">
+              <span style="flex:1;font:400 12px/16px 'Inter',sans-serif;color:var(--text-muted);">I need help with…</span>
+              <v-icon size="14" color="#B7B5BE">mdi-send-outline</v-icon>
+            </div>
+          </div>
+          <!-- Developers -->
+          <div style="padding:12px 20px;border-top:1px solid var(--border-default);display:flex;align-items:center;justify-content:space-between;cursor:pointer;" @mouseenter="$event.currentTarget.style.background='#FAFAFA'" @mouseleave="$event.currentTarget.style.background='transparent'">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:32px;height:32px;border-radius:8px;background:var(--brand-primary-tint);display:flex;align-items:center;justify-content:center;">
+                <v-icon size="16" color="primary">mdi-code-tags</v-icon>
+              </div>
+              <span style="font:500 14px/20px 'Inter',sans-serif;color:var(--text-heading);">Developers</span>
+            </div>
+            <v-icon size="16" color="#B7B5BE">mdi-chevron-right</v-icon>
+          </div>
+          <!-- My Profile -->
+          <div style="padding:12px 20px;border-top:1px solid var(--border-default);display:flex;align-items:center;justify-content:space-between;cursor:pointer;" @mouseenter="$event.currentTarget.style.background='#FAFAFA'" @mouseleave="$event.currentTarget.style.background='transparent'">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:32px;height:32px;border-radius:999px;background:var(--brand-primary-tint);display:flex;align-items:center;justify-content:center;font:700 12px/1 'Inter',sans-serif;color:var(--brand-primary-default);">MR</div>
+              <span style="font:500 14px/20px 'Inter',sans-serif;color:var(--text-heading);">My Profile</span>
+            </div>
+            <v-icon size="16" color="#B7B5BE">mdi-chevron-right</v-icon>
+          </div>
+        </aside>
+
+        <!-- Right panel -->
+        <div class="right-panel">
+
+          <!-- Top bar -->
+          <div class="topbar">
+            <v-icon size="20" color="#B7B5BE" style="cursor:pointer;flex-shrink:0;">mdi-view-split-vertical</v-icon>
+            <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
+              <h1 style="font:700 20px/28px 'Inter',sans-serif;color:var(--text-heading);margin:0;white-space:nowrap;">
+                Deploy <span style="color:var(--text-muted);font-weight:400;">•</span> My Agent
+              </h1>
+              <span style="display:inline-flex;align-items:center;gap:4px;background:#FFE4C4;color:#C27B34;padding:2px 8px;border-radius:999px;font:600 11px/16px 'Inter',sans-serif;white-space:nowrap;">
+                <v-icon size="12" color="#C27B34">mdi-lightning-bolt</v-icon>
+                Plan and Act (BETA)
+              </span>
+            </div>
+            <div style="text-align:right;flex-shrink:0;">
+              <div style="font:400 12px/16px 'Inter',sans-serif;color:var(--text-muted);">Agent ID: 95211</div>
+              <div style="font:400 12px/16px 'Inter',sans-serif;color:var(--text-muted);">Agent Key: 7390dddd…</div>
+            </div>
+          </div>
+
+          <!-- Page tab nav -->
+          <div class="page-tabs-bar">
+            <button v-for="t in pageTabs" :key="t.id" class="page-tab-btn" :class="{ active: activePageTab === t.id }" @click="activePageTab = t.id">
+              <v-icon size="14">{{ 'mdi-' + t.icon }}</v-icon>
+              {{ t.label }}
+            </button>
+          </div>
+
+          <!-- Content -->
+          <main class="page-content">
+
+            <!-- Share tab -->
+            <div v-if="activePageTab === 'share'" class="share-content">
+
+              <!-- Share link -->
+              <section style="margin-bottom:32px;">
+                <div class="section-heading">
+                  <span class="section-heading-label">Share link</span>
+                </div>
+                <p style="font:400 14px/20px 'Inter',sans-serif;color:var(--text-muted);margin-bottom:12px;">Send this URL for quick access to the agent.</p>
+                <div class="url-field">
+                  <span style="flex:1;font:400 14px/20px 'Inter',sans-serif;color:var(--text-body);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">https://{{ pagePrefix }}.customgpt-agents.com</span>
+                  <div style="display:flex;gap:4px;margin-left:8px;flex-shrink:0;">
+                    <div class="icon-wrap">
+                      <button class="icon-action-btn" @click="openEditModal"><v-icon size="16">mdi-pencil-outline</v-icon></button>
+                      <span class="icon-tip">Edit share link</span>
+                    </div>
+                    <div class="icon-wrap">
+                      <button class="icon-action-btn" :class="{ active: urlCopied }" @click="copyUrl">
+                        <v-icon size="16">{{ urlCopied ? 'mdi-check' : 'mdi-content-copy' }}</v-icon>
+                      </button>
+                      <span class="icon-tip">{{ urlCopied ? 'Copied!' : 'Copy link' }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div style="text-align:right;margin-top:8px;">
+                  <a href="#" style="font:400 14px/20px 'Inter',sans-serif;color:var(--brand-primary-default);text-decoration:none;" @mouseenter="$event.target.style.textDecoration='underline'" @mouseleave="$event.target.style.textDecoration='none'">Prefer the old link format?</a>
+                </div>
+              </section>
+
+              <div style="height:1px;background:var(--border-default);margin-bottom:32px;"></div>
+
+              <!-- Live chat -->
+              <section style="margin-bottom:32px;">
+                <div class="section-heading">
+                  <span class="section-heading-label">Add a live chat to your website</span>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <v-btn variant="outlined" color="primary" rounded="md" density="compact" size="small">Try it out</v-btn>
+                    <div class="icon-wrap">
+                      <button class="icon-action-btn bordered" @click="open = true"><v-icon size="16">mdi-cog-outline</v-icon></button>
+                      <span class="icon-tip">Live chat settings</span>
+                    </div>
+                  </div>
+                </div>
+                <p style="font:400 14px/20px 'Inter',sans-serif;color:var(--text-muted);margin-bottom:12px;">To add a chat widget in the bottom right corner, copy the following code and paste it anywhere inside the &lt;body&gt; section of your webpage.</p>
+                <div class="code-block">
+                  <pre>{{ liveChatCode }}</pre>
+                  <div style="position:absolute;bottom:8px;right:8px;display:flex;gap:4px;">
+                    <div class="icon-wrap">
+                      <button class="icon-action-btn" :class="{ active: codeCopied1 }" @click="copyCode(liveChatCode, 'code1')"><v-icon size="15">{{ codeCopied1 ? 'mdi-check' : 'mdi-content-copy' }}</v-icon></button>
+                      <span class="icon-tip">Copy</span>
+                    </div>
+                    <div class="icon-wrap">
+                      <button class="icon-action-btn"><v-icon size="15">mdi-send-outline</v-icon></button>
+                      <span class="icon-tip">Send</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <div style="height:1px;background:var(--border-default);margin-bottom:32px;"></div>
+
+              <!-- Embed -->
+              <section>
+                <div class="section-heading">
+                  <span class="section-heading-label">Embed an agent into your website</span>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <v-btn variant="outlined" color="primary" rounded="md" density="compact" size="small">Try it out</v-btn>
+                    <div class="icon-wrap">
+                      <button class="icon-action-btn bordered"><v-icon size="16">mdi-cog-outline</v-icon></button>
+                      <span class="icon-tip">Embed settings</span>
+                    </div>
+                  </div>
+                </div>
+                <p style="font:400 14px/20px 'Inter',sans-serif;color:var(--text-muted);margin-bottom:12px;">To add the agent anywhere on a page, copy the following code and paste it into the &lt;body&gt; section of your webpage.</p>
+                <div class="code-block">
+                  <pre>{{ embedCode }}</pre>
+                  <div style="position:absolute;bottom:8px;right:8px;display:flex;gap:4px;">
+                    <div class="icon-wrap">
+                      <button class="icon-action-btn" :class="{ active: codeCopied2 }" @click="copyCode(embedCode, 'code2')"><v-icon size="15">{{ codeCopied2 ? 'mdi-check' : 'mdi-content-copy' }}</v-icon></button>
+                      <span class="icon-tip">Copy</span>
+                    </div>
+                    <div class="icon-wrap">
+                      <button class="icon-action-btn"><v-icon size="15">mdi-send-outline</v-icon></button>
+                      <span class="icon-tip">Send</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+            </div>
+
+            <!-- Other tabs -->
+            <div v-if="activePageTab !== 'share'" style="padding:64px 32px;text-align:center;font:400 14px/20px 'Inter',sans-serif;color:var(--text-muted);">Coming soon</div>
+          </main>
+        </div>
+      </div>
+
+      <!-- ── Edit modal (custom share link) ── -->
+      <v-dialog v-model="editModalOpen" width="520" scrim="rgba(23,23,23,0.5)">
+        <div style="position:relative;">
+          <v-btn icon variant="flat" density="compact" color="white" style="position:absolute;right:-1rem;top:-1rem;z-index:10;box-shadow:0 2px 6px rgba(75,70,92,0.25);width:36px;height:36px;" @click="editModalOpen = false">
+            <v-icon size="16">mdi-close</v-icon>
+          </v-btn>
+          <v-card rounded="md" elevation="0" style="box-shadow:var(--shadow-modal)!important;padding:28px 28px 24px;">
+            <div style="font:600 20px/28px 'Inter',sans-serif;color:var(--text-heading);margin-bottom:20px;">Custom share link</div>
+
+            <!-- Input -->
+            <div style="display:flex;align-items:center;border-radius:8px;padding:8px 16px;cursor:text;overflow:hidden;transition:border-color 120ms,box-shadow 120ms;" :style="editInputStyle" @click="$refs.prefixInput.focus()">
+              <input ref="prefixInput" class="edit-prefix-input" v-model="editVal" @input="handleEditInput" @keydown.enter="handleSavePrefix" @focus="editFocused=true" @blur="editFocused=false" maxlength="63" spellcheck="false" autocapitalize="none" placeholder="my-agent" :style="{ width: Math.max(editVal.length, 8) + 2 + 'ch' }" />
+              <span class="edit-suffix">.customgpt-agents.com</span>
+            </div>
+
+            <!-- Format rules -->
+            <p style="margin:8px 0 0;font:400 12px/16px 'Inter',sans-serif;display:flex;align-items:flex-start;gap:4px;" :style="{ color: editStatus === 'invalid' ? '#EA5455' : 'var(--text-muted)' }">
+              <v-icon v-if="editStatus === 'invalid'" size="13" color="error" style="flex-shrink:0;margin-top:1px;">mdi-alert-circle-outline</v-icon>
+              Subdomain must be 1–63 characters, start with a letter or number, and contain only letters, numbers, or hyphens.
+            </p>
+
+            <!-- Status -->
+            <div style="min-height:20px;margin-top:4px;display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;align-items:flex-start;gap:4px;">
+                <template v-if="editStatus === 'checking'">
+                  <v-icon size="13" color="#B7B5BE" class="spin" style="flex-shrink:0;margin-top:1px;">mdi-loading</v-icon>
+                  <span style="font:400 12px/16px 'Inter',sans-serif;color:var(--text-muted);">Checking availability…</span>
+                </template>
+                <template v-if="editStatus === 'taken'">
+                  <v-icon size="13" color="error" style="flex-shrink:0;margin-top:1px;">mdi-alert-circle-outline</v-icon>
+                  <span style="font:400 12px/16px 'Inter',sans-serif;color:#EA5455;">This subdomain is already taken. Please choose a different one.</span>
+                </template>
+                <template v-if="editStatus === 'available'">
+                  <v-icon size="13" color="#1F9C57" style="flex-shrink:0;margin-top:1px;">mdi-check</v-icon>
+                  <span style="font:400 12px/16px 'Inter',sans-serif;color:#1F9C57;">Available</span>
+                </template>
+                <template v-if="editStatus === 'own'">
+                  <v-icon size="13" color="#1F9C57" style="flex-shrink:0;margin-top:1px;">mdi-check</v-icon>
+                  <span style="font:400 12px/16px 'Inter',sans-serif;color:#1F9C57;">Your previous subdomain — you can reclaim it.</span>
+                </template>
+              </div>
+              <div v-if="editStatus === 'taken'" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span style="font:400 12px/16px 'Inter',sans-serif;color:var(--text-muted);">Try:</span>
+                <button v-for="s in getSuggestions(editVal)" :key="s" class="suggestion-chip" @click="applySuggestion(s)">{{ s }}</button>
+              </div>
+            </div>
+
+            <!-- Warning -->
+            <div v-if="editHasBeenValid" style="margin:20px 0 0;display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-radius:6px;background:#fff;border:1px solid var(--border-default);">
+              <v-icon size="16" color="primary" style="flex-shrink:0;margin-top:1px;">mdi-alert-circle-outline</v-icon>
+              <p style="margin:0;font:400 13px/18px 'Inter',sans-serif;color:var(--brand-primary-default);">
+                <strong>Changing the subdomain takes effect immediately.</strong> Any links using the previous subdomain will stop working right away.
+              </p>
+            </div>
+            <div v-else style="margin-top:20px;"></div>
+
+            <!-- Footer -->
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:20px;">
+              <v-btn variant="flat" color="secondary" rounded="md" @click="editModalOpen = false">Cancel</v-btn>
+              <v-btn variant="flat" color="error" rounded="md" :disabled="!canSave" @click="handleSavePrefix" style="white-space:nowrap;">
+                I understand and want to proceed
+              </v-btn>
+            </div>
+          </v-card>
+        </div>
+      </v-dialog>
+
+      <!-- Page toast -->
+      <div v-if="pageToast" class="page-toast">
+        <v-icon size="15" color="#1F9C57">mdi-check</v-icon>
+        {{ pageToast }}
+      </div>
+
+      <!-- Modal -->
+      <v-dialog v-model="open" width="560" scrim="rgba(23,23,23,0.5)">
+        <div style="position:relative;">
+
+          <!-- Close — outside the card, mirrors Modal.vue pattern -->
+          <v-btn
+            icon
+            variant="flat"
+            density="compact"
+            color="white"
+            style="position:absolute;right:-1rem;top:-1rem;z-index:10;box-shadow:0 2px 6px rgba(75,70,92,0.25);width:36px;height:36px;"
+            @click="open = false"
+          >
+            <v-icon size="16">mdi-close</v-icon>
+          </v-btn>
+
+          <v-card rounded="md" elevation="0" class="modal-card" style="overflow:hidden;">
+
+            <!-- Title -->
+            <v-card-title style="padding:20px 24px 0;font-family:'Inter',sans-serif;font-size:20px;font-weight:600;color:var(--text-heading);line-height:1.3;">
+              Live Chat settings
+            </v-card-title>
+
+            <!-- Tab bar -->
+            <div style="padding:0 16px;margin-top:4px;border-bottom:1px solid var(--border-default);">
+              <v-tabs v-model="tab" color="primary" density="compact" height="44">
+                <v-tab value="appearance">Appearance</v-tab>
+                <v-tab value="behavior">Behavior</v-tab>
+                <v-tab value="size">Size</v-tab>
+                <v-tab value="advanced">Advanced</v-tab>
+              </v-tabs>
+            </div>
+
+            <!-- Scrollable tab content -->
+            <v-card-text style="padding:0;overflow-y:auto;max-height:460px;">
+              <v-window v-model="tab">
+
+                <!-- ── Appearance ── -->
+                <v-window-item value="appearance">
+                  <div style="padding:20px 24px;display:flex;flex-direction:column;gap:0;">
+
+                    <!-- Agent icon position + preview -->
+                    <div class="section-block">
+                      <div style="display:flex;align-items:flex-start;gap:16px;">
+                        <div style="flex:1;">
+                          <div class="settings-section-title">Agent icon position</div>
+                          <v-radio-group v-model="form.iconPosition" inline hide-details color="primary" style="margin-top:6px;">
+                            <v-radio value="left"  style="margin-right:16px;"><template #label><span class="radio-label">Left</span></template></v-radio>
+                            <v-radio value="right"><template #label><span class="radio-label">Right</span></template></v-radio>
+                          </v-radio-group>
+                        </div>
+                        <!-- Browser mockup (LivePreview port) -->
+                        <div class="browser-mockup">
+                          <!-- Chrome bar -->
+                          <div style="height:14px;background:#fff;border-bottom:1px solid #E5E5E5;display:flex;align-items:center;padding-left:6px;gap:3px;">
+                            <div style="width:5px;height:5px;border-radius:50%;background:#EA5455;flex-shrink:0;"></div>
+                            <div style="width:5px;height:5px;border-radius:50%;background:#FF9F43;flex-shrink:0;"></div>
+                            <div style="width:5px;height:5px;border-radius:50%;background:#28C76F;flex-shrink:0;"></div>
+                            <div style="flex:1;height:4px;background:#E5E5E5;border-radius:2px;margin-left:4px;margin-right:6px;"></div>
+                          </div>
+                          <!-- Page content -->
+                          <div style="padding:6px 8px;display:flex;flex-direction:column;gap:4px;">
+                            <div style="height:5px;width:75%;background:#D4D4D4;border-radius:2px;"></div>
+                            <div style="height:4px;width:58%;background:#E5E5E5;border-radius:2px;"></div>
+                            <div style="height:4px;width:68%;background:#E5E5E5;border-radius:2px;"></div>
+                            <div style="height:4px;width:48%;background:#E5E5E5;border-radius:2px;"></div>
+                          </div>
+                          <!-- Chat window (focus or compact) -->
+                          <div v-if="form.chatPosition !== 'bubble'" :style="chatWindowStyle">
+                            <div style="height:14px;background:#7367F0;display:flex;align-items:center;padding:0 6px;gap:4px;">
+                              <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.7);"></div>
+                              <div style="flex:1;height:3px;background:rgba(255,255,255,0.5);border-radius:1px;"></div>
+                            </div>
+                            <div style="flex:1;padding:5px;display:flex;flex-direction:column;gap:4px;justify-content:flex-end;">
+                              <div style="align-self:flex-start;background:#EAE8FD;border-radius:6px 6px 6px 2px;padding:3px 5px;max-width:70%;">
+                                <div style="height:3px;width:22px;background:#A39BF6;border-radius:1px;"></div>
+                              </div>
+                              <div style="align-self:flex-end;background:#7367F0;border-radius:6px 6px 2px 6px;padding:3px 5px;max-width:70%;">
+                                <div style="height:3px;width:16px;background:rgba(255,255,255,0.75);border-radius:1px;"></div>
+                              </div>
+                            </div>
+                            <div style="height:10px;background:#F5F5F5;border-top:1px solid #E5E5E5;"></div>
+                          </div>
+                          <!-- Widget bubble (hidden in focus mode) -->
+                          <div v-if="form.chatPosition !== 'focus'" :style="bubbleIconStyle">
+                            <div :style="{ width: iconDiameter * 0.48 + 'px', height: iconDiameter * 0.48 + 'px', background: 'rgba(255,255,255,0.85)', borderRadius: '50%' }"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Agent icon size -->
+                    <div class="section-block">
+                      <div class="settings-section-title">Agent icon size</div>
+                      <v-radio-group v-model="form.iconSize" inline hide-details color="primary" style="margin-top:6px;">
+                        <v-radio value="small"  style="margin-right:16px;"><template #label><span class="radio-label">Small</span></template></v-radio>
+                        <v-radio value="medium" style="margin-right:16px;"><template #label><span class="radio-label">Medium</span></template></v-radio>
+                        <v-radio value="large"><template #label><span class="radio-label">Large</span></template></v-radio>
+                      </v-radio-group>
+                    </div>
+
+                    <!-- Chat window position -->
+                    <div class="section-block">
+                      <div class="settings-section-title">Chat window position</div>
+                      <div class="settings-section-desc">Choose the chat window position as size for your agent.</div>
+                      <v-radio-group v-model="form.chatPosition" hide-details color="primary" style="margin-top:2px;">
+                        <v-radio value="focus" style="margin-bottom:4px;align-items:flex-start;">
+                          <template #label>
+                            <div>
+                              <div class="radio-label">Focus mode</div>
+                              <div class="radio-desc">Larger, centered chat window for an immersive experience, ideal for long-form conversations.</div>
+                            </div>
+                          </template>
+                        </v-radio>
+                        <v-radio value="compact" style="margin-bottom:4px;align-items:flex-start;">
+                          <template #label>
+                            <div>
+                              <div class="radio-label">Compact</div>
+                              <div class="radio-desc">Smaller window anchored near the icon, allowing visitors to browse while chatting.</div>
+                            </div>
+                          </template>
+                        </v-radio>
+                        <v-radio value="bubble" style="align-items:flex-start;">
+                          <template #label>
+                            <div>
+                              <div class="radio-label">Bubble in the corner</div>
+                              <div class="radio-desc">Lightweight bubble-style window in the corner, keeping the chat subtle and unobtrusive.</div>
+                            </div>
+                          </template>
+                        </v-radio>
+                      </v-radio-group>
+                    </div>
+
+                    <!-- Mobile font size -->
+                    <div class="section-block">
+                      <div class="settings-section-title">Mobile font size</div>
+                      <div class="settings-section-desc">If "Reduced" is selected, text on viewports under 700px will appear one size smaller than on desktop. If not, the font size remains consistent across all viewports.</div>
+                      <v-radio-group v-model="form.mobileFontSize" hide-details color="primary" style="margin-top:2px;">
+                        <v-radio value="reduced" style="margin-bottom:4px;">
+                          <template #label><span class="radio-label">Reduced</span></template>
+                        </v-radio>
+                        <v-radio value="desktop">
+                          <template #label><span class="radio-label">Same as Desktop</span></template>
+                        </v-radio>
+                      </v-radio-group>
+                    </div>
+
+                  </div>
+                </v-window-item>
+
+                <!-- ── Behavior ── -->
+                <v-window-item value="behavior">
+                  <div style="padding:20px 24px;display:flex;flex-direction:column;gap:0;">
+
+                    <!-- Agent initiatives -->
+                    <div class="section-block">
+                      <!-- Header row: title+desc left, AgentInitiativePreview right -->
+                      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:12px;">
+                        <div>
+                          <div class="settings-section-title">Agent initiatives</div>
+                          <p style="margin:4px 0 0;font-size:12px;line-height:16px;color:var(--text-muted);">Control when and how the agent proactively reaches out to visitors before they start typing.</p>
+                        </div>
+                        <!-- AgentInitiativePreview -->
+                        <div class="browser-mockup">
+                          <div style="height:14px;background:#fff;border-bottom:1px solid #E5E5E5;display:flex;align-items:center;padding-left:6px;gap:3px;">
+                            <div style="width:5px;height:5px;border-radius:50%;background:#EA5455;flex-shrink:0;"></div>
+                            <div style="width:5px;height:5px;border-radius:50%;background:#FF9F43;flex-shrink:0;"></div>
+                            <div style="width:5px;height:5px;border-radius:50%;background:#28C76F;flex-shrink:0;"></div>
+                            <div style="flex:1;height:4px;background:#E5E5E5;border-radius:2px;margin-left:4px;margin-right:6px;"></div>
+                          </div>
+                          <div style="padding:6px 8px;display:flex;flex-direction:column;gap:4px;">
+                            <div style="height:5px;width:75%;background:#D4D4D4;border-radius:2px;"></div>
+                            <div style="height:4px;width:58%;background:#E5E5E5;border-radius:2px;"></div>
+                            <div style="height:4px;width:68%;background:#E5E5E5;border-radius:2px;"></div>
+                            <div style="height:4px;width:48%;background:#E5E5E5;border-radius:2px;"></div>
+                          </div>
+                          <!-- Speech bubble (fades with starterQuestion) -->
+                          <div :style="{ position:'absolute', bottom:'9px', right:'25px', background:'#fff', border:'1px solid #E5E5E5', borderRadius:'5px 5px 1px 5px', padding:'4px 6px', boxShadow:'0 1px 4px rgba(0,0,0,0.08)', display:'flex', flexDirection:'column', gap:'3px', minWidth:'44px', opacity: behavior.starterQuestion ? 1 : 0, transition:'opacity 200ms' }">
+                            <div style="height:3px;width:32px;background:#D4D4D4;border-radius:1px;"></div>
+                            <div style="height:3px;width:24px;background:#E5E5E5;border-radius:1px;"></div>
+                            <div :style="{ height:'3px', width:'18px', background:'#A39BF6', borderRadius:'1px', opacity: behavior.autoStart ? 1 : 0, transition:'opacity 200ms' }"></div>
+                          </div>
+                          <!-- Widget icon -->
+                          <div style="position:absolute;bottom:6px;right:6px;width:14px;height:14px;border-radius:50%;background:#7367F0;box-shadow:0 2px 6px rgba(115,103,240,0.45);display:flex;align-items:center;justify-content:center;">
+                            <div style="width:7px;height:7px;background:rgba(255,255,255,0.85);border-radius:50%;"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- Toggle rows -->
+                      <div style="display:flex;flex-direction:column;gap:16px;">
+                        <div class="setting-row">
+                          <div class="setting-row-text">
+                            <div class="toggle-title">Prompt user with a Starter Question</div>
+                            <div class="toggle-desc">If enabled, the agent will take the initiative and display the first Starter Question as a suggested prompt next to its avatar.</div>
+                          </div>
+                          <v-switch v-model="behavior.starterQuestion" style="flex-shrink:0;" />
+                        </div>
+                        <div class="setting-row setting-row-child" :class="{ 'is-disabled': !behavior.starterQuestion }">
+                          <div class="setting-row-text">
+                            <div class="toggle-title">Automatically start the conversation</div>
+                            <div class="toggle-desc">When enabled, clicking the Agent Initiative prompt will automatically send the message and initiate the conversation. Each use will count toward your query limit.</div>
+                          </div>
+                          <v-switch v-model="behavior.autoStart" :disabled="!behavior.starterQuestion" style="flex-shrink:0;" />
+                        </div>
+                        <div class="setting-row setting-row-child" :class="{ 'is-disabled': !behavior.starterQuestion }">
+                          <div class="setting-row-text">
+                            <div class="toggle-title">Hide prompt from Starter Question list</div>
+                          </div>
+                          <v-switch v-model="behavior.hideFromList" :disabled="!behavior.starterQuestion" style="flex-shrink:0;" />
+                        </div>
+                        <div class="setting-row setting-row-child" :class="{ 'is-disabled': !behavior.starterQuestion }">
+                          <div class="setting-row-text">
+                            <div class="toggle-title">Don't prompt user on mobile</div>
+                            <div class="toggle-desc">When enabled, the agent will not display the first Starter Question on mobile. Use this if Starter Questions cover important elements on the page.</div>
+                          </div>
+                          <v-switch v-model="behavior.noMobilePrompt" :disabled="!behavior.starterQuestion" style="flex-shrink:0;" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Auto-popup -->
+                    <div class="section-block">
+                      <!-- Header row: title+desc left, AutoPopupPreview right -->
+                      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:8px;">
+                        <div>
+                          <div class="settings-section-title">Auto-popup</div>
+                          <p style="margin:4px 0 0;font-size:12px;line-height:16px;color:var(--text-muted);">Automatically expand the chat bubble when visitors land on the page.</p>
+                        </div>
+                        <!-- AutoPopupPreview -->
+                        <div class="browser-mockup">
+                          <div style="height:14px;background:#fff;border-bottom:1px solid #E5E5E5;display:flex;align-items:center;padding-left:6px;gap:3px;">
+                            <div style="width:5px;height:5px;border-radius:50%;background:#EA5455;flex-shrink:0;"></div>
+                            <div style="width:5px;height:5px;border-radius:50%;background:#FF9F43;flex-shrink:0;"></div>
+                            <div style="width:5px;height:5px;border-radius:50%;background:#28C76F;flex-shrink:0;"></div>
+                            <div style="flex:1;height:4px;background:#E5E5E5;border-radius:2px;margin-left:4px;margin-right:6px;"></div>
+                          </div>
+                          <div style="padding:6px 8px;display:flex;flex-direction:column;gap:4px;">
+                            <div style="height:5px;width:75%;background:#D4D4D4;border-radius:2px;"></div>
+                            <div style="height:4px;width:58%;background:#E5E5E5;border-radius:2px;"></div>
+                            <div style="height:4px;width:68%;background:#E5E5E5;border-radius:2px;"></div>
+                            <div style="height:4px;width:48%;background:#E5E5E5;border-radius:2px;"></div>
+                          </div>
+                          <!-- Chat window (fades with popupDesktop) -->
+                          <div :style="{ position:'absolute', bottom:'24px', right:'5px', width:'62px', height:'68px', background:'#fff', borderRadius:'5px', boxShadow:'0 2px 10px rgba(0,0,0,0.12)', border:'1px solid #E5E5E5', overflow:'hidden', display:'flex', flexDirection:'column', opacity: behavior.popupDesktop ? 1 : 0, transition:'opacity 200ms' }">
+                            <div style="height:14px;background:#7367F0;display:flex;align-items:center;padding:0 6px;gap:4px;">
+                              <div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.7);"></div>
+                              <div style="flex:1;height:3px;background:rgba(255,255,255,0.5);border-radius:1px;"></div>
+                            </div>
+                            <div style="flex:1;padding:5px;display:flex;flex-direction:column;gap:4px;justify-content:flex-end;">
+                              <div style="align-self:flex-start;background:#EAE8FD;border-radius:6px 6px 6px 2px;padding:3px 5px;max-width:70%;">
+                                <div style="height:3px;width:22px;background:#A39BF6;border-radius:1px;"></div>
+                              </div>
+                              <div style="align-self:flex-end;background:#7367F0;border-radius:6px 6px 2px 6px;padding:3px 5px;max-width:70%;">
+                                <div style="height:3px;width:16px;background:rgba(255,255,255,0.75);border-radius:1px;"></div>
+                              </div>
+                            </div>
+                            <div style="height:10px;background:#F5F5F5;border-top:1px solid #E5E5E5;"></div>
+                          </div>
+                          <!-- Widget icon -->
+                          <div style="position:absolute;bottom:6px;right:6px;width:14px;height:14px;border-radius:50%;background:#7367F0;box-shadow:0 2px 6px rgba(115,103,240,0.45);display:flex;align-items:center;justify-content:center;">
+                            <div style="width:7px;height:7px;background:rgba(255,255,255,0.85);border-radius:50%;"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- Toggle rows -->
+                      <div style="display:flex;flex-direction:column;gap:16px;">
+                        <div class="setting-row">
+                          <div class="setting-row-text">
+                            <div class="toggle-title">Pop up chat bubble (Desktop)</div>
+                          </div>
+                          <v-switch v-model="behavior.popupDesktop" style="flex-shrink:0;" />
+                        </div>
+                        <div class="setting-row">
+                          <div class="setting-row-text">
+                            <div class="toggle-title">Pop up chat bubble (Mobile)</div>
+                          </div>
+                          <v-switch v-model="behavior.popupMobile" style="flex-shrink:0;" />
+                        </div>
+                        <div class="setting-row">
+                          <div class="setting-row-text">
+                            <div class="toggle-title">Reset previous conversation</div>
+                          </div>
+                          <v-switch v-model="behavior.resetConversation" style="flex-shrink:0;" />
+                        </div>
+                        <div class="setting-row">
+                          <div class="setting-row-text">
+                            <div class="toggle-title">Keep conversation open</div>
+                          </div>
+                          <v-switch v-model="behavior.keepOpen" style="flex-shrink:0;" />
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </v-window-item>
+
+                <!-- ── Size ── -->
+                <v-window-item value="size">
+                  <div style="padding:20px 24px;display:flex;flex-direction:column;gap:0;">
+
+                    <!-- Agent initiatives -->
+                    <div class="section-block">
+                      <div class="settings-section-title" style="margin-bottom:14px;">Agent initiatives</div>
+                      <div style="display:flex;flex-direction:column;gap:16px;">
+                        <div class="setting-row">
+                          <div class="setting-row-text">
+                            <div class="toggle-title">Prompt user with a Starter Question</div>
+                            <div class="toggle-desc">If enabled, the agent will take the initiative and display the first Starter Question as a suggested prompt next to its avatar.</div>
+                          </div>
+                          <v-switch v-model="behavior.starterQuestion" style="flex-shrink:0;" />
+                        </div>
+                        <div class="setting-row setting-row-child" :class="{ 'is-disabled': !behavior.starterQuestion }">
+                          <div class="setting-row-text">
+                            <div class="toggle-title">Automatically start the conversation</div>
+                            <div class="toggle-desc">When enabled, clicking the Agent Initiative prompt will automatically send the message and initiate the conversation. Each use will count toward your query limit.</div>
+                          </div>
+                          <v-switch v-model="behavior.autoStart" :disabled="!behavior.starterQuestion" style="flex-shrink:0;" />
+                        </div>
+                        <div class="setting-row setting-row-child" :class="{ 'is-disabled': !behavior.starterQuestion }">
+                          <div class="setting-row-text">
+                            <div class="toggle-title">Hide prompt from Starter Question list</div>
+                          </div>
+                          <v-switch v-model="behavior.hideFromList" :disabled="!behavior.starterQuestion" style="flex-shrink:0;" />
+                        </div>
+                        <div class="setting-row setting-row-child" :class="{ 'is-disabled': !behavior.starterQuestion }">
+                          <div class="setting-row-text">
+                            <div class="toggle-title">Don't prompt user on mobile</div>
+                            <div class="toggle-desc">When enabled, the agent will not display the first Starter Question on mobile. Use this if Starter Questions cover important elements on the page.</div>
+                          </div>
+                          <v-switch v-model="behavior.noMobilePrompt" :disabled="!behavior.starterQuestion" style="flex-shrink:0;" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Auto-popup -->
+                    <div class="section-block">
+                      <div class="settings-section-title" style="margin-bottom:14px;">Auto-popup</div>
+                      <div style="display:flex;flex-direction:column;gap:16px;">
+                        <div class="setting-row">
+                          <div class="setting-row-text">
+                            <div class="toggle-title">Pop up chat bubble (Desktop)</div>
+                          </div>
+                          <v-switch v-model="behavior.popupDesktop" style="flex-shrink:0;" />
+                        </div>
+                        <div class="setting-row">
+                          <div class="setting-row-text">
+                            <div class="toggle-title">Pop up chat bubble (Mobile)</div>
+                          </div>
+                          <v-switch v-model="behavior.popupMobile" style="flex-shrink:0;" />
+                        </div>
+                        <div class="setting-row">
+                          <div class="setting-row-text">
+                            <div class="toggle-title">Reset previous conversation</div>
+                          </div>
+                          <v-switch v-model="behavior.resetConversation" style="flex-shrink:0;" />
+                        </div>
+                        <div class="setting-row">
+                          <div class="setting-row-text">
+                            <div class="toggle-title">Keep conversation open</div>
+                          </div>
+                          <v-switch v-model="behavior.keepOpen" style="flex-shrink:0;" />
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </v-window-item>
+
+                <!-- ── Advanced ── -->
+                <v-window-item value="advanced">
+                  <div style="padding:20px 24px;">
+
+                    <p style="font-size:13px;color:var(--text-muted);line-height:19px;margin:0 0 0;padding-bottom:16px;border-bottom:1px solid var(--border-default);">Advanced features are available on higher-tier plans. Click any feature to learn more.</p>
+
+                    <!-- Custom Context -->
+                    <div style="padding:16px 0;border-bottom:1px solid var(--border-default);">
+                      <div style="display:flex;align-items:center;gap:16px;">
+                        <div style="flex:1;min-width:0;cursor:pointer;" @click="advanced.expanded.customContext=!advanced.expanded.customContext">
+                          <div style="font-size:15px;font-weight:600;color:var(--text-heading);display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                            Custom Context
+                            <span class="adv-badge"><v-icon size="11">mdi-lock-outline</v-icon> Premium</span>
+                          </div>
+                          <div style="font-size:13px;color:var(--text-muted);line-height:18px;">
+                            Pass dynamic user data into each conversation.
+                            <a href="#" style="color:var(--brand-primary-default);text-decoration:none;" @click.stop>Custom Context <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
+                          </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+                          <v-switch v-model="advanced.customContext" style="flex-shrink:0;" />
+                          <span style="font-size:13px;color:var(--text-muted);min-width:52px;">{{ advanced.customContext ? 'Enabled' : 'Disabled' }}</span>
+                          <v-icon size="16" color="#B7B5BE" style="cursor:pointer;flex-shrink:0;" :style="{transform:advanced.expanded.customContext?'rotate(180deg)':'none',transition:'transform 0.25s ease'}" @click="advanced.expanded.customContext=!advanced.expanded.customContext">mdi-chevron-down</v-icon>
+                        </div>
+                      </div>
+                      <transition name="adv-expand">
+                        <div v-if="advanced.expanded.customContext" style="padding-top:14px;">
+                          <p style="font-size:13px;color:var(--text-body);line-height:19px;margin:0 0 12px;">Personalize agent responses with user name, account info, session data, or any custom variable. Perfect for logged-in user experiences.</p>
+                          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                            <span style="font-size:12px;color:var(--text-muted);">Requires Premium plan</span>
+                            <a href="#" style="color:var(--brand-primary-default);font-size:12px;text-decoration:none;white-space:nowrap;" @click.stop>See plans <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
+                          </div>
+                        </div>
+                      </transition>
+                    </div>
+
+                    <!-- Pre-Prompt -->
+                    <div style="padding:16px 0;border-bottom:1px solid var(--border-default);">
+                      <div style="display:flex;align-items:center;gap:16px;">
+                        <div style="flex:1;min-width:0;cursor:pointer;" @click="advanced.expanded.prePrompt=!advanced.expanded.prePrompt">
+                          <div style="font-size:15px;font-weight:600;color:var(--text-heading);margin-bottom:4px;">Pre-Prompt</div>
+                          <div style="font-size:13px;color:var(--text-muted);line-height:18px;">
+                            Set a hidden system instruction for every conversation.
+                            <a href="#" style="color:var(--brand-primary-default);text-decoration:none;" @click.stop>Pre-Prompt <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
+                          </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+                          <v-switch v-model="advanced.prePrompt" style="flex-shrink:0;" />
+                          <span style="font-size:13px;color:var(--text-muted);min-width:52px;">{{ advanced.prePrompt ? 'Enabled' : 'Disabled' }}</span>
+                          <v-icon size="16" color="#B7B5BE" style="cursor:pointer;flex-shrink:0;" :style="{transform:advanced.expanded.prePrompt?'rotate(180deg)':'none',transition:'transform 0.25s ease'}" @click="advanced.expanded.prePrompt=!advanced.expanded.prePrompt">mdi-chevron-down</v-icon>
+                        </div>
+                      </div>
+                      <transition name="adv-expand">
+                        <div v-if="advanced.expanded.prePrompt" style="padding-top:14px;">
+                          <p style="font-size:13px;color:var(--text-body);line-height:19px;margin:0 0 12px;">Write a system-level instruction that guides the agent before any user message — invisible to visitors, always applied.</p>
+                          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                            <span style="font-size:12px;color:var(--text-muted);">Requires Standard plan</span>
+                            <a href="#" style="color:var(--brand-primary-default);font-size:12px;text-decoration:none;white-space:nowrap;" @click.stop>See plans <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
+                          </div>
+                        </div>
+                      </transition>
+                    </div>
+
+                    <!-- CRM Integration -->
+                    <div style="padding:16px 0;border-bottom:1px solid var(--border-default);">
+                      <div style="display:flex;align-items:center;gap:16px;">
+                        <div style="flex:1;min-width:0;cursor:pointer;" @click="advanced.expanded.crmIntegration=!advanced.expanded.crmIntegration">
+                          <div style="font-size:15px;font-weight:600;color:var(--text-heading);display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                            CRM Integration
+                            <span class="adv-badge"><v-icon size="11">mdi-lock-outline</v-icon> Enterprise</span>
+                          </div>
+                          <div style="font-size:13px;color:var(--text-muted);line-height:18px;">
+                            Sync conversation data to HubSpot, Salesforce, and more.
+                            <a href="#" style="color:var(--brand-primary-default);text-decoration:none;" @click.stop>CRM Integration <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
+                          </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+                          <v-switch v-model="advanced.crmIntegration" style="flex-shrink:0;" />
+                          <span style="font-size:13px;color:var(--text-muted);min-width:52px;">{{ advanced.crmIntegration ? 'Enabled' : 'Disabled' }}</span>
+                          <v-icon size="16" color="#B7B5BE" style="cursor:pointer;flex-shrink:0;" :style="{transform:advanced.expanded.crmIntegration?'rotate(180deg)':'none',transition:'transform 0.25s ease'}" @click="advanced.expanded.crmIntegration=!advanced.expanded.crmIntegration">mdi-chevron-down</v-icon>
+                        </div>
+                      </div>
+                      <transition name="adv-expand">
+                        <div v-if="advanced.expanded.crmIntegration" style="padding-top:14px;">
+                          <p style="font-size:13px;color:var(--text-body);line-height:19px;margin:0 0 12px;">Route leads, tag contacts, and log conversations directly to your CRM. Connects to HubSpot, Salesforce, and Zapier workflows.</p>
+                          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                            <span style="font-size:12px;color:var(--text-muted);">Requires Enterprise plan</span>
+                            <a href="#" style="color:var(--brand-primary-default);font-size:12px;text-decoration:none;white-space:nowrap;" @click.stop>See plans <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
+                          </div>
+                        </div>
+                      </transition>
+                    </div>
+
+                    <!-- Labels -->
+                    <div style="padding:16px 0;">
+                      <div style="display:flex;align-items:center;gap:16px;">
+                        <div style="flex:1;min-width:0;cursor:pointer;" @click="advanced.expanded.labels=!advanced.expanded.labels">
+                          <div style="font-size:15px;font-weight:600;color:var(--text-heading);margin-bottom:4px;">Labels</div>
+                          <div style="font-size:13px;color:var(--text-muted);line-height:18px;">
+                            Tag and categorize conversations for reporting.
+                            <a href="#" style="color:var(--brand-primary-default);text-decoration:none;" @click.stop>Labels <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
+                          </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+                          <v-switch v-model="advanced.labels" style="flex-shrink:0;" />
+                          <span style="font-size:13px;color:var(--text-muted);min-width:52px;">{{ advanced.labels ? 'Enabled' : 'Disabled' }}</span>
+                          <v-icon size="16" color="#B7B5BE" style="cursor:pointer;flex-shrink:0;" :style="{transform:advanced.expanded.labels?'rotate(180deg)':'none',transition:'transform 0.25s ease'}" @click="advanced.expanded.labels=!advanced.expanded.labels">mdi-chevron-down</v-icon>
+                        </div>
+                      </div>
+                      <transition name="adv-expand">
+                        <div v-if="advanced.expanded.labels" style="padding-top:14px;">
+                          <p style="font-size:13px;color:var(--text-body);line-height:19px;margin:0 0 12px;">Apply custom labels to conversations for team routing, analytics filtering, and workflow automation.</p>
+                          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                            <span style="font-size:12px;color:var(--text-muted);">Requires All plans</span>
+                            <a href="#" style="color:var(--brand-primary-default);font-size:12px;text-decoration:none;white-space:nowrap;" @click.stop>See plans <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
+                          </div>
+                        </div>
+                      </transition>
+                    </div>
+
+                  </div>
+                </v-window-item>
+
+              </v-window>
+            </v-card-text>
+
+            <!-- Footer -->
+            <v-card-actions style="padding:12px 24px 20px;justify-content:flex-end;gap:8px;border-top:1px solid var(--border-default);">
+              <v-btn color="secondary" variant="flat" rounded="md" style="min-width:88px;" @click="open = false">
+                Cancel
+              </v-btn>
+              <v-btn
+                :color="saved ? 'success' : 'primary'"
+                variant="flat"
+                rounded="md"
+                style="min-width:120px;"
+                @click="save"
+              >
+                {{ saved ? 'Saved' : 'Save changes' }}
+              </v-btn>
+            </v-card-actions>
+
+          </v-card>
+        </div>
+      </v-dialog>
+
+    </v-app>
+  </div>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/vuetify@3/dist/vuetify.js"></script>
+  <script>
+    const { createApp, ref, reactive, computed } = Vue
+    const { createVuetify } = Vuetify
+
+    const vuetify = createVuetify({
+      theme: {
+        defaultTheme: 'customgpt',
+        themes: {
+          customgpt: {
+            dark: false,
+            colors: {
+              primary:    '#7367F0',
+              secondary:  '#A8AAAE',
+              success:    '#28C76F',
+              warning:    '#FF9F43',
+              danger:     '#EA5455',
+              info:       '#0076E5',
+              background: '#F5F5F5',
+              surface:    '#FFFFFF',
+            },
+          },
+        },
+      },
+      defaults: {
+        VBtn:    { elevation: 0 },
+        VCard:   { elevation: 0 },
+        VSwitch: { color: 'primary', density: 'compact', inset: true, hideDetails: true },
+      },
+    })
+
+    createApp({
+      setup() {
+        /* ── Page state ── */
+        const activePageTab = ref('share')
+        const pagePrefix    = ref('miodgnfg8e')
+        const urlCopied     = ref(false)
+        const codeCopied1   = ref(false)
+        const codeCopied2   = ref(false)
+        const pageToast     = ref(null)
+        const ownedHistory  = reactive(new Set(['miodgnfg8e']))
+
+        const TAKEN = new Set(['support','sales-bot','help-center','demo','test-agent','assistant','chat','bot','ai','agent'])
+        const AGENT_ID  = '95211'
+        const AGENT_KEY = '7390ddddafa2f53b0631eec69707e438'
+
+        const liveChatCode = `<script defer src="https://cdn.customgpt.ai/js/chat.js"><\/script>\n<script defer> (function(){ function init(){ CustomGPT.init({\n  p_id:'${AGENT_ID}', p_key:'${AGENT_KEY}' }) }\n  document.readyState === 'complete' ? init() :\n  window.addEventListener('load', init);\n})(); }<\/script>`
+        const embedCode = `<div id="customgpt_chat"></div>\n<script src="https://cdn.customgpt.ai/js/embed.js" defer\n  div_id="customgpt_chat" p_id="${AGENT_ID}"\n  p_key="${AGENT_KEY}"><\/script>`
+
+        const sidebarNav = [
+          { id:'build',       label:'Build',       icon:'folder-multiple-outline' },
+          { id:'personalize', label:'Personalize', icon:'creation-outline' },
+          { id:'actions',     label:'Actions',     icon:'connection' },
+          { id:'ask',         label:'Ask',         icon:'message-text-outline' },
+          { id:'deploy',      label:'Deploy',      icon:'rocket-launch-outline', active:true },
+          { id:'analyze',     label:'Analyze',     icon:'chart-bar' },
+        ]
+        const pageTabs = [
+          { id:'share',        label:'Share',        icon:'share-variant-outline' },
+          { id:'integrations', label:'Integrations', icon:'puzzle-outline' },
+          { id:'advanced',     label:'Advanced',     icon:'tune-variant' },
+          { id:'api',          label:'API',          icon:'console-line' },
+          { id:'mcp',          label:'MCP Server',   icon:'server-outline' },
+        ]
+
+        function copyUrl() {
+          navigator.clipboard.writeText(`https://${pagePrefix.value}.customgpt-agents.com`).catch(()=>{})
+          urlCopied.value = true; setTimeout(()=>urlCopied.value=false, 1800)
+        }
+        function copyCode(code, which) {
+          navigator.clipboard.writeText(code).catch(()=>{})
+          if (which==='code1') { codeCopied1.value=true; setTimeout(()=>codeCopied1.value=false,1800) }
+          else { codeCopied2.value=true; setTimeout(()=>codeCopied2.value=false,1800) }
+        }
+
+        /* ── Edit modal ── */
+        const editModalOpen    = ref(false)
+        const editVal          = ref('miodgnfg8e')
+        const editStatus       = ref('idle')
+        const editFocused      = ref(false)
+        const editHasBeenValid = ref(false)
+        let editTimer = null
+
+        const editInputStyle = computed(() => {
+          const isErr = editStatus.value==='invalid'||editStatus.value==='taken'
+          const border = isErr ? '#EA5455' : editFocused.value ? 'var(--brand-primary-default)' : 'var(--border-default)'
+          const ring = isErr ? (editFocused.value?'rgba(234,84,85,0.16)':'transparent') : editFocused.value?'rgba(115,103,240,0.16)':'transparent'
+          return { border:`1px solid ${border}`, boxShadow:`0 0 0 3px ${ring}`, transition:'border-color 120ms,box-shadow 120ms' }
+        })
+        const canSave = computed(() => (editStatus.value==='available'||editStatus.value==='own') && editVal.value!==pagePrefix.value)
+
+        function validateFormat(v) { return v.length>=1&&v.length<=63&&/^[a-z0-9][a-z0-9-]*$/.test(v) }
+
+        function openEditModal() {
+          editVal.value=pagePrefix.value; editStatus.value='idle'; editFocused.value=false; editHasBeenValid.value=false; editModalOpen.value=true
+        }
+        function handleEditInput() {
+          const v=editVal.value.toLowerCase().replace(/[^a-z0-9-]/g,''); editVal.value=v
+          clearTimeout(editTimer)
+          if(!v){editStatus.value='idle';return}
+          if(!validateFormat(v)){editStatus.value='invalid';return}
+          if(v===pagePrefix.value){editStatus.value='idle';return}
+          editStatus.value='checking'
+          editTimer=setTimeout(()=>{
+            if(ownedHistory.has(v)&&v!==pagePrefix.value){editStatus.value='own';editHasBeenValid.value=true}
+            else if(TAKEN.has(v)){editStatus.value='taken'}
+            else{editStatus.value='available';editHasBeenValid.value=true}
+          },550)
+        }
+        function getSuggestions(taken) {
+          return['-2','-help','-chat'].map(s=>taken+s).filter(s=>validateFormat(s)&&!TAKEN.has(s)).slice(0,3)
+        }
+        function applySuggestion(s){editVal.value=s;handleEditInput()}
+        function handleSavePrefix() {
+          if(!canSave.value)return
+          ownedHistory.add(pagePrefix.value); pagePrefix.value=editVal.value; editModalOpen.value=false
+          pageToast.value=`Share link updated to ${editVal.value}.customgpt-agents.com`
+          setTimeout(()=>pageToast.value=null,3200)
+        }
+
+        /* ── Live Chat Settings modal ── */
+        const open = ref(false)
+        const tab  = ref('appearance')
+        const saved = ref(false)
+        const copied = ref(null)
+        const apiKeyRevealed = ref(false)
+        const maskedKey = 'sk-cg-••••••••••••••••••••••••3f82'
+        const fullKey   = 'sk-cg-f91a3bc20d4e7658f29a1c3d74e83f82'
+        const selectedColor = ref('#7367F0')
+
+        const brandColors = ['#7367F0','#0076E5','#28C76F','#FF9F43','#EA5455','#46AEAE','#212121']
+
+        const form = reactive({
+          name:         'Support Assistant',
+          description:  'Handles customer support queries, answers product questions, and escalates issues when needed.',
+          instructions: '',
+          language:     'en',
+          persona:      'professional',
+          widgetName:    'Support Assistant',
+          greeting:      'Hi! How can I help you today?',
+          iconPosition:   'right',
+          iconSize:       'medium',
+          chatPosition:   'bubble',
+          mobileFontSize: 'reduced',
+          webhookUrl:    '',
+          rpm:          60,
+          rpd:          5000,
+        })
+
+        const settings = reactive({
+          citeSources:  true,
+          webFallback:  false,
+          strictMode:   true,
+          showAvatar:   true,
+          showPrompts:  true,
+          sendHistory:  false,
+        })
+
+        const advanced = reactive({
+          customContext:      false,
+          customContextValue: '',
+          prePrompt:          false,
+          prePromptValue:     '',
+          crmIntegration:     false,
+          crmPlatform:        'HubSpot',
+          labels:             false,
+          newLabel:           '',
+          labelList:          [],
+          expanded: {
+            customContext:  false,
+            prePrompt:      false,
+            crmIntegration: false,
+            labels:         false,
+          },
+        })
+
+        const crmOptions = ['HubSpot', 'Salesforce', 'Pipedrive', 'Zoho CRM']
+
+        function addLabel() {
+          const val = advanced.newLabel.trim()
+          if (val && !advanced.labelList.includes(val)) advanced.labelList.push(val)
+          advanced.newLabel = ''
+        }
+
+        const behavior = reactive({
+          starterQuestion:   true,
+          autoStart:         true,
+          hideFromList:      true,
+          noMobilePrompt:    true,
+          popupDesktop:      true,
+          popupMobile:       false,
+          resetConversation: true,
+          keepOpen:          true,
+        })
+
+        const languages = [
+          { title: 'Auto-detect', value: 'auto' },
+          { title: 'English',     value: 'en'   },
+          { title: 'Spanish',     value: 'es'   },
+          { title: 'French',      value: 'fr'   },
+          { title: 'German',      value: 'de'   },
+        ]
+
+        const personas = [
+          { title: 'Friendly',     value: 'friendly'     },
+          { title: 'Professional', value: 'professional' },
+          { title: 'Concise',      value: 'concise'      },
+          { title: 'Detailed',     value: 'detailed'     },
+        ]
+
+        const iconDiameter  = computed(() => ({ small: 11, medium: 14, large: 18 }[form.iconSize] || 14))
+        const chatWindowStyle = computed(() => {
+          const d = iconDiameter.value
+          const isFocus = form.chatPosition === 'focus'
+          const isRight = form.iconPosition === 'right'
+          return {
+            position: 'absolute',
+            width:  (isFocus ? 96 : 62) + 'px',
+            height: (isFocus ? 72 : 68) + 'px',
+            background: '#fff',
+            borderRadius: '5px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.12)',
+            border: '1px solid #E5E5E5',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            transition: 'all 200ms cubic-bezier(0,0,0.2,1)',
+            ...(isFocus
+              ? { top: '16px', left: '12px' }
+              : { bottom: (d + 10) + 'px', [isRight ? 'right' : 'left']: '5px' }),
+          }
+        })
+        const bubbleIconStyle = computed(() => {
+          const d = iconDiameter.value
+          const isRight = form.iconPosition === 'right'
+          return {
+            position: 'absolute',
+            bottom: '6px',
+            [isRight ? 'right' : 'left']: '6px',
+            width: d + 'px',
+            height: d + 'px',
+            borderRadius: '50%',
+            background: '#7367F0',
+            boxShadow: '0 2px 6px rgba(115,103,240,0.45)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 200ms cubic-bezier(0,0,0.2,1)',
+          }
+        })
+
+        function save() {
+          saved.value = true
+          setTimeout(() => saved.value = false, 2000)
+        }
+
+        function copyText(text, key) {
+          navigator.clipboard.writeText(text).catch(() => {})
+          copied.value = key
+          setTimeout(() => copied.value = null, 1500)
+        }
+
+        return {
+          activePageTab, pagePrefix, urlCopied, codeCopied1, codeCopied2, pageToast,
+          sidebarNav, pageTabs, liveChatCode, embedCode,
+          copyUrl, copyCode,
+          editModalOpen, editVal, editStatus, editFocused, editHasBeenValid,
+          editInputStyle, canSave, openEditModal, handleEditInput, getSuggestions, applySuggestion, handleSavePrefix,
+          open, tab, saved, copied,
+          apiKeyRevealed, maskedKey, fullKey,
+          selectedColor, brandColors,
+          form, settings, behavior, advanced,
+          languages, personas,
+          iconDiameter, chatWindowStyle, bubbleIconStyle,
+          crmOptions, addLabel,
+          save, copyText,
+        }
+      },
+    }).use(vuetify).mount('#app')
+  </script>
+</body>
+</html>
