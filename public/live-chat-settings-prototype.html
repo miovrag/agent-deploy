@@ -980,70 +980,32 @@
 
                 <!-- ── Size ── -->
                 <v-window-item value="size">
-                  <div style="padding:20px 24px;display:flex;flex-direction:column;gap:0;">
+                  <div style="padding:20px 24px;display:flex;flex-direction:column;gap:24px;">
 
-                    <!-- Agent initiatives -->
-                    <div class="section-block">
-                      <div class="settings-section-title" style="margin-bottom:14px;">Agent initiatives</div>
-                      <div style="display:flex;flex-direction:column;gap:16px;">
-                        <div class="setting-row">
-                          <div class="setting-row-text">
-                            <div class="toggle-title">Prompt user with a Starter Question</div>
-                            <div class="toggle-desc">If enabled, the agent will take the initiative and display the first Starter Question as a suggested prompt next to its avatar.</div>
-                          </div>
-                          <v-switch v-model="behavior.starterQuestion" style="flex-shrink:0;" />
-                        </div>
-                        <div class="setting-row setting-row-child" :class="{ 'is-disabled': !behavior.starterQuestion }">
-                          <div class="setting-row-text">
-                            <div class="toggle-title">Automatically start the conversation</div>
-                            <div class="toggle-desc">When enabled, clicking the Agent Initiative prompt will automatically send the message and initiate the conversation. Each use will count toward your query limit.</div>
-                          </div>
-                          <v-switch v-model="behavior.autoStart" :disabled="!behavior.starterQuestion" style="flex-shrink:0;" />
-                        </div>
-                        <div class="setting-row setting-row-child" :class="{ 'is-disabled': !behavior.starterQuestion }">
-                          <div class="setting-row-text">
-                            <div class="toggle-title">Hide prompt from Starter Question list</div>
-                          </div>
-                          <v-switch v-model="behavior.hideFromList" :disabled="!behavior.starterQuestion" style="flex-shrink:0;" />
-                        </div>
-                        <div class="setting-row setting-row-child" :class="{ 'is-disabled': !behavior.starterQuestion }">
-                          <div class="setting-row-text">
-                            <div class="toggle-title">Don't prompt user on mobile</div>
-                            <div class="toggle-desc">When enabled, the agent will not display the first Starter Question on mobile. Use this if Starter Questions cover important elements on the page.</div>
-                          </div>
-                          <v-switch v-model="behavior.noMobilePrompt" :disabled="!behavior.starterQuestion" style="flex-shrink:0;" />
-                        </div>
+                    <!-- Width -->
+                    <div>
+                      <div class="settings-section-title" style="margin-bottom:4px;">Width</div>
+                      <div class="settings-section-desc" style="margin-bottom:8px;">Control the width of the chat bubble.</div>
+                      <div style="display:flex;align-items:center;gap:8px;">
+                        <v-text-field v-model.number="size.width" type="number" variant="outlined" rounded="md" density="compact" hide-details bg-color="#fff" style="flex:1;" :error="size.widthError !== null" @blur="validateWidth" />
+                        <span style="font-size:13px;color:var(--text-muted);flex-shrink:0;user-select:none;">px</span>
                       </div>
+                      <p v-if="size.widthError" style="margin:4px 0 0;font-size:12px;color:#EA5455;line-height:16px;">{{ size.widthError }}</p>
+                      <p v-else style="margin:4px 0 0;font-size:12px;color:var(--text-muted);line-height:16px;">Recommended: 360–500px</p>
                     </div>
 
-                    <!-- Auto-popup -->
-                    <div class="section-block">
-                      <div class="settings-section-title" style="margin-bottom:14px;">Auto-popup</div>
-                      <div style="display:flex;flex-direction:column;gap:16px;">
-                        <div class="setting-row">
-                          <div class="setting-row-text">
-                            <div class="toggle-title">Pop up chat bubble (Desktop)</div>
-                          </div>
-                          <v-switch v-model="behavior.popupDesktop" style="flex-shrink:0;" />
+                    <!-- Height -->
+                    <div>
+                      <div class="settings-section-title" style="margin-bottom:4px;">Height</div>
+                      <div class="settings-section-desc" style="margin-bottom:8px;">Control the height of the chat bubble.</div>
+                      <v-select v-model="size.heightMode" :items="[{ title: 'Fixed', value: 'fixed' }, { title: 'Dynamic', value: 'dynamic' }]" variant="outlined" rounded="md" density="compact" hide-details bg-color="#fff" />
+                      <div v-if="size.heightMode === 'fixed'" style="margin-top:8px;">
+                        <div style="display:flex;align-items:center;gap:8px;">
+                          <v-text-field v-model.number="size.height" type="number" variant="outlined" rounded="md" density="compact" hide-details bg-color="#fff" style="flex:1;" :error="size.heightError !== null" @blur="validateHeight" />
+                          <span style="font-size:13px;color:var(--text-muted);flex-shrink:0;user-select:none;">px</span>
                         </div>
-                        <div class="setting-row">
-                          <div class="setting-row-text">
-                            <div class="toggle-title">Pop up chat bubble (Mobile)</div>
-                          </div>
-                          <v-switch v-model="behavior.popupMobile" style="flex-shrink:0;" />
-                        </div>
-                        <div class="setting-row">
-                          <div class="setting-row-text">
-                            <div class="toggle-title">Reset previous conversation</div>
-                          </div>
-                          <v-switch v-model="behavior.resetConversation" style="flex-shrink:0;" />
-                        </div>
-                        <div class="setting-row">
-                          <div class="setting-row-text">
-                            <div class="toggle-title">Keep conversation open</div>
-                          </div>
-                          <v-switch v-model="behavior.keepOpen" style="flex-shrink:0;" />
-                        </div>
+                        <p v-if="size.heightError" style="margin:4px 0 0;font-size:12px;color:#EA5455;line-height:16px;">{{ size.heightError }}</p>
+                        <p v-else style="margin:4px 0 0;font-size:12px;color:var(--text-muted);line-height:16px;">Recommended: 600–800px</p>
                       </div>
                     </div>
 
@@ -1384,6 +1346,20 @@
           advanced.newLabel = ''
         }
 
+        const size = reactive({ width: 420, heightMode: 'fixed', height: 700, widthError: null, heightError: null })
+        function validateWidth() {
+          const v = size.width
+          if (v < 200 || v > 800) size.widthError = 'Enter a value between 200–800px.'
+          else if (v < 360 || v > 500) size.widthError = 'This width may clip the chat window. Recommended: 360–500px.'
+          else size.widthError = null
+        }
+        function validateHeight() {
+          const v = size.height
+          if (v < 300 || v > 1200) size.heightError = 'Enter a value between 300–1200px.'
+          else if (v < 600 || v > 800) size.heightError = 'This height may clip content. Recommended: 600–800px.'
+          else size.heightError = null
+        }
+
         const behavior = reactive({
           starterQuestion:   true,
           autoStart:         true,
@@ -1471,7 +1447,7 @@
           open, tab, saved, copied,
           apiKeyRevealed, maskedKey, fullKey,
           selectedColor, brandColors,
-          form, settings, behavior, advanced,
+          form, settings, behavior, advanced, size, validateWidth, validateHeight,
           languages, personas,
           iconDiameter, chatWindowStyle, bubbleIconStyle,
           crmOptions, addLabel,
