@@ -982,12 +982,20 @@
                 <v-window-item value="size">
                   <div style="padding:20px 24px;display:flex;flex-direction:column;gap:24px;">
 
+                    <!-- Disabled notice (Focus / Compact use fixed sizes) -->
+                    <div v-if="sizeDisabled" style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:8px;background:var(--brand-primary-tint);">
+                      <v-icon size="18" color="primary" style="flex-shrink:0;margin-top:1px;">mdi-information-outline</v-icon>
+                      <div style="font-size:13px;line-height:18px;color:var(--text-body);">
+                        Size is fixed in <strong>{{ sizeDisabledLabel }}</strong>. Switch the chat window position to <strong>Bubble in the corner</strong> to set a custom width and height.
+                      </div>
+                    </div>
+
                     <!-- Width -->
-                    <div>
+                    <div :style="{ opacity: sizeDisabled ? 0.5 : 1 }">
                       <div class="settings-section-title" style="margin-bottom:4px;">Width</div>
                       <div class="settings-section-desc" style="margin-bottom:8px;">Control the width of the chat bubble.</div>
                       <div style="display:flex;align-items:center;gap:8px;">
-                        <v-text-field v-model.number="size.width" type="number" variant="outlined" rounded="md" density="compact" hide-details bg-color="#fff" style="flex:1;" :error="size.widthError !== null" @blur="validateWidth" />
+                        <v-text-field v-model.number="size.width" type="number" variant="outlined" rounded="md" density="compact" hide-details bg-color="#fff" style="flex:1;" :error="size.widthError !== null" :disabled="sizeDisabled" @blur="validateWidth" />
                         <span style="font-size:13px;color:var(--text-muted);flex-shrink:0;user-select:none;">px</span>
                       </div>
                       <p v-if="size.widthError" style="margin:4px 0 0;font-size:12px;color:#EA5455;line-height:16px;">{{ size.widthError }}</p>
@@ -995,13 +1003,13 @@
                     </div>
 
                     <!-- Height -->
-                    <div>
+                    <div :style="{ opacity: sizeDisabled ? 0.5 : 1 }">
                       <div class="settings-section-title" style="margin-bottom:4px;">Height</div>
                       <div class="settings-section-desc" style="margin-bottom:8px;">Control the height of the chat bubble.</div>
-                      <v-select v-model="size.heightMode" :items="[{ title: 'Fixed', value: 'fixed' }, { title: 'Dynamic', value: 'dynamic' }]" variant="outlined" rounded="md" density="compact" hide-details bg-color="#fff" />
+                      <v-select v-model="size.heightMode" :items="[{ title: 'Fixed', value: 'fixed' }, { title: 'Dynamic', value: 'dynamic' }]" variant="outlined" rounded="md" density="compact" hide-details bg-color="#fff" :disabled="sizeDisabled" />
                       <div v-if="size.heightMode === 'fixed'" style="margin-top:8px;">
                         <div style="display:flex;align-items:center;gap:8px;">
-                          <v-text-field v-model.number="size.height" type="number" variant="outlined" rounded="md" density="compact" hide-details bg-color="#fff" style="flex:1;" :error="size.heightError !== null" @blur="validateHeight" />
+                          <v-text-field v-model.number="size.height" type="number" variant="outlined" rounded="md" density="compact" hide-details bg-color="#fff" style="flex:1;" :error="size.heightError !== null" :disabled="sizeDisabled" @blur="validateHeight" />
                           <span style="font-size:13px;color:var(--text-muted);flex-shrink:0;user-select:none;">px</span>
                         </div>
                         <p v-if="size.heightError" style="margin:4px 0 0;font-size:12px;color:#EA5455;line-height:16px;">{{ size.heightError }}</p>
@@ -1427,6 +1435,10 @@
           }
         })
 
+        // Size is only customizable for the corner bubble — Focus & Compact use fixed dimensions
+        const sizeDisabled = computed(() => form.chatPosition !== 'bubble')
+        const sizeDisabledLabel = computed(() => form.chatPosition === 'focus' ? 'Focus mode' : 'Compact')
+
         function save() {
           saved.value = true
           setTimeout(() => saved.value = false, 2000)
@@ -1449,7 +1461,7 @@
           selectedColor, brandColors,
           form, settings, behavior, advanced, size, validateWidth, validateHeight,
           languages, personas,
-          iconDiameter, chatWindowStyle, bubbleIconStyle,
+          iconDiameter, chatWindowStyle, bubbleIconStyle, sizeDisabled, sizeDisabledLabel,
           crmOptions, addLabel,
           save, copyText,
         }
