@@ -217,6 +217,23 @@
       padding: 2px 9px 2px 6px;
       border-radius: 999px;
     }
+    .unlock-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--brand-primary-default);
+      background: var(--brand-primary-tint);
+      border: 1px solid rgba(115,103,240,0.22);
+      padding: 4px 10px 4px 8px;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 140ms;
+    }
+    .unlock-badge:hover { background: rgba(115,103,240,0.16); }
+    .locked-group { position: relative; opacity: 0.55; pointer-events: none; user-select: none; }
     .adv-desc {
       font-size: 13px;
       color: var(--text-muted);
@@ -316,6 +333,49 @@
       background: #FAFAFA;
       overflow: hidden;
       position: relative;
+    }
+
+    /* ── Selectable preview card (Behavior tab) ── */
+    .preview-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px 6px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 140ms, border-color 140ms;
+    }
+    .preview-card:hover { background: #F5F5F5; }
+    .preview-caption { font-size: 11px; font-weight: 500; color: var(--text-muted); transition: color 140ms; }
+    .preview-card.is-active { background: var(--brand-primary-tint); border-color: var(--brand-primary-default); }
+    .preview-card.is-active .preview-caption { color: var(--brand-primary-default); font-weight: 600; }
+    .preview-status {
+      font-size: 9px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .preview-status.is-on  { background: #D6F5E3; color: #1F9C57; }
+    .preview-status.is-off { background: #EDEDED; color: #8A8A8A; }
+
+    /* ── Setting sub-group (groups related toggles) ── */
+    .setting-group-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .setting-subgroup + .setting-subgroup {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-default);
     }
 
     /* ── Dependent setting row ── */
@@ -716,23 +776,16 @@
             </div>
 
             <!-- Scrollable tab content -->
-            <v-card-text style="padding:0;overflow-y:auto;max-height:460px;">
+            <v-card-text style="padding:0;overflow-y:auto;height:460px;">
               <v-window v-model="tab">
 
                 <!-- ── Appearance ── -->
                 <v-window-item value="appearance">
-                  <div style="padding:20px 24px;display:flex;flex-direction:column;gap:0;">
+                  <div style="display:flex;flex-direction:column;gap:0;height:460px;">
 
-                    <!-- Agent icon position + preview -->
-                    <div class="section-block">
-                      <div style="display:flex;align-items:flex-start;gap:16px;">
-                        <div style="flex:1;">
-                          <div class="settings-section-title">Agent icon position</div>
-                          <v-radio-group v-model="form.iconPosition" inline hide-details color="primary" style="margin-top:6px;">
-                            <v-radio value="left"  style="margin-right:16px;"><template #label><span class="radio-label">Left</span></template></v-radio>
-                            <v-radio value="right"><template #label><span class="radio-label">Right</span></template></v-radio>
-                          </v-radio-group>
-                        </div>
+                    <!-- Pinned, centered live preview (stays visible while settings scroll) -->
+                    <div style="flex-shrink:0;background:#fff;display:flex;justify-content:center;padding:20px 24px 16px;border-bottom:1px solid var(--border-default);">
+                      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
                         <!-- Browser mockup (LivePreview port) -->
                         <div class="browser-mockup">
                           <!-- Chrome bar -->
@@ -770,7 +823,20 @@
                             <div :style="{ width: iconDiameter * 0.48 + 'px', height: iconDiameter * 0.48 + 'px', background: 'rgba(255,255,255,0.85)', borderRadius: '50%' }"></div>
                           </div>
                         </div>
+                        <span class="preview-caption">Agent preview</span>
                       </div>
+                      </div>
+
+                    <!-- Settings (scroll below the pinned preview) -->
+                    <div style="flex:1;overflow-y:auto;padding:0 24px;">
+
+                    <!-- Agent icon position -->
+                    <div class="section-block">
+                      <div class="settings-section-title">Agent icon position</div>
+                      <v-radio-group v-model="form.iconPosition" inline hide-details color="primary" style="margin-top:6px;">
+                        <v-radio value="left"  style="margin-right:16px;"><template #label><span class="radio-label">Left</span></template></v-radio>
+                        <v-radio value="right"><template #label><span class="radio-label">Right</span></template></v-radio>
+                      </v-radio-group>
                     </div>
 
                     <!-- Agent icon size -->
@@ -829,22 +895,18 @@
                       </v-radio-group>
                     </div>
 
+                    </div>
                   </div>
                 </v-window-item>
 
                 <!-- ── Behavior ── -->
                 <v-window-item value="behavior">
-                  <div style="padding:20px 24px;display:flex;flex-direction:column;gap:0;">
+                  <div style="display:flex;flex-direction:column;gap:0;height:460px;">
 
-                    <!-- Agent initiatives -->
-                    <div class="section-block">
-                      <!-- Header row: title+desc left, AgentInitiativePreview right -->
-                      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:12px;">
-                        <div>
-                          <div class="settings-section-title">Agent initiatives</div>
-                          <p style="margin:4px 0 0;font-size:12px;line-height:16px;color:var(--text-muted);">Control when and how the agent proactively reaches out to visitors before they start typing.</p>
-                        </div>
-                        <!-- AgentInitiativePreview -->
+                    <!-- Pinned, centered previews (stay visible while settings scroll) -->
+                    <div style="flex-shrink:0;background:#fff;display:flex;justify-content:center;gap:28px;padding:20px 24px 16px;border-bottom:1px solid var(--border-default);">
+                      <!-- AgentInitiativePreview -->
+                      <div class="preview-card" :class="{ 'is-active': behavior.view === 'initiatives' }" @click="behavior.view = 'initiatives'">
                         <div class="browser-mockup">
                           <div style="height:14px;background:#fff;border-bottom:1px solid #E5E5E5;display:flex;align-items:center;padding-left:6px;gap:3px;">
                             <div style="width:5px;height:5px;border-radius:50%;background:#EA5455;flex-shrink:0;"></div>
@@ -869,48 +931,11 @@
                             <div style="width:7px;height:7px;background:rgba(255,255,255,0.85);border-radius:50%;"></div>
                           </div>
                         </div>
+                        <span class="preview-caption">Agent initiatives</span>
+                        <span class="preview-status" :class="behavior.starterQuestion ? 'is-on' : 'is-off'">{{ behavior.starterQuestion ? 'On' : 'Off' }}</span>
                       </div>
-                      <!-- Toggle rows -->
-                      <div style="display:flex;flex-direction:column;gap:16px;">
-                        <div class="setting-row">
-                          <div class="setting-row-text">
-                            <div class="toggle-title">Prompt user with a Starter Question</div>
-                            <div class="toggle-desc">If enabled, the agent will take the initiative and display the first Starter Question as a suggested prompt next to its avatar.</div>
-                          </div>
-                          <v-switch v-model="behavior.starterQuestion" style="flex-shrink:0;" />
-                        </div>
-                        <div class="setting-row setting-row-child" :class="{ 'is-disabled': !behavior.starterQuestion }">
-                          <div class="setting-row-text">
-                            <div class="toggle-title">Automatically start the conversation</div>
-                            <div class="toggle-desc">When enabled, clicking the Agent Initiative prompt will automatically send the message and initiate the conversation. Each use will count toward your query limit.</div>
-                          </div>
-                          <v-switch v-model="behavior.autoStart" :disabled="!behavior.starterQuestion" style="flex-shrink:0;" />
-                        </div>
-                        <div class="setting-row setting-row-child" :class="{ 'is-disabled': !behavior.starterQuestion }">
-                          <div class="setting-row-text">
-                            <div class="toggle-title">Hide prompt from Starter Question list</div>
-                          </div>
-                          <v-switch v-model="behavior.hideFromList" :disabled="!behavior.starterQuestion" style="flex-shrink:0;" />
-                        </div>
-                        <div class="setting-row setting-row-child" :class="{ 'is-disabled': !behavior.starterQuestion }">
-                          <div class="setting-row-text">
-                            <div class="toggle-title">Don't prompt user on mobile</div>
-                            <div class="toggle-desc">When enabled, the agent will not display the first Starter Question on mobile. Use this if Starter Questions cover important elements on the page.</div>
-                          </div>
-                          <v-switch v-model="behavior.noMobilePrompt" :disabled="!behavior.starterQuestion" style="flex-shrink:0;" />
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Auto-popup -->
-                    <div class="section-block">
-                      <!-- Header row: title+desc left, AutoPopupPreview right -->
-                      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:8px;">
-                        <div>
-                          <div class="settings-section-title">Auto-popup</div>
-                          <p style="margin:4px 0 0;font-size:12px;line-height:16px;color:var(--text-muted);">Automatically expand the chat bubble when visitors land on the page.</p>
-                        </div>
-                        <!-- AutoPopupPreview -->
+                      <!-- AutoPopupPreview -->
+                      <div class="preview-card" :class="{ 'is-active': behavior.view === 'popup' }" @click="behavior.view = 'popup'">
                         <div class="browser-mockup">
                           <div style="height:14px;background:#fff;border-bottom:1px solid #E5E5E5;display:flex;align-items:center;padding-left:6px;gap:3px;">
                             <div style="width:5px;height:5px;border-radius:50%;background:#EA5455;flex-shrink:0;"></div>
@@ -945,36 +970,117 @@
                             <div style="width:7px;height:7px;background:rgba(255,255,255,0.85);border-radius:50%;"></div>
                           </div>
                         </div>
+                        <span class="preview-caption">Auto-popup</span>
+                        <span class="preview-status" :class="behavior.popupDesktop ? 'is-on' : 'is-off'">{{ behavior.popupDesktop ? 'On' : 'Off' }}</span>
                       </div>
-                      <!-- Toggle rows -->
-                      <div style="display:flex;flex-direction:column;gap:16px;">
-                        <div class="setting-row">
-                          <div class="setting-row-text">
-                            <div class="toggle-title">Pop up chat bubble (Desktop)</div>
+                    </div>
+
+                    <!-- Settings (scroll below the pinned previews) -->
+                    <div style="flex:1;overflow-y:auto;padding:0 24px;">
+
+                    <!-- Agent initiatives -->
+                    <div class="section-block" v-show="behavior.view === 'initiatives'" style="border-bottom:none;">
+                      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+                        <div class="settings-section-title">Agent initiatives</div>
+                        <span v-if="behavior.initiativesLocked" class="unlock-badge"><v-icon size="12">mdi-lock-outline</v-icon> Unlock Feature</span>
+                      </div>
+                      <p style="margin:4px 0 20px;font-size:12px;line-height:16px;color:var(--text-muted);">Control when and how the agent proactively reaches out to visitors before they start typing.</p>
+
+                      <div :class="{ 'locked-group': behavior.initiativesLocked }">
+
+                      <!-- Group: proactive prompt -->
+                      <div class="setting-subgroup">
+                        <div class="setting-group-label">Proactive prompt</div>
+                        <div style="display:flex;flex-direction:column;gap:16px;">
+                          <div class="setting-row">
+                            <div class="setting-row-text">
+                              <div class="toggle-title">Prompt user with a Starter Question</div>
+                              <div class="toggle-desc">If enabled, the agent will take the initiative and display the first Starter Question as a suggested prompt next to its avatar.</div>
+                            </div>
+                            <v-switch v-model="behavior.starterQuestion" style="flex-shrink:0;"></v-switch>
                           </div>
-                          <v-switch v-model="behavior.popupDesktop" style="flex-shrink:0;" />
                         </div>
-                        <div class="setting-row">
-                          <div class="setting-row-text">
-                            <div class="toggle-title">Pop up chat bubble (Mobile)</div>
+                      </div>
+
+                      <!-- Group: prompt options (depend on the prompt being enabled) -->
+                      <div class="setting-subgroup">
+                        <div class="setting-group-label">Prompt options</div>
+                        <div style="display:flex;flex-direction:column;gap:16px;">
+                          <div class="setting-row setting-row-child" :class="{ 'is-disabled': !behavior.starterQuestion }">
+                            <div class="setting-row-text">
+                              <div class="toggle-title">Automatically start the conversation</div>
+                              <div class="toggle-desc">When enabled, clicking the Agent Initiative prompt will automatically send the message and initiate the conversation. Each use will count toward your query limit.</div>
+                            </div>
+                            <v-switch v-model="behavior.autoStart" :disabled="!behavior.starterQuestion" style="flex-shrink:0;"></v-switch>
                           </div>
-                          <v-switch v-model="behavior.popupMobile" style="flex-shrink:0;" />
+                          <div class="setting-row setting-row-child" :class="{ 'is-disabled': !behavior.starterQuestion }">
+                            <div class="setting-row-text">
+                              <div class="toggle-title">Hide prompt from Starter Question list</div>
+                              <div class="toggle-desc">Keep this prompt out of the visible Starter Question list — it will only appear as the proactive Agent Initiative prompt.</div>
+                            </div>
+                            <v-switch v-model="behavior.hideFromList" :disabled="!behavior.starterQuestion" style="flex-shrink:0;"></v-switch>
+                          </div>
+                          <div class="setting-row setting-row-child" :class="{ 'is-disabled': !behavior.starterQuestion }">
+                            <div class="setting-row-text">
+                              <div class="toggle-title">Don't prompt user on mobile</div>
+                              <div class="toggle-desc">When enabled, the agent will not display the first Starter Question on mobile. Use this if Starter Questions cover important elements on the page.</div>
+                            </div>
+                            <v-switch v-model="behavior.noMobilePrompt" :disabled="!behavior.starterQuestion" style="flex-shrink:0;"></v-switch>
+                          </div>
                         </div>
-                        <div class="setting-row">
-                          <div class="setting-row-text">
-                            <div class="toggle-title">Reset previous conversation</div>
+                      </div>
+                      </div>
+                    </div>
+
+                    <!-- Auto-popup -->
+                    <div class="section-block" v-show="behavior.view === 'popup'" style="border-bottom:none;">
+                      <div class="settings-section-title">Auto-popup</div>
+                      <p style="margin:4px 0 20px;font-size:12px;line-height:16px;color:var(--text-muted);">Control how the chat opens and how conversations carry over between visits.</p>
+
+                      <!-- Group: auto-expand on page load -->
+                      <div class="setting-subgroup">
+                        <div class="setting-group-label">Auto-expand on page load</div>
+                        <div style="display:flex;flex-direction:column;gap:16px;">
+                          <div class="setting-row">
+                            <div class="setting-row-text">
+                              <div class="toggle-title">Pop up chat bubble (Desktop)</div>
+                              <div class="toggle-desc">On desktop, automatically expand the chat window when a visitor lands on the page instead of leaving it minimized.</div>
+                            </div>
+                            <v-switch v-model="behavior.popupDesktop" style="flex-shrink:0;"></v-switch>
                           </div>
-                          <v-switch v-model="behavior.resetConversation" style="flex-shrink:0;" />
+                          <div class="setting-row">
+                            <div class="setting-row-text">
+                              <div class="toggle-title">Pop up chat bubble (Mobile)</div>
+                              <div class="toggle-desc">On mobile devices, automatically expand the chat window when a visitor lands on the page.</div>
+                            </div>
+                            <v-switch v-model="behavior.popupMobile" style="flex-shrink:0;"></v-switch>
+                          </div>
                         </div>
-                        <div class="setting-row">
-                          <div class="setting-row-text">
-                            <div class="toggle-title">Keep conversation open</div>
+                      </div>
+
+                      <!-- Group: conversation continuity -->
+                      <div class="setting-subgroup">
+                        <div class="setting-group-label">Conversation continuity</div>
+                        <div style="display:flex;flex-direction:column;gap:16px;">
+                          <div class="setting-row">
+                            <div class="setting-row-text">
+                              <div class="toggle-title">Reset previous conversation</div>
+                              <div class="toggle-desc">Start every new visit with a fresh conversation instead of restoring the visitor's previous chat history.</div>
+                            </div>
+                            <v-switch v-model="behavior.resetConversation" style="flex-shrink:0;"></v-switch>
                           </div>
-                          <v-switch v-model="behavior.keepOpen" style="flex-shrink:0;" />
+                          <div class="setting-row">
+                            <div class="setting-row-text">
+                              <div class="toggle-title">Keep conversation open</div>
+                              <div class="toggle-desc">Keep the chat window expanded as visitors move between pages, so the conversation stays visible throughout their session.</div>
+                            </div>
+                            <v-switch v-model="behavior.keepOpen" style="flex-shrink:0;"></v-switch>
+                          </div>
                         </div>
                       </div>
                     </div>
 
+                    </div>
                   </div>
                 </v-window-item>
 
@@ -990,31 +1096,40 @@
                       </div>
                     </div>
 
+                    <!-- Size heading -->
+                    <div class="settings-section-title" style="font-size:16px;margin-bottom:0;">Size</div>
+
                     <!-- Width -->
                     <div :style="{ opacity: sizeDisabled ? 0.5 : 1 }">
-                      <div class="settings-section-title" style="margin-bottom:4px;">Width</div>
-                      <div class="settings-section-desc" style="margin-bottom:8px;">Control the width of the chat bubble.</div>
+                      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+                        <span style="font-size:14px;color:var(--text-muted);">Width</span>
+                        <span class="icon-wrap">
+                          <v-icon size="16" color="#B7B5BE" style="cursor:help;">mdi-help-circle-outline</v-icon>
+                          <span class="icon-tip">Recommended: 360–500px</span>
+                        </span>
+                      </div>
                       <div style="display:flex;align-items:center;gap:8px;">
-                        <v-text-field v-model.number="size.width" type="number" variant="outlined" rounded="md" density="compact" hide-details bg-color="#fff" style="flex:1;" :error="size.widthError !== null" :disabled="sizeDisabled" @blur="validateWidth" />
+                        <v-text-field v-model.number="size.width" type="number" variant="outlined" rounded="md" density="compact" hide-details bg-color="#fff" style="flex:0 0 110px;width:110px;" :error="size.widthError !== null" :disabled="sizeDisabled" @blur="validateWidth"></v-text-field>
                         <span style="font-size:13px;color:var(--text-muted);flex-shrink:0;user-select:none;">px</span>
                       </div>
                       <p v-if="size.widthError" style="margin:4px 0 0;font-size:12px;color:#EA5455;line-height:16px;">{{ size.widthError }}</p>
-                      <p v-else style="margin:4px 0 0;font-size:12px;color:var(--text-muted);line-height:16px;">Recommended: 360–500px</p>
                     </div>
 
                     <!-- Height -->
                     <div :style="{ opacity: sizeDisabled ? 0.5 : 1 }">
-                      <div class="settings-section-title" style="margin-bottom:4px;">Height</div>
-                      <div class="settings-section-desc" style="margin-bottom:8px;">Control the height of the chat bubble.</div>
-                      <v-select v-model="size.heightMode" :items="[{ title: 'Fixed', value: 'fixed' }, { title: 'Dynamic', value: 'dynamic' }]" variant="outlined" rounded="md" density="compact" hide-details bg-color="#fff" :disabled="sizeDisabled" />
-                      <div v-if="size.heightMode === 'fixed'" style="margin-top:8px;">
-                        <div style="display:flex;align-items:center;gap:8px;">
-                          <v-text-field v-model.number="size.height" type="number" variant="outlined" rounded="md" density="compact" hide-details bg-color="#fff" style="flex:1;" :error="size.heightError !== null" :disabled="sizeDisabled" @blur="validateHeight" />
-                          <span style="font-size:13px;color:var(--text-muted);flex-shrink:0;user-select:none;">px</span>
-                        </div>
-                        <p v-if="size.heightError" style="margin:4px 0 0;font-size:12px;color:#EA5455;line-height:16px;">{{ size.heightError }}</p>
-                        <p v-else style="margin:4px 0 0;font-size:12px;color:var(--text-muted);line-height:16px;">Recommended: 600–800px</p>
+                      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+                        <span style="font-size:14px;color:var(--text-muted);">Height</span>
+                        <span class="icon-wrap">
+                          <v-icon size="16" color="#B7B5BE" style="cursor:help;">mdi-help-circle-outline</v-icon>
+                          <span class="icon-tip">Recommended: 600–800px</span>
+                        </span>
                       </div>
+                      <div style="display:flex;align-items:center;gap:8px;">
+                        <v-select v-model="size.heightMode" :items="['Fixed', 'Dynamic']" variant="outlined" rounded="md" density="compact" hide-details bg-color="#fff" style="width:148px;flex:0 0 auto;" :disabled="sizeDisabled"></v-select>
+                        <v-text-field v-model.number="size.height" type="number" variant="outlined" rounded="md" density="compact" hide-details bg-color="#fff" style="flex:0 0 110px;width:110px;" :error="size.heightError !== null && size.heightMode === 'Fixed'" :disabled="sizeDisabled || size.heightMode === 'Dynamic'" @blur="validateHeight"></v-text-field>
+                        <span style="font-size:13px;color:var(--text-muted);flex-shrink:0;user-select:none;">px</span>
+                      </div>
+                      <p v-if="size.heightError && size.heightMode === 'Fixed'" style="margin:4px 0 0;font-size:12px;color:#EA5455;line-height:16px;">{{ size.heightError }}</p>
                     </div>
 
                   </div>
@@ -1024,7 +1139,7 @@
                 <v-window-item value="advanced">
                   <div style="padding:20px 24px;">
 
-                    <p style="font-size:13px;color:var(--text-muted);line-height:19px;margin:0 0 0;padding-bottom:16px;border-bottom:1px solid var(--border-default);">Advanced features are available on higher-tier plans. Click any feature to learn more.</p>
+                    <p style="font-size:13px;color:var(--text-muted);line-height:19px;margin:0 0 0;padding-bottom:16px;border-bottom:1px solid var(--border-default);">Fine-tune how your agent behaves and responds. Expand any feature to learn how it works, then open the guide for full setup steps.</p>
 
                     <!-- Custom Context -->
                     <div style="padding:16px 0;border-bottom:1px solid var(--border-default);">
@@ -1035,23 +1150,19 @@
                             <span class="adv-badge"><v-icon size="11">mdi-lock-outline</v-icon> Premium</span>
                           </div>
                           <div style="font-size:13px;color:var(--text-muted);line-height:18px;">
-                            Pass dynamic user data into each conversation.
-                            <a href="#" style="color:var(--brand-primary-default);text-decoration:none;" @click.stop>Custom Context <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
+                            Pass dynamic user data — name, plan, order details — into every conversation.
                           </div>
                         </div>
                         <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
-                          <v-switch v-model="advanced.customContext" style="flex-shrink:0;" />
+                          <v-switch v-model="advanced.customContext" style="flex-shrink:0;"></v-switch>
                           <span style="font-size:13px;color:var(--text-muted);min-width:52px;">{{ advanced.customContext ? 'Enabled' : 'Disabled' }}</span>
                           <v-icon size="16" color="#B7B5BE" style="cursor:pointer;flex-shrink:0;" :style="{transform:advanced.expanded.customContext?'rotate(180deg)':'none',transition:'transform 0.25s ease'}" @click="advanced.expanded.customContext=!advanced.expanded.customContext">mdi-chevron-down</v-icon>
                         </div>
                       </div>
                       <transition name="adv-expand">
                         <div v-if="advanced.expanded.customContext" style="padding-top:14px;">
-                          <p style="font-size:13px;color:var(--text-body);line-height:19px;margin:0 0 12px;">Personalize agent responses with user name, account info, session data, or any custom variable. Perfect for logged-in user experiences.</p>
-                          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                            <span style="font-size:12px;color:var(--text-muted);">Requires Premium plan</span>
-                            <a href="#" style="color:var(--brand-primary-default);font-size:12px;text-decoration:none;white-space:nowrap;" @click.stop>See plans <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
-                          </div>
+                          <p style="font-size:13px;color:var(--text-body);line-height:19px;margin:0 0 12px;">Send extra text parameters — user name, subscription status, order details, profile info — to your agent at deployment time. The agent reads this context before replying, so it can give personalized, situation-aware answers and proactively solve problems.</p>
+                          <a href="https://docs.customgpt.ai/docs/enable-and-use-custom-context" target="_blank" rel="noopener" style="color:var(--brand-primary-default);font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;" @click.stop>Read the full guide <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
                         </div>
                       </transition>
                     </div>
@@ -1062,80 +1173,65 @@
                         <div style="flex:1;min-width:0;cursor:pointer;" @click="advanced.expanded.prePrompt=!advanced.expanded.prePrompt">
                           <div style="font-size:15px;font-weight:600;color:var(--text-heading);margin-bottom:4px;">Pre-Prompt</div>
                           <div style="font-size:13px;color:var(--text-muted);line-height:18px;">
-                            Set a hidden system instruction for every conversation.
-                            <a href="#" style="color:var(--brand-primary-default);text-decoration:none;" @click.stop>Pre-Prompt <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
+                            Auto-send a first message the moment the chat opens.
                           </div>
                         </div>
                         <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
-                          <v-switch v-model="advanced.prePrompt" style="flex-shrink:0;" />
+                          <v-switch v-model="advanced.prePrompt" style="flex-shrink:0;"></v-switch>
                           <span style="font-size:13px;color:var(--text-muted);min-width:52px;">{{ advanced.prePrompt ? 'Enabled' : 'Disabled' }}</span>
                           <v-icon size="16" color="#B7B5BE" style="cursor:pointer;flex-shrink:0;" :style="{transform:advanced.expanded.prePrompt?'rotate(180deg)':'none',transition:'transform 0.25s ease'}" @click="advanced.expanded.prePrompt=!advanced.expanded.prePrompt">mdi-chevron-down</v-icon>
                         </div>
                       </div>
                       <transition name="adv-expand">
                         <div v-if="advanced.expanded.prePrompt" style="padding-top:14px;">
-                          <p style="font-size:13px;color:var(--text-body);line-height:19px;margin:0 0 12px;">Write a system-level instruction that guides the agent before any user message — invisible to visitors, always applied.</p>
-                          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                            <span style="font-size:12px;color:var(--text-muted);">Requires Standard plan</span>
-                            <a href="#" style="color:var(--brand-primary-default);font-size:12px;text-decoration:none;white-space:nowrap;" @click.stop>See plans <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
-                          </div>
+                          <p style="font-size:13px;color:var(--text-body);line-height:19px;margin:0 0 12px;">Set a message your agent automatically responds to the instant the chat window opens — a proactive greeting or prompt that kicks off the conversation on page load. Each trigger counts as one query credit.</p>
+                          <a href="https://docs.customgpt.ai/docs/how-to-enable-and-use-pre-prompt-for-your-agent" target="_blank" rel="noopener" style="color:var(--brand-primary-default);font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;" @click.stop>Read the full guide <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
                         </div>
                       </transition>
                     </div>
 
-                    <!-- CRM Integration -->
+                    <!-- Agent Persona -->
                     <div style="padding:16px 0;border-bottom:1px solid var(--border-default);">
                       <div style="display:flex;align-items:center;gap:16px;">
                         <div style="flex:1;min-width:0;cursor:pointer;" @click="advanced.expanded.crmIntegration=!advanced.expanded.crmIntegration">
-                          <div style="font-size:15px;font-weight:600;color:var(--text-heading);display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-                            CRM Integration
-                            <span class="adv-badge"><v-icon size="11">mdi-lock-outline</v-icon> Enterprise</span>
-                          </div>
+                          <div style="font-size:15px;font-weight:600;color:var(--text-heading);margin-bottom:4px;">Agent Persona</div>
                           <div style="font-size:13px;color:var(--text-muted);line-height:18px;">
-                            Sync conversation data to HubSpot, Salesforce, and more.
-                            <a href="#" style="color:var(--brand-primary-default);text-decoration:none;" @click.stop>CRM Integration <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
+                            Shape your agent's tone, behavior, and response style.
                           </div>
                         </div>
                         <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
-                          <v-switch v-model="advanced.crmIntegration" style="flex-shrink:0;" />
+                          <v-switch v-model="advanced.crmIntegration" style="flex-shrink:0;"></v-switch>
                           <span style="font-size:13px;color:var(--text-muted);min-width:52px;">{{ advanced.crmIntegration ? 'Enabled' : 'Disabled' }}</span>
                           <v-icon size="16" color="#B7B5BE" style="cursor:pointer;flex-shrink:0;" :style="{transform:advanced.expanded.crmIntegration?'rotate(180deg)':'none',transition:'transform 0.25s ease'}" @click="advanced.expanded.crmIntegration=!advanced.expanded.crmIntegration">mdi-chevron-down</v-icon>
                         </div>
                       </div>
                       <transition name="adv-expand">
                         <div v-if="advanced.expanded.crmIntegration" style="padding-top:14px;">
-                          <p style="font-size:13px;color:var(--text-body);line-height:19px;margin:0 0 12px;">Route leads, tag contacts, and log conversations directly to your CRM. Connects to HubSpot, Salesforce, and Zapier workflows.</p>
-                          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                            <span style="font-size:12px;color:var(--text-muted);">Requires Enterprise plan</span>
-                            <a href="#" style="color:var(--brand-primary-default);font-size:12px;text-decoration:none;white-space:nowrap;" @click.stop>See plans <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
-                          </div>
+                          <p style="font-size:13px;color:var(--text-body);line-height:19px;margin:0 0 12px;">Describe how your agent should communicate — its tone, personality, and interaction style — so every response matches your brand voice and use case.</p>
+                          <a href="https://docs.customgpt.ai/docs/persona-how-it-acts" target="_blank" rel="noopener" style="color:var(--brand-primary-default);font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;" @click.stop>Read the full guide <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
                         </div>
                       </transition>
                     </div>
 
-                    <!-- Labels -->
+                    <!-- Citations -->
                     <div style="padding:16px 0;">
                       <div style="display:flex;align-items:center;gap:16px;">
                         <div style="flex:1;min-width:0;cursor:pointer;" @click="advanced.expanded.labels=!advanced.expanded.labels">
-                          <div style="font-size:15px;font-weight:600;color:var(--text-heading);margin-bottom:4px;">Labels</div>
+                          <div style="font-size:15px;font-weight:600;color:var(--text-heading);margin-bottom:4px;">Citations</div>
                           <div style="font-size:13px;color:var(--text-muted);line-height:18px;">
-                            Tag and categorize conversations for reporting.
-                            <a href="#" style="color:var(--brand-primary-default);text-decoration:none;" @click.stop>Labels <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
+                            Show the sources behind each answer.
                           </div>
                         </div>
                         <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
-                          <v-switch v-model="advanced.labels" style="flex-shrink:0;" />
+                          <v-switch v-model="advanced.labels" style="flex-shrink:0;"></v-switch>
                           <span style="font-size:13px;color:var(--text-muted);min-width:52px;">{{ advanced.labels ? 'Enabled' : 'Disabled' }}</span>
                           <v-icon size="16" color="#B7B5BE" style="cursor:pointer;flex-shrink:0;" :style="{transform:advanced.expanded.labels?'rotate(180deg)':'none',transition:'transform 0.25s ease'}" @click="advanced.expanded.labels=!advanced.expanded.labels">mdi-chevron-down</v-icon>
                         </div>
                       </div>
                       <transition name="adv-expand">
                         <div v-if="advanced.expanded.labels" style="padding-top:14px;">
-                          <p style="font-size:13px;color:var(--text-body);line-height:19px;margin:0 0 12px;">Apply custom labels to conversations for team routing, analytics filtering, and workflow automation.</p>
-                          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                            <span style="font-size:12px;color:var(--text-muted);">Requires All plans</span>
-                            <a href="#" style="color:var(--brand-primary-default);font-size:12px;text-decoration:none;white-space:nowrap;" @click.stop>See plans <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
-                          </div>
+                          <p style="font-size:13px;color:var(--text-body);line-height:19px;margin:0 0 12px;">Display the sources your agent used to build each response. You can turn citations on or off and customize how they're labeled and shown in the chat.</p>
+                          <a href="https://docs.customgpt.ai/docs/live-chat-1" target="_blank" rel="noopener" style="color:var(--brand-primary-default);font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;" @click.stop>Read the full guide <v-icon size="11" style="vertical-align:middle;margin-left:1px;">mdi-arrow-top-right</v-icon></a>
                         </div>
                       </transition>
                     </div>
@@ -1354,7 +1450,7 @@
           advanced.newLabel = ''
         }
 
-        const size = reactive({ width: 420, heightMode: 'fixed', height: 700, widthError: null, heightError: null })
+        const size = reactive({ width: 420, heightMode: 'Fixed', height: 700, widthError: null, heightError: null })
         function validateWidth() {
           const v = size.width
           if (v < 200 || v > 800) size.widthError = 'Enter a value between 200–800px.'
@@ -1369,6 +1465,8 @@
         }
 
         const behavior = reactive({
+          view:              'initiatives',
+          initiativesLocked: true,
           starterQuestion:   true,
           autoStart:         true,
           hideFromList:      true,
