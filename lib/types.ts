@@ -3,6 +3,7 @@ export type IconSize = 'small' | 'medium' | 'large';
 export type ChatWindowPosition = 'focus' | 'compact' | 'bubble';
 export type MobileFontSize = 'reduced' | 'desktop';
 export type HeightMode = 'fixed' | 'dynamic';
+export type WidgetType = 'bubble' | 'embed';
 export type SaveState = 'idle' | 'saving' | 'success' | 'error';
 export type ActiveTab = 'appearance' | 'behavior' | 'size' | 'advanced';
 
@@ -19,6 +20,7 @@ export interface LiveChatSettings {
   autoPopupMobile: boolean;
   resetPreviousConversation: boolean;
   keepConversationOpen: boolean;
+  widgetType: WidgetType;
   width: number;
   heightMode: HeightMode;
   height: number;
@@ -30,13 +32,14 @@ export const DEFAULT_SETTINGS: LiveChatSettings = {
   chatWindowPosition: 'compact',
   mobileFontSize: 'reduced',
   promptStarterQuestion: false,
-  autoStartConversation: true,
+  autoStartConversation: false,
   hidePromptFromList: false,
   dontPromptMobile: false,
   autoPopupDesktop: false,
   autoPopupMobile: false,
   resetPreviousConversation: false,
   keepConversationOpen: false,
+  widgetType: 'bubble',
   width: 420,
   heightMode: 'fixed',
   height: 700,

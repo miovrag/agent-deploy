@@ -382,9 +382,15 @@
     .setting-row-child {
       transition: opacity 0.2s ease;
     }
-    .setting-row-child.is-disabled {
+    .setting-row-child.is-disabled,
+    .setting-row.is-disabled {
       opacity: 0.4;
       pointer-events: none;
+    }
+    .toggle-hint {
+      font: italic 400 12px/16px 'Inter', sans-serif;
+      color: var(--text-muted);
+      margin: -6px 0 12px;
     }
 
     /* ── Mockup illustration transitions ── */
@@ -604,7 +610,7 @@
                       <div class="flex items-center gap-2">
                         <v-btn variant="outlined" color="primary" rounded="md" density="compact" size="small">Try it out</v-btn>
                         <div class="icon-wrap">
-                          <button class="icon-action-btn bordered" @click="open = true"><v-icon size="16">mdi-cog-outline</v-icon></button>
+                          <button class="icon-action-btn bordered" @click="openSettings()"><v-icon size="16">mdi-cog-outline</v-icon></button>
                           <span class="icon-tip">Live chat settings</span>
                         </div>
                       </div>
@@ -852,7 +858,7 @@
                     <!-- Chat window position -->
                     <div class="section-block">
                       <div class="settings-section-title">Chat window position</div>
-                      <div class="settings-section-desc">Choose the chat window position as size for your agent.</div>
+                      <div class="settings-section-desc">Choose the chat window position and size for your agent.</div>
                       <v-radio-group v-model="form.chatPosition" hide-details color="primary" style="margin-top:2px;">
                         <v-radio value="focus" style="margin-bottom:4px;align-items:flex-start;">
                           <template #label>
@@ -1005,6 +1011,7 @@
                       <!-- Group: prompt options (depend on the prompt being enabled) -->
                       <div class="setting-subgroup">
                         <div class="setting-group-label">Prompt options</div>
+                        <div v-if="!behavior.starterQuestion" class="toggle-hint">Turn on "Prompt user with a Starter Question" to use these options.</div>
                         <div style="display:flex;flex-direction:column;gap:16px;">
                           <div class="setting-row setting-row-child" :class="{ 'is-disabled': !behavior.starterQuestion }">
                             <div class="setting-row-text">
@@ -1040,20 +1047,21 @@
                       <!-- Group: auto-expand on page load -->
                       <div class="setting-subgroup">
                         <div class="setting-group-label">Auto-expand on page load</div>
+                        <div v-if="behavior.starterQuestion" class="toggle-hint">Not available while "Prompt user with a Starter Question" is on — the starter prompt replaces auto-popup.</div>
                         <div style="display:flex;flex-direction:column;gap:16px;">
-                          <div class="setting-row">
+                          <div class="setting-row" :class="{ 'is-disabled': behavior.starterQuestion }">
                             <div class="setting-row-text">
                               <div class="toggle-title">Pop up chat bubble (Desktop)</div>
                               <div class="toggle-desc">On desktop, automatically expand the chat window when a visitor lands on the page instead of leaving it minimized.</div>
                             </div>
-                            <v-switch v-model="behavior.popupDesktop" style="flex-shrink:0;"></v-switch>
+                            <v-switch v-model="behavior.popupDesktop" :disabled="behavior.starterQuestion" style="flex-shrink:0;"></v-switch>
                           </div>
-                          <div class="setting-row">
+                          <div class="setting-row" :class="{ 'is-disabled': behavior.starterQuestion }">
                             <div class="setting-row-text">
                               <div class="toggle-title">Pop up chat bubble (Mobile)</div>
                               <div class="toggle-desc">On mobile devices, automatically expand the chat window when a visitor lands on the page.</div>
                             </div>
-                            <v-switch v-model="behavior.popupMobile" style="flex-shrink:0;"></v-switch>
+                            <v-switch v-model="behavior.popupMobile" :disabled="behavior.starterQuestion" style="flex-shrink:0;"></v-switch>
                           </div>
                         </div>
                       </div>
@@ -1069,12 +1077,12 @@
                             </div>
                             <v-switch v-model="behavior.resetConversation" style="flex-shrink:0;"></v-switch>
                           </div>
-                          <div class="setting-row">
+                          <div class="setting-row" :class="{ 'is-disabled': behavior.resetConversation }">
                             <div class="setting-row-text">
                               <div class="toggle-title">Keep conversation open</div>
-                              <div class="toggle-desc">Keep the chat window expanded as visitors move between pages, so the conversation stays visible throughout their session.</div>
+                              <div class="toggle-desc">{{ behavior.resetConversation ? 'Turn off "Reset previous conversation" to keep the chat open between pages.' : 'Keep the chat window expanded as visitors move between pages, so the conversation stays visible throughout their session.' }}</div>
                             </div>
-                            <v-switch v-model="behavior.keepOpen" style="flex-shrink:0;"></v-switch>
+                            <v-switch v-model="behavior.keepOpen" :disabled="behavior.resetConversation" style="flex-shrink:0;"></v-switch>
                           </div>
                         </div>
                       </div>
@@ -1103,26 +1111,19 @@
                     <div :style="{ opacity: sizeDisabled ? 0.5 : 1 }">
                       <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
                         <span style="font-size:14px;color:var(--text-muted);">Width</span>
-                        <span class="icon-wrap">
-                          <v-icon size="16" color="#B7B5BE" style="cursor:help;">mdi-help-circle-outline</v-icon>
-                          <span class="icon-tip">Recommended: 360–500px</span>
-                        </span>
                       </div>
                       <div style="display:flex;align-items:center;gap:8px;">
                         <v-text-field v-model.number="size.width" type="number" variant="outlined" rounded="md" density="compact" hide-details bg-color="#fff" style="flex:0 0 110px;width:110px;" :error="size.widthError !== null" :disabled="sizeDisabled" @blur="validateWidth"></v-text-field>
                         <span style="font-size:13px;color:var(--text-muted);flex-shrink:0;user-select:none;">px</span>
                       </div>
                       <p v-if="size.widthError" style="margin:4px 0 0;font-size:12px;color:#EA5455;line-height:16px;">{{ size.widthError }}</p>
+                      <p v-else style="margin:4px 0 0;font-size:12px;color:var(--text-muted);line-height:16px;">Recommended: 360–500px</p>
                     </div>
 
                     <!-- Height -->
                     <div :style="{ opacity: sizeDisabled ? 0.5 : 1 }">
                       <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
                         <span style="font-size:14px;color:var(--text-muted);">Height</span>
-                        <span class="icon-wrap">
-                          <v-icon size="16" color="#B7B5BE" style="cursor:help;">mdi-help-circle-outline</v-icon>
-                          <span class="icon-tip">Recommended: 600–800px</span>
-                        </span>
                       </div>
                       <div style="display:flex;align-items:center;gap:8px;">
                         <v-select v-model="size.heightMode" :items="['Fixed', 'Dynamic']" variant="outlined" rounded="md" density="compact" hide-details bg-color="#fff" style="width:148px;flex:0 0 auto;" :disabled="sizeDisabled"></v-select>
@@ -1130,6 +1131,7 @@
                         <span style="font-size:13px;color:var(--text-muted);flex-shrink:0;user-select:none;">px</span>
                       </div>
                       <p v-if="size.heightError && size.heightMode === 'Fixed'" style="margin:4px 0 0;font-size:12px;color:#EA5455;line-height:16px;">{{ size.heightError }}</p>
+                      <p v-else-if="size.heightMode === 'Fixed'" style="margin:4px 0 0;font-size:12px;color:var(--text-muted);line-height:16px;">Recommended: 600–800px</p>
                     </div>
 
                   </div>
@@ -1268,7 +1270,7 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="https://unpkg.com/vuetify@3/dist/vuetify.js"></script>
   <script>
-    const { createApp, ref, reactive, computed } = Vue
+    const { createApp, ref, reactive, computed, watch } = Vue
     const { createVuetify } = Vuetify
 
     const vuetify = createVuetify({
@@ -1453,13 +1455,13 @@
         const size = reactive({ width: 420, heightMode: 'Fixed', height: 700, widthError: null, heightError: null })
         function validateWidth() {
           const v = size.width
-          if (v < 200 || v > 800) size.widthError = 'Enter a value between 200–800px.'
+          if (typeof v !== 'number' || isNaN(v) || v < 200 || v > 800) size.widthError = 'Enter a value between 200–800px.'
           else if (v < 360 || v > 500) size.widthError = 'This width may clip the chat window. Recommended: 360–500px.'
           else size.widthError = null
         }
         function validateHeight() {
           const v = size.height
-          if (v < 300 || v > 1200) size.heightError = 'Enter a value between 300–1200px.'
+          if (typeof v !== 'number' || isNaN(v) || v < 300 || v > 1200) size.heightError = 'Enter a value between 300–1200px.'
           else if (v < 600 || v > 800) size.heightError = 'This height may clip content. Recommended: 600–800px.'
           else size.heightError = null
         }
@@ -1471,9 +1473,9 @@
           autoStart:         true,
           hideFromList:      true,
           noMobilePrompt:    true,
-          popupDesktop:      true,
+          popupDesktop:      false,
           popupMobile:       false,
-          resetConversation: true,
+          resetConversation: false,
           keepOpen:          true,
         })
 
@@ -1537,7 +1539,32 @@
         const sizeDisabled = computed(() => form.chatPosition !== 'bubble')
         const sizeDisabledLabel = computed(() => form.chatPosition === 'focus' ? 'Focus mode' : 'Compact')
 
+        // Snapshot on open so Cancel / Esc / backdrop revert; Save commits the new baseline.
+        let settingsSnapshot = null
+        function snapshotSettings() {
+          return {
+            form: { iconPosition: form.iconPosition, iconSize: form.iconSize, chatPosition: form.chatPosition, mobileFontSize: form.mobileFontSize },
+            behavior: { starterQuestion: behavior.starterQuestion, autoStart: behavior.autoStart, hideFromList: behavior.hideFromList, noMobilePrompt: behavior.noMobilePrompt, popupDesktop: behavior.popupDesktop, popupMobile: behavior.popupMobile, resetConversation: behavior.resetConversation, keepOpen: behavior.keepOpen },
+            size: { width: size.width, heightMode: size.heightMode, height: size.height },
+            advanced: { customContext: advanced.customContext, prePrompt: advanced.prePrompt, crmIntegration: advanced.crmIntegration, labels: advanced.labels },
+          }
+        }
+        function openSettings() {
+          settingsSnapshot = snapshotSettings()
+          tab.value = 'appearance'
+          open.value = true
+        }
+        watch(open, (val) => {
+          if (!val && settingsSnapshot) {
+            Object.assign(form, settingsSnapshot.form)
+            Object.assign(behavior, settingsSnapshot.behavior)
+            Object.assign(size, settingsSnapshot.size, { widthError: null, heightError: null })
+            Object.assign(advanced, settingsSnapshot.advanced)
+          }
+        })
+
         function save() {
+          settingsSnapshot = snapshotSettings()
           saved.value = true
           setTimeout(() => saved.value = false, 2000)
         }
@@ -1554,7 +1581,7 @@
           copyUrl, copyCode,
           editModalOpen, editVal, editStatus, editFocused, editHasBeenValid,
           editInputStyle, canSave, openEditModal, handleEditInput, getSuggestions, applySuggestion, handleSavePrefix,
-          open, tab, saved, copied,
+          open, tab, saved, copied, openSettings,
           apiKeyRevealed, maskedKey, fullKey,
           selectedColor, brandColors,
           form, settings, behavior, advanced, size, validateWidth, validateHeight,

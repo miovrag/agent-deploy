@@ -13,33 +13,48 @@ const WIDTH_MIN = 200;
 const WIDTH_MAX = 800;
 const WIDTH_REC_MIN = 360;
 const WIDTH_REC_MAX = 500;
+const HEIGHT_MIN = 300;
+const HEIGHT_MAX = 1200;
+const HEIGHT_REC_MIN = 600;
+const HEIGHT_REC_MAX = 800;
 
 export default function SizeTab({ settings, onChange }: Props) {
-  const [widgetType, setWidgetType] = useState<'bubble' | 'embed'>('bubble');
+  // Local raw strings so the fields can be cleared while typing; only valid
+  // values are committed to settings on blur.
+  const [widthInput, setWidthInput] = useState(String(settings.width));
+  const [heightInput, setHeightInput] = useState(String(settings.height));
   const [widthError, setWidthError] = useState<string | null>(null);
   const [heightError, setHeightError] = useState<string | null>(null);
   const [widthFocused, setWidthFocused] = useState(false);
   const [heightFocused, setHeightFocused] = useState(false);
 
-  const isDisabled = widgetType === 'bubble';
+  const isDisabled = settings.widgetType === 'bubble';
 
-  function handleWidthBlur(val: number) {
+  function handleWidthBlur(raw: string) {
     setWidthFocused(false);
-    if (val < WIDTH_MIN || val > WIDTH_MAX) {
+    const val = parseInt(raw, 10);
+    if (isNaN(val) || val < WIDTH_MIN || val > WIDTH_MAX) {
       setWidthError(`Enter a value between ${WIDTH_MIN}–${WIDTH_MAX}px.`);
-    } else if (val < WIDTH_REC_MIN || val > WIDTH_REC_MAX) {
+      return;
+    }
+    onChange('width', val);
+    if (val < WIDTH_REC_MIN || val > WIDTH_REC_MAX) {
       setWidthError(`This width may clip the chat window. Recommended: ${WIDTH_REC_MIN}–${WIDTH_REC_MAX}px.`);
     } else {
       setWidthError(null);
     }
   }
 
-  function handleHeightBlur(val: number) {
+  function handleHeightBlur(raw: string) {
     setHeightFocused(false);
-    if (isNaN(val) || val < 300 || val > 1200) {
-      setHeightError('Enter a value between 300–1200px.');
-    } else if (val < 600 || val > 800) {
-      setHeightError('This height may clip content. Recommended: 600–800px.');
+    const val = parseInt(raw, 10);
+    if (isNaN(val) || val < HEIGHT_MIN || val > HEIGHT_MAX) {
+      setHeightError(`Enter a value between ${HEIGHT_MIN}–${HEIGHT_MAX}px.`);
+      return;
+    }
+    onChange('height', val);
+    if (val < HEIGHT_REC_MIN || val > HEIGHT_REC_MAX) {
+      setHeightError(`This height may clip content. Recommended: ${HEIGHT_REC_MIN}–${HEIGHT_REC_MAX}px.`);
     } else {
       setHeightError(null);
     }
@@ -101,8 +116,8 @@ export default function SizeTab({ settings, onChange }: Props) {
                 type="radio"
                 name="widgetType"
                 value={val}
-                checked={widgetType === val}
-                onChange={() => setWidgetType(val)}
+                checked={settings.widgetType === val}
+                onChange={() => onChange('widgetType', val)}
                 className="cg-radio"
               />
               <span style={{ fontSize: 14, lineHeight: '20px', color: 'var(--cg-fg-2)' }}>{label}</span>
@@ -148,9 +163,12 @@ export default function SizeTab({ settings, onChange }: Props) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <input
               id="chat-width"
-              type="number"
+              type="text"
+              inputMode="numeric"
               disabled={isDisabled}
-              value={settings.width}
+              value={widthInput}
+              aria-invalid={!!widthError}
+              aria-describedby="chat-width-hint"
               style={{
                 ...inputBase,
                 border: `1px solid ${
@@ -161,18 +179,15 @@ export default function SizeTab({ settings, onChange }: Props) {
                 }`,
               }}
               onFocus={() => !isDisabled && setWidthFocused(true)}
-              onChange={(e) => {
-                const v = parseInt(e.target.value, 10);
-                if (!isNaN(v)) onChange('width', v);
-              }}
-              onBlur={(e) => !isDisabled && handleWidthBlur(parseInt(e.target.value, 10))}
+              onChange={(e) => setWidthInput(e.target.value)}
+              onBlur={(e) => !isDisabled && handleWidthBlur(e.target.value)}
             />
             <span style={pxLabel}>px</span>
           </div>
           {widthError && !isDisabled ? (
-            <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--cg-danger)', lineHeight: '16px' }}>{widthError}</p>
+            <p id="chat-width-hint" style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--cg-danger)', lineHeight: '16px' }}>{widthError}</p>
           ) : (
-            <p style={{ margin: '4px 0 0', fontSize: 12, color: isDisabled ? 'var(--cg-fg-4)' : 'var(--cg-fg-3)', lineHeight: '16px' }}>
+            <p id="chat-width-hint" style={{ margin: '4px 0 0', fontSize: 12, color: isDisabled ? 'var(--cg-fg-4)' : 'var(--cg-fg-3)', lineHeight: '16px' }}>
               Recommended: {WIDTH_REC_MIN}–{WIDTH_REC_MAX}px
             </p>
           )}
@@ -208,9 +223,12 @@ export default function SizeTab({ settings, onChange }: Props) {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <input
                   id="chat-height"
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   disabled={isDisabled}
-                  value={settings.height}
+                  value={heightInput}
+                  aria-invalid={!!heightError}
+                  aria-describedby="chat-height-hint"
                   style={{
                     ...inputBase,
                     border: `1px solid ${
@@ -221,19 +239,16 @@ export default function SizeTab({ settings, onChange }: Props) {
                     }`,
                   }}
                   onFocus={() => !isDisabled && setHeightFocused(true)}
-                  onChange={(e) => {
-                    const v = parseInt(e.target.value, 10);
-                    if (!isNaN(v)) onChange('height', v);
-                  }}
-                  onBlur={(e) => !isDisabled && handleHeightBlur(parseInt(e.target.value, 10))}
+                  onChange={(e) => setHeightInput(e.target.value)}
+                  onBlur={(e) => !isDisabled && handleHeightBlur(e.target.value)}
                 />
                 <span style={pxLabel}>px</span>
               </div>
               {heightError && !isDisabled ? (
-                <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--cg-danger)', lineHeight: '16px' }}>{heightError}</p>
+                <p id="chat-height-hint" style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--cg-danger)', lineHeight: '16px' }}>{heightError}</p>
               ) : (
-                <p style={{ margin: '4px 0 0', fontSize: 12, color: isDisabled ? 'var(--cg-fg-4)' : 'var(--cg-fg-3)', lineHeight: '16px' }}>
-                  Recommended: 600–800px
+                <p id="chat-height-hint" style={{ margin: '4px 0 0', fontSize: 12, color: isDisabled ? 'var(--cg-fg-4)' : 'var(--cg-fg-3)', lineHeight: '16px' }}>
+                  Recommended: {HEIGHT_REC_MIN}–{HEIGHT_REC_MAX}px
                 </p>
               )}
             </div>

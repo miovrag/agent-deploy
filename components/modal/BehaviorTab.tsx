@@ -25,6 +25,7 @@ function ToggleRow({
   checked,
   onChange,
   disabled,
+  disabledHint,
   warning,
 }: {
   label: string;
@@ -33,14 +34,16 @@ function ToggleRow({
   checked: boolean;
   onChange: (v: boolean) => void;
   disabled?: boolean;
+  disabledHint?: string;
   warning?: string;
 }) {
+  const subText = disabled && disabledHint ? disabledHint : description;
   return (
     <div>
       <div
         style={{
           display: 'flex',
-          alignItems: description ? 'flex-start' : 'center',
+          alignItems: subText ? 'flex-start' : 'center',
           justifyContent: 'space-between',
           gap: 16,
           paddingTop: 12,
@@ -55,13 +58,13 @@ function ToggleRow({
             </span>
             {helpText && <HelpBtn title={helpText} />}
           </div>
-          {description && (
-            <p style={{ margin: 0, fontSize: 12, lineHeight: '16px', color: 'var(--cg-fg-3)' }}>
-              {description}
+          {subText && (
+            <p style={{ margin: 0, fontSize: 12, lineHeight: '16px', color: 'var(--cg-fg-3)', fontStyle: disabled && disabledHint ? 'italic' : 'normal' }}>
+              {subText}
             </p>
           )}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, paddingTop: description ? 4 : 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, paddingTop: subText ? 4 : 0 }}>
           <Toggle checked={checked} onChange={onChange} disabled={disabled} />
           <span
             style={{
@@ -141,6 +144,8 @@ export default function BehaviorTab({ settings, onChange }: Props) {
           description="When enabled, clicking the Agent Initiative prompt will automatically send the message and initiate the conversation. Each use will count toward your query limit."
           checked={settings.autoStartConversation}
           onChange={(v) => onChange('autoStartConversation', v)}
+          disabled={!settings.promptStarterQuestion}
+          disabledHint="Turn on 'Prompt user with a Starter Question' to use this."
         />
         <RowDivider />
         <ToggleRow
@@ -149,6 +154,7 @@ export default function BehaviorTab({ settings, onChange }: Props) {
           checked={settings.hidePromptFromList}
           onChange={(v) => onChange('hidePromptFromList', v)}
           disabled={!settings.promptStarterQuestion}
+          disabledHint="Turn on 'Prompt user with a Starter Question' to use this."
         />
         <RowDivider />
         <ToggleRow
@@ -157,6 +163,7 @@ export default function BehaviorTab({ settings, onChange }: Props) {
           checked={settings.dontPromptMobile}
           onChange={(v) => onChange('dontPromptMobile', v)}
           disabled={!settings.promptStarterQuestion}
+          disabledHint="Turn on 'Prompt user with a Starter Question' to use this."
           warning={
             autoStartConflict
               ? "Auto-start is active on desktop only when 'Don't prompt on mobile' is on."
@@ -182,6 +189,7 @@ export default function BehaviorTab({ settings, onChange }: Props) {
           checked={settings.autoPopupDesktop}
           onChange={(v) => onChange('autoPopupDesktop', v)}
           disabled={settings.promptStarterQuestion}
+          disabledHint="Not available while 'Prompt user with a Starter Question' is on — the starter prompt replaces auto-popup."
         />
         <RowDivider />
         <ToggleRow
@@ -190,6 +198,7 @@ export default function BehaviorTab({ settings, onChange }: Props) {
           checked={settings.autoPopupMobile}
           onChange={(v) => onChange('autoPopupMobile', v)}
           disabled={settings.promptStarterQuestion}
+          disabledHint="Not available while 'Prompt user with a Starter Question' is on — the starter prompt replaces auto-popup."
         />
         <RowDivider />
         <ToggleRow
@@ -205,6 +214,7 @@ export default function BehaviorTab({ settings, onChange }: Props) {
           checked={settings.keepConversationOpen}
           onChange={(v) => onChange('keepConversationOpen', v)}
           disabled={settings.resetPreviousConversation}
+          disabledHint="Turn off 'Reset previous conversation' to use this."
         />
       </div>
     </div>

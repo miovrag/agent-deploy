@@ -129,10 +129,10 @@ export default function AppearanceTab({ settings, onChange }: Props) {
           <SectionLabel>Chat window position</SectionLabel>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {([
-              { v: 'focus',   l: 'Focus mode' },
-              { v: 'compact', l: 'Compact' },
-              { v: 'bubble',  l: 'Bubble in the corner' },
-            ] as const).map(({ v, l }) => (
+              { v: 'focus',   l: 'Focus mode',           d: 'Larger, centered chat window for an immersive experience, ideal for long-form conversations.' },
+              { v: 'compact', l: 'Compact',               d: 'Smaller window anchored near the icon, allowing visitors to browse while chatting.' },
+              { v: 'bubble',  l: 'Bubble in the corner',  d: 'Lightweight bubble-style window in the corner, keeping the chat subtle and unobtrusive.' },
+            ] as const).map(({ v, l, d }) => (
               <RadioOption
                 key={v}
                 name="chatWindowPosition"
@@ -140,6 +140,7 @@ export default function AppearanceTab({ settings, onChange }: Props) {
                 checked={settings.chatWindowPosition === v}
                 onChange={() => onChange('chatWindowPosition', v)}
                 label={l}
+                description={d}
               />
             ))}
           </div>
